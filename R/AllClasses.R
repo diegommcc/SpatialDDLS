@@ -1,0 +1,590 @@
+#' @importFrom methods setClass setOldClass setClassUnion
+#' @importFrom utils packageVersion
+#' @import SeuratObject SummarizedExperiment
+#' @importClassesFrom Matrix dgCMatrix
+#' @importFrom keras keras_model_sequential layer_dense layer_batch_normalization layer_activation layer_dropout get_output_shape_at compile optimizer_adam fit_generator evaluate_generator predict_generator model_from_json set_weights model_to_json get_weights load_model_hdf5 save_model_hdf5
+NULL
+
+setOldClass(Classes = 'package_version')
+setClass("keras_training_history") # TODO: error with setOldClass, check what is going on
+setOldClass(Classes = "keras.engine.sequential.Sequential")
+
+setClassUnion(name = "MatrixOrNULL", members = c("matrix", "NULL"))
+setClassUnion(name = "ListOrNULL", members = c("list", "NULL"))
+setClassUnion(name = "ListNumericOrNULL", members = c("list", "numeric", "NULL"))
+setClassUnion(name = "CharacterOrNULL", members = c("character", "NULL"))
+setClassUnion(name = "SeuratObjectOrNULL", 
+              members = c("SeuratObject", "NULL"))
+setClassUnion(name = "KerasOrList", 
+              members = c("keras.engine.sequential.Sequential", "list"))
+setClassUnion(name = "KerasTrainOrNULL", 
+              members = c("keras_training_history", "NULL"))
+
+################################################################################
+######################## Wrapper class for ZinbModel ###########################
+################################################################################
+
+#' The Class ZinbParametersModel
+#'
+#' The ZinbParametersModel class is a wrapper class of the
+#' \code{\linkS4class{ZinbModel}} class from zinbwave package.
+#'
+#' This is a wrapper class of the \code{\linkS4class{ZinbModel}} class. It
+#' consists of only one slot (\code{zinbwave.mode}) that contains the
+#' \code{\linkS4class{ZinbModel}} object.
+#'
+#' @slot zinbwave.model A valid \code{\linkS4class{ZinbModel}} object.
+#'
+#' @references Risso, D., Perraudeau, F., Gribkova, S. et al. (2018). A general
+#'   and flexible method for signal extraction from single-cell RNA-seq data.
+#'   Nat Commun 9, 284. doi: \doi{10.1038/s41467-017-02554-5}.
+#'
+#' @export ZinbParametersModel
+#'   
+ZinbParametersModel <- setClass(
+  Class = "ZinbParametersModel",
+  slots = c(zinbwave.model = "ANY")
+)
+
+setMethod(
+  f = "initialize", 
+  signature = "ZinbParametersModel",
+  definition = function(
+    .Object,
+    zinbwave.model = NULL
+  ) {
+    .Object@zinbwave.model <- zinbwave.model
+    return(.Object)
+  }
+)
+
+setValidity(
+  Class = "ZinbParametersModel",
+  method = function(object) {
+    if (object@zinbwave.model != "ZinbModel") {
+      return(FALSE)
+    } else {
+      return(TRUE)
+    }
+  }
+)
+
+setMethod(
+  f = "show",
+  signature = "ZinbParametersModel",
+  definition = function(object) {
+    if (is.null(object@zinbwave.model)) {
+      cat("ZinbParametersModel object empty")
+    } else {
+      .zinbModelShow(object@zinbwave.model) # TODO: doesn't work, implement a show function
+    }
+  }
+)
+
+setClassUnion(
+  name = "ZinbParametersModelOrNULL", members = c("ZinbParametersModel", "NULL")
+)
+
+################################################################################
+######################### PropCellTypes class ############################
+################################################################################
+
+#' The Class PropCellTypes
+#'
+#' The PropCellTypes class is a data storage class that contains
+#' information related to the cell composition matrices used for the simulation
+#' of pseudo-bulk RNA-Seq samples. The matrix is stored in the
+#' \code{prob.matrix} slot. The other of slots contain additional information
+#' generated during the process and required in subsequent steps.
+#'
+#' As described in Torroja and Sanchez-Cabo, 2019, the proportions are
+#' constructed using six different methods in order to avoid biases due to the
+#' composition of the simulated bulk samples. In \code{plots} slot, plots are
+#' stored that visually represent the distribution of these probabilities in
+#' order to provide a way to monitor the different sets of samples generated.
+#' These plots can be shown using the \code{\link{showProbPlot}} function (see
+#' \code{?\link{showProbPlot}} for more details).
+#'
+#' @slot prob.matrix Matrix of cell proportions generated for the simulation of
+#'   bulk samples. Rows correspond to the bulk samples to be generated
+#'   (\eqn{i}), columns are the cell types present in the provided single-cell
+#'   data (\eqn{j}) and each entry is the proportion of \eqn{j} cell type in
+#'   \eqn{i} sample.
+#' @slot cell.names Matrix containing the names of the cells that will make up
+#'   each simulated pseudo-bulk sample.
+#' @slot set.list List of cells sorted according to the cell type they
+#'   belong to.
+#' @slot set Vector containing the cell names present in the object.
+#' @slot plots List of lists with plots showing the distribution of the cell
+#'   proportions generated by each method during the process. In each list,
+#'   \code{boxplot}, \code{violinplot}, \code{linesplot} or \code{ncelltypes}
+#'   can be found. Please see \code{\link{showProbPlot}} for more details.
+#' @slot type.data Character with the type of data contained: training or test.
+#'
+#' @references Torroja, C. and Sánchez-Cabo, F. (2019). digitalDLSorter: A Deep
+#'   Learning algorithm to quantify immune cell populations based on scRNA-Seq
+#'   data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
+#'
+#' @export PropCellTypes
+#'   
+PropCellTypes <- setClass(
+  Class = "PropCellTypes",
+  slots = c(
+    prob.matrix = "MatrixOrNULL",
+    cell.names = "MatrixOrNULL",
+    set.list = "ListOrNULL",
+    set = "CharacterOrNULL",
+    method = "CharacterOrNULL",
+    plots = "ListOrNULL",
+    type.data = "CharacterOrNULL"
+  )
+)
+
+setMethod(
+  f = "initialize", 
+  signature = "PropCellTypes",
+  definition = function(
+    .Object,
+    prob.matrix = NULL,
+    cell.names = NULL,
+    set.list = NULL,
+    set = NULL,
+    method = NULL,
+    plots = NULL,
+    type.data = NULL
+  ) {
+    .Object@prob.matrix <- prob.matrix
+    .Object@cell.names <- cell.names
+    .Object@set.list <- set.list
+    .Object@set <- set
+    .Object@method <- method
+    .Object@plots <- plots
+    .Object@type.data <- type.data
+    return(.Object)
+  }
+)
+
+setValidity(
+  Class = "PropCellTypes",
+  method = function(object) {
+    if (all(object@type.data != c("train", "test"))) {
+      return(FALSE)
+    } else {
+      return(TRUE)
+    }
+  }
+)
+
+setMethod(
+  f = "show",
+  signature = "PropCellTypes",
+  definition = function(object) {
+    # cat("An object of class", class(object), "\n")
+    if (is.null(object@prob.matrix)) {
+      cat("PropCellTypes object empty")
+    } else {
+      cat(paste0("  Cell type matrix for ", object@type.data, "data: "))
+      cat(paste(dim(object@prob.matrix), 
+                c("bulk samples and", "cell types"), collapse = " "))
+    }
+  }
+)
+
+################################################################################
+######################### DeconvDLModel class #############################
+################################################################################
+
+#' The DeconvDLModel Class
+#'
+#' The DeconvDLModel object stores all the information related to Deep
+#' Neural Network models. It contains the trained model, the training history
+#' and the results of prediction on test data. After running
+#' \code{\link{calculateEvalMetrics}}, it is possible to find the performance
+#' evaluation of the model on test data (see \code{?\link{calculateEvalMetrics}}
+#' for details).
+#'
+#' The steps related to Deep Learning are carried out using the \pkg{keras}
+#' package which uses the R6 classes system. If you want to save the object as
+#' an RDS file, \code{digitalDLSorteR} provides a \code{saveRDS} generic
+#' function that transforms the model stored as an R6 object into a native valid
+#' R object. Specifically, the model is converted into a list with the
+#' architecture of the network and the weights learned during training. That is
+#' the minimum information needed to use the model as predictor. If you want to
+#' keep the optimizer state, see \code{?\link{saveTrainedModelAsH5}}. If you
+#' want to store \code{\link{DigitalDLSorter}} object on disk as an RDA file,
+#' see \code{?\link{preparingToSave}}.
+#'
+#' @slot model Trained Deep Neural Network. This slot can contain an R6
+#'   \code{keras.engine.sequential.Sequential} object or a list with two
+#'   elements: the architecture of the model and the resulting weights after
+#'   training.
+#' @slot training.history List with the evolution of the selected metrics during
+#'   training.
+#' @slot test.metrics Performance of the model on test data.
+#' @slot test.pred Deconvolution results on test data. Columns are cell types,
+#'   rows are samples and each entry corresponds to the proportion of this cell
+#'   type in this sample.
+#' @slot cell.types Vector with cell types to deconvolute.
+#' @slot features Vector with the features used during training. These features
+#'   will be used in subsequent predictions (the nomenclature used in new bulk
+#'   RNA-Seq samples must be the same).
+#' @slot test.deconv.metrics Performance of the model on each sample of test
+#'   data compared to known cell proportions. This slot is used after
+#'   \code{\link{calculateEvalMetrics}} (see \code{?\link{calculateEvalMetrics}}
+#'   for more details).
+#'
+#' @export DeconvDLModel
+#'   
+DeconvDLModel <- setClass(
+  Class = "DeconvDLModel",
+  slots = c(
+    model = "KerasOrList",
+    training.history = "KerasTrainOrNULL",
+    test.metrics = "ListNumericOrNULL",
+    test.pred = "MatrixOrNULL",
+    cell.types = "character",
+    features = "character",
+    test.deconv.metrics = "ListOrNULL"
+  )
+)
+
+setMethod(
+  f = "initialize", 
+  signature = "DeconvDLModel",
+  definition = function(
+    .Object,
+    model = list(),
+    training.history = NULL,
+    test.metrics = NULL,
+    test.pred = NULL,
+    cell.types = "-",
+    features = "-",
+    test.deconv.metrics = NULL
+  ) {
+    .Object@model <- model
+    .Object@training.history <- training.history
+    .Object@test.metrics <- test.metrics
+    .Object@test.pred <- test.pred
+    .Object@cell.types <- cell.types
+    .Object@features <- features
+    .Object@test.deconv.metrics <- test.deconv.metrics
+    return(.Object)
+  }
+)
+
+setMethod(
+  f = "show",
+  signature = "DeconvDLModel",
+  definition = function(object) {
+    # cat("An object of class", class(object), "\n")
+    if (is.null(object@model)) {
+      cat("DeconvDLModel object empty")
+    } else {
+      cat(paste("Trained model:", object@training.history$params$epochs,
+                "epochs\n"))
+      train.metrics <- lapply(object@training.history$metrics,
+                              function(x) x[length(x)])
+      cat("  Training metrics (last epoch):\n")
+      cat(paste0("    ", names(train.metrics), ": ",
+                 lapply(train.metrics, round, 4),
+                 collapse = "\n"))
+      cat("\n  Evaluation metrics on test data:\n")
+      cat(paste0("    ", names(object@test.metrics), ": ",
+                 lapply(object@test.metrics, round, 4),
+                 collapse = "\n"))
+      if (!is.null(test.deconv.metrics(object)) ||
+          length(test.deconv.metrics(object)) > 0) {
+        cat("\n  Performance evaluation over each sample: ")
+        cat(paste(names(test.deconv.metrics(object)[[2]]), collapse = " "))
+      }
+    }
+  }
+)
+
+setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
+
+
+################################################################################
+########################### SpatialDDLS class ##############################
+################################################################################
+
+#' The SpatialDDLS Class
+#'
+#' The SpatialDDLS object is the core of \code{digitalDLSorteR}. This object
+#' stores different intermediate data resulting from the creation of new
+#' context-specific deconvolution models from single-cell data. It is only used
+#' in the case of building new deconvolution models. To deconvolute bulk samples
+#' using pre-trained models, see \code{\link{deconvDigitalDLSorter}} function
+#' and the package \pkg{digitalDLSorteRdata}.
+#'
+#' This object uses other classes to store the different types of data produced
+#' during the process: \itemize{ \item \code{\linkS4class{SeuratObject}}
+#' class for single-cell RNA-Seq data, using sparse matrix from the \pkg{Matrix}
+#' package (\code{\linkS4class{dgCMatrix}} class) or \code{HDF5Array} class in
+#' the case of using HDF5 files as back-end (see below for more information).
+#' \item \code{\linkS4class{ZinbModel}} class with estimated parameters for the
+#' simulation of new single-cell profiles. \item
+#' \code{\linkS4class{SummarizedExperiment}} class for large bulk RNA-Seq data
+#' storage. \item \code{\linkS4class{PropCellTypes}} class for the
+#' compositional cell matrices constructed during the process. See
+#' \code{?\linkS4class{PropCellTypes}} for details. \item
+#' \code{\linkS4class{DeconvDLModel}} class to store the information
+#' related to Deep Neural Network models. This step is performed using
+#' \code{keras}. See \code{?\linkS4class{DeconvDLModel}} for details. }
+#'
+#' \pkg{digitalDLSorteR} can be used in two ways: to build new deconvolution
+#' models from single-cell RNA-Seq data or to deconvolute bulk RNA-Seq samples
+#' using pre-trained models available at \pkg{digitalDLSorteRdata} package. If
+#' you want to build new models, see \code{\link{loadSCProfiles}} function. On
+#' the other hand, if you want to use pre-trained models, see
+#' \code{\link{deconvDigitalDLSorter}} function.
+#'
+#' In order to provide a way to work with large amounts of data on
+#' RAM-constrained machines, we provide the possibility to use HDF5 files as
+#' back-end to store count matrices of both real/simulated single-cell and bulk
+#' RNA-Seq profiles. For this, the package uses the \code{HDF5Array} and
+#' \code{DelayedArray} classes from the homonymous packages.
+#'
+#' Once the Deep Neural Network model has been trained trained, it is possible
+#' to save it as RDS or HDF5 files. Please see
+#' \code{\linkS4class{DeconvDLModel}} for more details.
+#'
+#' @slot single.cell.real Real single-cell data stored in a
+#'   \code{SeuratObject} object. The count matrix is stored as
+#'   \code{\linkS4class{dgCMatrix}} or \code{HDF5Array} objects.
+#' @slot zinb.params \code{\linkS4class{ZinbModel}} object with estimated
+#'   parameters for the simulation of new single-cell expression profiles.
+#' @slot single.cell.simul Simulated single-cell expression profiles from the
+#'   ZINB-WaVE model.
+#' @slot prob.cell.types \code{\linkS4class{PropCellTypes}} class with
+#'   cell composition matrices built for the simulation of pseudo-bulk RNA-Seq
+#'   profiles with known cell composition.
+#' @slot bulk.simul A list of simulated train and test bulk RNA-Seq samples.
+#'   Each entry is a \code{\linkS4class{SummarizedExperiment}} object. The count
+#'   matrices can be stored as \code{HDF5Array} files using HDF5 files as
+#'   back-end in case of RAM limitations.
+#' @slot trained.model \code{\linkS4class{DeconvDLModel}} object with all
+#'   the information related to the trained model. See
+#'   \code{?\linkS4class{DeconvDLModel}} for more details.
+#' @slot deconv.data List of \code{\linkS4class{SummarizedExperiment}} objects
+#'   where it is possible to store new bulk RNA-Seq experiments for
+#'   deconvolution. The name of the entries corresponds to the name of the data
+#'   provided. See \code{\link{deconvDigitalDLSorterObj}} for details.
+#' @slot deconv.results Slot containing the deconvolution results of applying
+#'   the deconvolution model to the data present in the
+#'   \code{\link{deconv.data}} slot. It is a list in which the names corresponds
+#'   to the data from which they come.
+#' @slot project Name of the project.
+#' @slot version Version of DigitalDLSorteR this object was built under.
+#'
+#'
+#' @exportClass SpatialDDLS
+#' @export SpatialDDLS
+#'   
+SpatialDDLS <- setClass(
+  Class = "SpatialDDLS",
+  slots = c(
+    single.cell.real = "SeuratObjectOrNULL",
+    zinb.params = "ZinbParametersModelOrNULL",
+    single.cell.simul = "SeuratObjectOrNULL",
+    prob.cell.types = "ListOrNULL",
+    bulk.simul = "ListOrNULL",
+    trained.model = "DeconvDLModelOrNULL",
+    deconv.data = "ListOrNULL",
+    deconv.results = "ListOrNULL",
+    project = "character",
+    version = "package_version"
+  )
+)
+
+setMethod(
+  f = "initialize", 
+  signature = "SpatialDDLS",
+  definition = function(
+    .Object,
+    single.cell.real = NULL,
+    zinb.params = NULL,
+    single.cell.simul = NULL,
+    prob.cell.types = NULL,
+    bulk.simul = NULL,
+    trained.model = NULL,
+    deconv.data = NULL,
+    deconv.results = NULL,
+    project = "SpatialDDLSProject",
+    version = packageVersion(pkg = "digitalDLSorteR")
+  ) {
+    .Object@single.cell.real <- single.cell.real
+    .Object@zinb.params <- zinb.params
+    .Object@single.cell.simul <- single.cell.simul
+    .Object@prob.cell.types <- prob.cell.types
+    .Object@bulk.simul <- bulk.simul
+    .Object@trained.model <- trained.model
+    .Object@deconv.data <- deconv.data
+    .Object@deconv.results <- deconv.results
+    .Object@project <- project
+    .Object@version <- version
+    return(.Object)
+  }
+)
+
+.selectSome <- function(vec, num) {
+  if (length(vec) < 6)
+    namesSel <- sample(length(vec), size = 6, replace = TRUE)    
+  else 
+    namesSel <- sample(length(vec), size = 6)    
+  return(
+    paste(
+      paste(vec[namesSel[1:3]], collapse = " "), "...", 
+      paste(vec[namesSel[3:6]], collapse = " ")
+    )
+  )
+}
+
+.sceShow <- function(sce) {
+  cat(" ", dim(sce)[1], "features and", dim(sce)[2], "cells\n")
+  if (is.null(rownames(sce))) rownames.sce <- "---"
+  else rownames.sce <- .selectSome(vec = rownames(sce), num = 6)
+  if (identical(colnames(sce), character(0))) colnames.sce <- "---"
+  else colnames.sce <- .selectSome(vec = colnames(sce), num = 6)
+  cat("  rownames:", rownames.sce, "\n")
+  cat("  colnames:", colnames.sce, "\n")
+}
+
+.bulkShow <- function(se) {
+  cat("   ", dim(se)[1], "features and", dim(se)[2], "samples\n")
+  if (dim(rowData(se))[2] == 0) rownames.se <- "---" 
+  else rownames.se <- .selectSome(vec = rownames(rowData(se)), num = 6)
+  if (identical(colnames(se), character(0))) colnames.se <- "---"
+  else colnames.se <- .selectSome(vec = rownames(colData(se)), num = 6)
+  cat("    rownames:", rownames.se, "\n")
+  cat("    colnames:", colnames.se, "\n")
+}
+
+.finalShow <- function(se) {
+  cat("   ", dim(se)[2], "features and", dim(se)[1], "samples: ")
+  n.bulk <- sum(grepl("Bulk\\.*", rowData(se)[[1]]))
+  n.sc <- abs(n.bulk - dim(se)[1])
+  cat(n.bulk, "bulk profiles and", n.sc, "single-cell profiles\n")
+}
+
+.zinbModelShow <- function(zinb.model) {
+  cat(
+    paste0(
+      "ZinbModel object:\n",
+      "  ", zinbwave::nSamples(zinb.model), " samples; ",
+      "  ", zinbwave::nFeatures(zinb.model), " genes.\n",
+      "  ", NCOL(zinbwave::getX_mu(zinb.model)),
+      " sample-level covariate(s) (mu); ",
+      "  ", NCOL(zinbwave::getX_pi(zinb.model)),
+      " sample-level covariate(s) (pi);\n",
+      "  ", NCOL(zinbwave::getV_mu(zinb.model)),
+      " gene-level covariate(s) (mu); ",
+      "  ", NCOL(zinbwave::getV_pi(zinb.model)),
+      " gene-level covariate(s) (pi);\n",
+      "  ", zinbwave::nFactors(zinb.model), " latent factor(s).\n"
+    )
+  )
+}
+
+.allSlotsNull <- function(object) {
+  list.slots <- list(
+    "single.cell.real", "zinb.params", "single.cell.simul", "prob.cell.types",
+    "bulk.simul", "trained.model", "deconv.data", "deconv.results"
+  )
+  res <- all(
+    unlist(
+      lapply(list.slots, function(x) is.null(do.call("@", list(object, x))))
+    )
+  )
+  if (res) return(TRUE)
+  else return(FALSE)
+}
+
+setMethod(
+  f = "show",
+  signature = "SpatialDDLS",
+  definition = function(object) {
+    if (.allSlotsNull(object)) {
+      cat("An empty object of class", class(object), "\n")
+      opt <- options(show.error.messages = FALSE)
+      on.exit(options(opt))
+      stop()
+    } else {
+      cat("An object of class", class(object), "\n")
+    }
+    if (!is.null(object@single.cell.real)) {
+      cat("Real single-cell profiles:\n")
+      .sceShow(object@single.cell.real)
+    } else {
+      cat("Real single-cell profiles:\n")
+      .sceShow(S4Vectors::DataFrame())
+    }
+    if (!is.null(object@zinb.params)) {
+      .zinbModelShow(object@zinb.params@zinbwave.model)
+    }
+    if (!is.null(object@single.cell.simul)) {
+      cat("Simulated single-cell profiles:\n")
+      .sceShow(object@single.cell.simul)
+    }
+    if (!is.null(object@prob.cell.types)) {
+      cat("Cell type composition matrices:\n")
+      lapply(X = c("train", "test"), FUN = function(x) {
+        if (x %in% names(object@prob.cell.types)) {
+          cat(show(object@prob.cell.types[[x]]), "\n")
+        }
+      })
+    }
+    if (!is.null(object@bulk.simul)) {
+      cat("Simulated bulk samples:\n")
+      lapply(
+        X = c("train", "test"), FUN = function(x) {
+          if (x %in% names(object@bulk.simul)) {
+            cat(paste(" ", x, "bulk samples:\n"))
+            .bulkShow(object@bulk.simul[[x]])
+          }
+        }
+      )
+    }
+    if (!is.null(object@trained.model)) {
+      cat(show(object@trained.model), "\n")
+    }
+    if (!is.null(object@deconv.data)) {
+      cat("Bulk samples to deconvolute:\n")
+      lapply(
+        X = names(object@deconv.data), FUN = function(x) {
+          if (x %in% names(object@deconv.data)) {
+            cat(paste(" ", x, "bulk samples:\n"))
+            .bulkShow(object@deconv.data[[x]])
+          }
+        }
+      )
+    }
+    if (!is.null(object@deconv.results)) {
+      cat("Results (estimated cell proportions):\n")
+      lapply(
+        X = names(object@deconv.results), FUN = function(x) {
+          if (x %in% names(object@deconv.results)) {
+            cat(paste("  Results of", x, "bulk samples\n"))
+          }
+        }
+      )
+    }
+    cat("Project:", object@project, "\n")
+  }
+)
+
+.onLoad <- function(libname, pkgname) {
+  # make github digitalDLSorteRmodels repo available (data package)
+  repos = getOption("repos")
+  repos["github"] = "https://diegommcc.github.io/digitalDLSorteRmodelsRepo/"
+  options(repos = repos)
+  invisible(repos)
+  # set conda environment for tensorflow
+  if (.isConda()) {
+    tryCatch(
+      expr = reticulate::use_condaenv("digitaldlsorter-env", required = TRUE),
+      error = function(e) NULL
+    )
+  }
+  Sys.setenv(TF_CPP_MIN_LOG_LEVEL = 2)
+}
