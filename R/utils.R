@@ -421,7 +421,7 @@ plotTrainingHistory <- function(
 }
 
 # custom ggplot2 theme
-DigitalDLSorterTheme <- function() {
+SpatialDDLSTheme <- function() {
   digitalTheme <- ggplot2::theme_bw() + theme(
     plot.title = element_text(face = "bold", hjust = 0.5),
     legend.title = element_text(face = "bold")

@@ -38,18 +38,18 @@ default.colors <- function() {
 #' repeated only considering bulk samples (filtering out single-cell profiles
 #' from the evaluation). The evaluation metrics will be available in the
 #' \code{test.deconv.metrics} slot of the
-#' \code{\linkS4class{DigitalDLSorterDNN}} object (\code{trained.model} slot of
-#' the \code{\linkS4class{DigitalDLSorter}} object).
+#' \code{\linkS4class{SpatialDDLSDNN}} object (\code{trained.model} slot of
+#' the \code{\linkS4class{SpatialDDLS}} object).
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with a trained
+#' @param object \code{\linkS4class{SpatialDDLS}} object with a trained
 #'   model in the \code{trained.model} slot and the actual cell proportions of
 #'   pseudo-bulk samples in \code{prob.cell.matrix} slot.
 #' @param metrics Metrics used to evaluate the model performance. Mean absolute
 #'   error (\code{"MAE"}) and mean squared error (\code{"MSE"}) by default.
 #'
-#' @return A \code{\linkS4class{DigitalDLSorter}} object with the
+#' @return A \code{\linkS4class{SpatialDDLS}} object with the
 #'   \code{trained.model} slot containing a
-#'   \code{\linkS4class{DigitalDLSorterDNN}} object with the
+#'   \code{\linkS4class{SpatialDDLSDNN}} object with the
 #'   \code{test.deconv.metrics} slot. The last contains the metrics calculated.
 #'
 #' @export
@@ -96,7 +96,7 @@ default.colors <- function() {
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainSpatialDDLSModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -112,8 +112,8 @@ calculateEvalMetrics <- function(
   object,
   metrics = c("MAE", "MSE")
 ) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of DigitalDLSorter class")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of SpatialDDLS class")
   } else if (is.null(trained.model(object)) ||
              is.null(trained.model(object)@test.pred)) {
     stop("The provided object does not have a trained model for evaluation")
@@ -319,10 +319,10 @@ se <- function(x) sqrt(var(x)/length(x))
 #' (\code{nCellTypes}). See the \code{facet.by} argument and examples for more
 #' details.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
 #'   \code{test.deconv.metrics} slot of a
-#'   \code{\linkS4class{DigitalDLSorterDNN}} object.
+#'   \code{\linkS4class{SpatialDDLSDNN}} object.
 #' @param error The error to be represented. Available errors are absolute error
 #'   (\code{'AbsErr'}), proportional absolute error (\code{'ppAbsErr'}), squared
 #'   error (\code{'SqrErr'}) and proportional squared error (\code{'ppSqrErr'}).
@@ -405,7 +405,7 @@ se <- function(x) sqrt(var(x)/length(x))
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainSpatialDDLSModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -455,8 +455,8 @@ distErrorPlot <- function(
   theme = NULL,
   ...
 ) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of class DigitalDLSorter")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object)) ||
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
@@ -544,7 +544,7 @@ distErrorPlot <- function(
     plot <- plot + geom_boxplot(fill = NA, outlier.shape = NA)
   plot <- plot + scale_color_manual(values = colors, name = color.by) +
     ggtitle(title.plot) + xlab(x.by) + ylab(error) +
-    DigitalDLSorterTheme() + 
+    SpatialDDLSTheme() + 
     guides(colour = guide_legend(override.aes = list(size = 1.5))) +
     theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) 
   if (!is.null(ylimit)) plot <- plot + ggplot2::ylim(0, ylimit)
@@ -604,10 +604,10 @@ distErrorPlot <- function(
 #' displayed as an annotation on the plots. See the \code{corr} argument for
 #' details.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
 #'   \code{test.deconv.metrics} slot of a
-#'   \code{\linkS4class{DigitalDLSorterDNN}} object.
+#'   \code{\linkS4class{SpatialDDLSDNN}} object.
 #' @param colors Vector of colors to be used. Only vectors with a number of
 #'   colors equal to or greater than the levels of \code{color.by} will be
 #'   accepted. By default, a custom color list is used.
@@ -686,7 +686,7 @@ distErrorPlot <- function(
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainSpatialDDLSModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -732,8 +732,8 @@ corrExpPredPlot <- function(
   theme = NULL,
   ...
 ) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of class DigitalDLSorter")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object)) ||
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
@@ -780,7 +780,7 @@ corrExpPredPlot <- function(
     stat_smooth(
       method = "lm", colour = "darkblue", alpha = 0.8, size = 0.8, na.rm = TRUE
     ) + guides(colour = guide_legend(override.aes = list(size = 1.5))) +
-    DigitalDLSorterTheme()
+    SpatialDDLSTheme()
   if (!is.null(facet.by)) {
     if (!facet.by %in% c("nCellTypes", "CellType")) {
       stop("'facet.by' provided is not valid. The available options are: 'nCellTypes', ",
@@ -874,7 +874,7 @@ corrExpPredPlot <- function(
 #' of cell types present in samples (\code{nCellTypes}). See the \code{facet.by}
 #' argument and examples for more information.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in \code{test.deconv.metrics}
 #'   slot.
 #' @param colors Vector of colors to be used. Only vectors with a number of
@@ -951,7 +951,7 @@ corrExpPredPlot <- function(
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainSpatialDDLSModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -994,8 +994,8 @@ blandAltmanLehPlot <- function(
   theme = NULL,
   ...
 ) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of class DigitalDLSorter")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object)) ||
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
@@ -1066,7 +1066,7 @@ blandAltmanLehPlot <- function(
     ) +
     xlab(x.lab) + ylab(y.lab) +
     ggtitle(title.plot) +
-    DigitalDLSorterTheme()
+    SpatialDDLSTheme()
   if (density)
     plot <- plot + stat_density_2d(colour = color.density,
                                    alpha = 0.9,
@@ -1083,7 +1083,7 @@ blandAltmanLehPlot <- function(
 #' Generate bar error plots by cell type (\code{CellType}) or by number of
 #' different cell types (\code{nCellTypes}) on test pseudo-bulk samples.
 #'
-#' @param object \code{DigitalDLSorter} object with \code{trained.model} slot
+#' @param object \code{SpatialDDLS} object with \code{trained.model} slot
 #'   containing metrics in \code{test.deconv.metrics} slot.
 #' @param error \code{'MAE'} or \code{'MSE'}.
 #' @param by Variable used to display errors. Available options are:
@@ -1143,7 +1143,7 @@ blandAltmanLehPlot <- function(
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainSpatialDDLSModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -1176,8 +1176,8 @@ barErrorPlot <- function(
   angle = NULL,
   theme = NULL
 ) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of class DigitalDLSorter")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object)) ||
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
@@ -1225,6 +1225,6 @@ barErrorPlot <- function(
     xlab(by) + ylab(error) + ggtitle(title.plot) +
     theme(axis.text.x = element_text(
       size = 8, angle = angle, hjust = hjust, vjust = 0.5
-    )) + DigitalDLSorterTheme()
+    )) + SpatialDDLSTheme()
   return(plot)
 }

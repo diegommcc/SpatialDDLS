@@ -772,7 +772,7 @@ loadSCProfiles <- function(
   chunk.dims = NULL,
   block.processing = FALSE,
   verbose = TRUE,
-  project = "DigitalDLSorterProject"
+  project = "SpatialDDLS-Proj"
 ) {
   single.cell.real <- .loadSingleCellData(
     single.cell = single.cell.data,

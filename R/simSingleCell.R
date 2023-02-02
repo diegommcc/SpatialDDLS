@@ -24,7 +24,7 @@ NULL
 #' zero-inflated negative binomial (ZINB) distribution. The estimated parameters
 #' will be used for the simulation of new single-cell expression profiles by
 #' sampling a negative binomial distribution and inserting dropouts from a
-#' binomial distribution. To do so, \pkg{digitalDLSorteR} uses the
+#' binomial distribution. To do so, \pkg{SpatialDDLS} uses the
 #' \code{\link[zinbwave]{zinbFit}} function from the \pkg{zinbwave} package
 #' (Risso et al., 2018). For more details about the model, see Risso et al.,
 #' 2018.
@@ -852,7 +852,7 @@ simSCProfiles <- function(
   if (!is.null(file.backend)) {
     if (!requireNamespace("DelayedArray", quietly = TRUE) || 
         !requireNamespace("HDF5Array", quietly = TRUE)) {
-      stop("digitalDLSorteR provides the possibility of using HDF5 files as back-end
+      stop("SpatialDDLS provides the possibility of using HDF5 files as back-end
          when data are too big to be located in RAM. It uses DelayedArray, 
          HDF5Array and rhdf5 to do it. Please Please install both packages to 
          use this functionality")
@@ -998,7 +998,7 @@ simSCProfiles <- function(
   } else if (block.processing && !is.null(file.backend)) {
     if (!requireNamespace("DelayedArray", quietly = TRUE) || 
         !requireNamespace("HDF5Array", quietly = TRUE)) {
-      stop("digitalDLSorteR provides the possibility of using HDF5 files as back-end
+      stop("SpatialDDLS provides the possibility of using HDF5 files as back-end
          when data are too big to be located in RAM. It uses DelayedArray, 
          HDF5Array and rhdf5 to do it. Please install both packages to 
          use this functionality")

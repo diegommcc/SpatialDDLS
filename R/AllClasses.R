@@ -1,6 +1,6 @@
 #' @importFrom methods setClass setOldClass setClassUnion
 #' @importFrom utils packageVersion
-#' @import SeuratObject SummarizedExperiment
+#' @import SingleCellExperiment SummarizedExperiment
 #' @importClassesFrom Matrix dgCMatrix
 #' @importFrom keras keras_model_sequential layer_dense layer_batch_normalization layer_activation layer_dropout get_output_shape_at compile optimizer_adam fit_generator evaluate_generator predict_generator model_from_json set_weights model_to_json get_weights load_model_hdf5 save_model_hdf5
 NULL
@@ -13,8 +13,8 @@ setClassUnion(name = "MatrixOrNULL", members = c("matrix", "NULL"))
 setClassUnion(name = "ListOrNULL", members = c("list", "NULL"))
 setClassUnion(name = "ListNumericOrNULL", members = c("list", "numeric", "NULL"))
 setClassUnion(name = "CharacterOrNULL", members = c("character", "NULL"))
-setClassUnion(name = "SeuratObjectOrNULL", 
-              members = c("SeuratObject", "NULL"))
+setClassUnion(name = "SingleCellExperimentOrNULL", 
+              members = c("SingleCellExperiment", "NULL"))
 setClassUnion(name = "KerasOrList", 
               members = c("keras.engine.sequential.Sequential", "list"))
 setClassUnion(name = "KerasTrainOrNULL", 
@@ -318,7 +318,7 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' and the package \pkg{digitalDLSorteRdata}.
 #'
 #' This object uses other classes to store the different types of data produced
-#' during the process: \itemize{ \item \code{\linkS4class{SeuratObject}}
+#' during the process: \itemize{ \item \code{\linkS4class{SingleCellExperiment}}
 #' class for single-cell RNA-Seq data, using sparse matrix from the \pkg{Matrix}
 #' package (\code{\linkS4class{dgCMatrix}} class) or \code{HDF5Array} class in
 #' the case of using HDF5 files as back-end (see below for more information).
@@ -350,7 +350,7 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' \code{\linkS4class{DeconvDLModel}} for more details.
 #'
 #' @slot single.cell.real Real single-cell data stored in a
-#'   \code{SeuratObject} object. The count matrix is stored as
+#'   \code{SingleCellExperiment} object. The count matrix is stored as
 #'   \code{\linkS4class{dgCMatrix}} or \code{HDF5Array} objects.
 #' @slot zinb.params \code{\linkS4class{ZinbModel}} object with estimated
 #'   parameters for the simulation of new single-cell expression profiles.
@@ -384,9 +384,9 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 SpatialDDLS <- setClass(
   Class = "SpatialDDLS",
   slots = c(
-    single.cell.real = "SeuratObjectOrNULL",
+    single.cell.real = "SingleCellExperimentOrNULL",
     zinb.params = "ZinbParametersModelOrNULL",
-    single.cell.simul = "SeuratObjectOrNULL",
+    single.cell.simul = "SingleCellExperimentOrNULL",
     prob.cell.types = "ListOrNULL",
     bulk.simul = "ListOrNULL",
     trained.model = "DeconvDLModelOrNULL",

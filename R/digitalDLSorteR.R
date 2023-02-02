@@ -35,6 +35,6 @@ NULL
 #'
 #'
 #' @docType package
-#' @name digitalDLSorteR
+#' @name SpatialDDLS
 NULL
 #> NULL

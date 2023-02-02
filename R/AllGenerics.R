@@ -630,7 +630,7 @@ setMethod(
 #' @rdname single.cell.real
 #' @aliases single.cell.real<-,SpatialDDLS-method
 #' 
-#' @param value \code{\linkS4class{SeuratObject}} object with real
+#' @param value \code{\linkS4class{SingleCellExperiment}} object with real
 #'   single-cell profiles.
 #'   
 #' @export single.cell.real<-
@@ -721,7 +721,7 @@ setMethod(
 #' @rdname single.cell.simul
 #' @aliases single.cell.simul<-,SpatialDDLS-method
 #'
-#' @param value \code{\linkS4class{SeuratObject}} object with simulated
+#' @param value \code{\linkS4class{SingleCellExperiment}} object with simulated
 #'   single-cell profiles.
 #'
 #' @export single.cell.simul<-

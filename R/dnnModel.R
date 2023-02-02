@@ -3,23 +3,23 @@
 NULL
 
 ################################################################################
-######################## Train and evaluate DNN model ##########################
+################### Train and evaluate deconvolution model #####################
 ################################################################################
 
-#' Train Deep Neural Network model
+#' Train deconvolution model
 #'
 #' Train a Deep Neural Network model using the training data from
-#' \code{\linkS4class{DigitalDLSorter}} object. In addition, the trained model
+#' \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model
 #' is evaluated with test data and prediction results are otained to determine
 #' its performance (see \code{?\link{calculateEvalMetrics}}). Training and
 #' evaluation can be performed using simulated profiles stored in the
-#' \code{\linkS4class{DigitalDLSorter}} object or 'on the fly' by simulating the
+#' \code{\linkS4class{SpatialDDLS}} object or 'on the fly' by simulating the
 #' pseudo-bulk profiles at the same time as the training/evaluation is performed
 #' (see Details).
 #'
 #' \strong{Keras/Tensorflow environment}
 #'
-#' All Deep Learning related steps in the \pkg{digitalDLSorteR} package are
+#' All Deep Learning related steps in the \pkg{SpatialDDLS} package are
 #' performed by using the \pkg{keras} package, an API in R for \pkg{keras} in
 #' Python available on CRAN. We recommend using the installation guide available
 #' at \url{https://tensorflow.rstudio.com/} in order to set a more customized
@@ -27,7 +27,7 @@ NULL
 #'
 #' \strong{Simulation of bulk RNA-Seq profiles 'on the fly'}
 #'
-#' \code{trainDigitalDLSorterModel} allows to avoid storing bulk RNA-Seq
+#' \code{trainDeconvModel} allows to avoid storing bulk RNA-Seq
 #' profiles by using \code{on.the.fly} argument. This functionality aims to
 #' avoid exexcution times and memory usage of the \code{simBulkProfiles}
 #' function, as the simulated pseudo-bulk profiles are built in each batch
@@ -35,7 +35,7 @@ NULL
 #'
 #' \strong{Neural network architecture}
 #'
-#' By default, \code{\link{trainDigitalDLSorterModel}} implements the
+#' By default, \code{\link{trainDeconvModel}} implements the
 #' architecture selected in Torroja and Sánchez-Cabo, 2019. However, as the
 #' default architecture may not produce good results depending on the dataset,
 #' it is possible to change its parameters by using the corresponding argument:
@@ -47,7 +47,7 @@ NULL
 #' features/genes and the number of output neurons is equal to the number of
 #' considered cell types.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.matrix}
 #'   and \code{bulk.simul} slots.
 #' @param combine Type of profiles to be used for training. Can be
@@ -68,7 +68,7 @@ NULL
 #'   documentation} to know available activation functions.
 #' @param dropout.rate Float between 0 and 1 indicating the fraction of the
 #'   input neurons to drop in layer dropouts (0.25 by default). By default,
-#'   \pkg{digitalDLSorteR} implements 1 dropout layer per hidden layer.
+#'   \pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.
 #' @param loss Character indicating loss function selected for model training
 #'   (\code{'kullback_leibler_divergence'} by default). See the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/loss-functions.html}{keras
@@ -110,15 +110,15 @@ NULL
 #' @param verbose Boolean indicating whether to display model progression during
 #'   training and model architecture information (\code{TRUE} by default).
 #'
-#' @return A \code{\linkS4class{DigitalDLSorter}} object with
+#' @return A \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing a
-#'   \code{\linkS4class{DigitalDLSorterDNN}} object. For more information about
-#'   the structure of this class, see \code{?\linkS4class{DigitalDLSorterDNN}}.
+#'   \code{\linkS4class{DeconvDLModel}} object. For more information about
+#'   the structure of this class, see \code{?\linkS4class{DeconvDLModel}}.
 #'
 #' @export
 #'
 #' @seealso \code{\link{plotTrainingHistory}}
-#'   \code{\link{deconvDigitalDLSorter}} \code{\link{deconvDigitalDLSorterObj}}
+#'   \code{\link{deconvSpatialDDLS}} \code{\link{deconvSpatialDDLSObj}}
 #'
 #' @examples
 #' \dontrun{
@@ -159,7 +159,7 @@ NULL
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainDeconvModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 12,
@@ -167,11 +167,11 @@ NULL
 #' )
 #' }
 #'
-#' @references Torroja, C. and Sánchez-Cabo, F. (2019). digitalDLSorter: A Deep
+#' @references Torroja, C. and Sánchez-Cabo, F. (2019). SpatialDDLS: A Deep
 #'   Learning algorithm to quantify immune cell populations based on scRNA-Seq
 #'   data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
 #'   
-trainDigitalDLSorterModel <- function(
+trainDeconvModel <- function(
   object,
   combine = "both",
   batch.size = 64,
@@ -194,8 +194,8 @@ trainDigitalDLSorterModel <- function(
 ) {
   # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of DigitalDLSorter class")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of SpatialDDLS class")
   } else if (is.null(prob.cell.types(object))) {
     stop("'prob.cell.types' slot is empty")
   } else if (num.epochs <= 1) {
@@ -211,7 +211,7 @@ trainDigitalDLSorterModel <- function(
   # check if data provided is correct regarding on the fly training
   if (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))) {
     stop("At least one single-cell slot must be provided ('single.cell.real' ", 
-         "or 'single.cell.simul') as trainDigitalDLSorterModel evaluates ", 
+         "or 'single.cell.simul') as trainDeconvModel evaluates ", 
          "DNN model on both types of profiles: bulk and single-cell")
   }
   if (!scaling %in% c("standarize", "rescale")) {
@@ -233,7 +233,7 @@ trainDigitalDLSorterModel <- function(
     } else if (combine == "bulk" && is.null(bulk.simul(object))) {
       stop("If 'combine' = bulk is selected, 'bulk.simul' must be provided")
     } else if (is.null(bulk.simul(object, "test"))) {
-      stop("trainDigitalDLSorterModel evaluates DNN model on both types of ", 
+      stop("trainDeconvModel evaluates DNN model on both types of ", 
            "profiles: bulk and single-cell. Therefore, bulk data for test ", 
            "must be provided")
     }
@@ -265,7 +265,7 @@ trainDigitalDLSorterModel <- function(
          "one single cell slot must be provided")
   }
   if (!is.null(trained.model(object))) {
-    warning("'trained.model' slot is not empty. So far, digitalDLSorteR",
+    warning("'trained.model' slot is not empty. So far, SpatialDDLS",
             " does not support for multiple trained models, so the current model",
             " will be overwritten\n",
             call. = FALSE, immediate. = TRUE)
@@ -308,7 +308,7 @@ trainDigitalDLSorterModel <- function(
            "num.units (number of neurons per layer)")
     }
     # check if any argument not provided
-    model <- keras_model_sequential(name = "DigitalDLSorter")
+    model <- keras_model_sequential(name = "SpatialDDLS")
     # arbitrary number of hidden layers and neurons
     for (i in seq(num.hidden.layers)) {
       if (i == 1) {
@@ -343,13 +343,13 @@ trainDigitalDLSorterModel <- function(
     } else if (keras::get_input_shape_at(custom.model$layers[[1]], 1)[[2]] !=
                nrow(single.cell.real(object))) {
       stop("The number of neurons of the first layer must be equal to the ", 
-           "number of genes considered by DigitalDLSorter object (", 
+           "number of genes considered by SpatialDDLS object (", 
            nrow(single.cell.real(object))," in this case)")
     } else if (keras::get_output_shape_at(
         custom.model$layers[[length(custom.model$layers)]], 1
       )[[2]] != ncol(prob.cell.types(object, "train") %>% prob.matrix())) {
       stop("The number of neurons of the last layer must be equal to the ", 
-           "number of cell types considered by DigitalDLSorter object (", 
+           "number of cell types considered by SpatialDDLS object (", 
            ncol(prob.cell.types(object, "train") %>% prob.matrix()), 
            " in this case)")
     } else if (!grepl("'activation': 'softmax'", keras::get_config(custom.model))) {
@@ -451,7 +451,7 @@ trainDigitalDLSorterModel <- function(
   colnames(predict.results) <- colnames(prob.matrix.test)
   
   network.object <- new(
-    Class = "DigitalDLSorterDNN",
+    Class = "DeconvDLModel",
     model = model,
     training.history = history,
     test.metrics = test.eval,
@@ -577,7 +577,7 @@ trainDigitalDLSorterModel <- function(
   scaling,
   threads
 ) {
-  bulk.data <- grepl(pattern = "Bulk_", rownames(sel.data))
+  bulk.data <- grepl(pattern = "Spot_", rownames(sel.data))
   if (any(bulk.data)) {
     bulk.samples <-  as.matrix(
       assay(bulk.simul(object, type.data))[, rownames(sel.data)[bulk.data],
@@ -633,7 +633,7 @@ trainDigitalDLSorterModel <- function(
   scaling,
   threads
 ) {
-  bulk.data <- grepl(pattern = "Bulk_", rownames(sel.data))
+  bulk.data <- grepl(pattern = "Spot_", rownames(sel.data))
   if (any(bulk.data)) {
     sel.bulk.cells <- prob.cell.types(object, type.data)@cell.names[
       rownames(sel.data)[bulk.data], , drop = FALSE]
@@ -909,10 +909,10 @@ trainDigitalDLSorterModel <- function(
 
 
 ################################################################################
-##################### Deconvolution of new bulk samples ########################
+###################### Deconvolution of spatial slides #########################
 ################################################################################
 
-#'Deconvolute bulk RNA-Seq samples using a pre-trained DigitalDLSorter model
+#'Deconvolute bulk RNA-Seq samples using a pre-trained SpatialDDLS model
 #'
 #'Deconvolute bulk gene expression samples (bulk RNA-Seq) to enumerate and
 #'quantify the proportion of cell types present in a bulk sample using Deep
@@ -925,12 +925,12 @@ trainDigitalDLSorterModel <- function(
 #'(\code{breast.chung.specific}) and generic cell types
 #'(\code{breast.chung.generic}). See \code{breast.chung.generic},
 #'\code{breast.chung.specific}, and \code{colorectal.li} documentation from the
-#'\pkg{digitalDLSorteRdata} package for more details.
+#'\pkg{SpatialDDLSdata} package for more details.
 #'
-#'This function is intended for users who want to use \pkg{digitalDLSorteR} to
+#'This function is intended for users who want to use \pkg{SpatialDDLS} to
 #'deconvolute their bulk RNA-Seq samples using pre-trained models. For users who
 #'want to build their own models from other scRNA-Seq datasets, see the
-#'\code{\link{loadSCProfiles}} and \code{\link{deconvDigitalDLSorterObj}}
+#'\code{\link{loadSCProfiles}} and \code{\link{deconvSpatialDDLSObj}}
 #'functions.
 #'
 #'@param data Matrix or data frame with bulk RNA-Seq samples with genes as rows
@@ -939,8 +939,8 @@ trainDigitalDLSorterModel <- function(
 #'  now, the available models are intended to deconvolute samples from breast
 #'  cancer (\code{breast.chung.generic} and \code{breast.chung.specific}) and
 #'  colorectal cancer (\code{colorectal.li}). These pre-trained models are
-#'  stored in the \pkg{digitalDLSorteRdata} package, so it must be installed
-#'  together with \pkg{digitalDLSorteR} to use this function.
+#'  stored in the \pkg{SpatialDDLSdata} package, so it must be installed
+#'  together with \pkg{SpatialDDLS} to use this function.
 #'@param batch.size Number of samples loaded into RAM each time during the
 #'  deconvolution process. If not specified, \code{batch.size} will be set to
 #'  128.
@@ -965,7 +965,7 @@ trainDigitalDLSorterModel <- function(
 #'
 #'@export
 #'
-#'@seealso \code{\link{deconvDigitalDLSorterObj}}
+#'@seealso \code{\link{deconvSpatialDDLSObj}}
 #'
 #' @examples
 #' \dontrun{
@@ -1006,7 +1006,7 @@ trainDigitalDLSorterModel <- function(
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainDeconvModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -1019,8 +1019,8 @@ trainDigitalDLSorterModel <- function(
 #'   dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
 #' )
 #' # this is only an example. See vignettes to see how to use pre-trained models
-#' # from the digitalDLSorteRmodels data package
-#' results1 <- deconvDigitalDLSorter(
+#' # from the SpatialDDLSmodels data package
+#' results1 <- deconvSpatialDDLS(
 #'   data = countsBulk,
 #'   model = trained.model(DDLS),
 #'   normalize = TRUE
@@ -1029,14 +1029,14 @@ trainDigitalDLSorterModel <- function(
 #' simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
 #'                  CellGroup2 = c("CellType3", "CellType5"))
 #' # in this case the names of the list will be the new labels
-#' results2 <- deconvDigitalDLSorter(
+#' results2 <- deconvSpatialDDLS(
 #'   countsBulk,
 #'   model = trained.model(DDLS),
 #'   normalize = TRUE,
 #'   simplify.set = simplify
 #' )
 #' # in this case the cell type with the highest proportion will be the new label
-#' results3 <- deconvDigitalDLSorter(
+#' results3 <- deconvSpatialDDLS(
 #'   countsBulk,
 #'   model = trained.model(DDLS),
 #'   normalize = TRUE,
@@ -1049,7 +1049,7 @@ trainDigitalDLSorterModel <- function(
 #'  immune cell profiling in primary breast cancer. Nat. Commun. 8 (1), 15081.
 #'  doi: \doi{10.1038/ncomms15081}.
 #'  
-deconvDigitalDLSorter <- function(
+deconvSpatialDDLS <- function(
   data,
   model = NULL,
   batch.size = 128,
@@ -1066,12 +1066,12 @@ deconvDigitalDLSorter <- function(
   }
   if (is.null(model)) {
     stop("Model cannot be NULL. Please see available models in ", 
-         "digitalDLSorteRdata package and ?deconvDigitalDLSorter")
+         "SpatialDDLSdata package and ?deconvSpatialDDLS")
   } else if (is(object = model, class2 = "list")) {
       model <- listToDDLSDNN(model)
-  } else if (!is(object = model, class2 = "DigitalDLSorterDNN")) {
-      stop("'model' is not an object of DigitalDLSorterDNN class. Please ",
-           "see available models in digitalDLSorteRdata package and ?deconvDigitalDLSorter")
+  } else if (!is(object = model, class2 = "DeconvDLModel")) {
+      stop("'model' is not an object of DeconvDLModel class. Please ",
+           "see available models in SpatialDDLSdata package and ?deconvSpatialDDLS")
   }
   if (!scaling %in% c("standarize", "rescaling")) {
     stop("'scaling' argument must be one of the following options: 'standarize', 'rescaling'")
@@ -1126,18 +1126,18 @@ deconvDigitalDLSorter <- function(
 #' Deconvolute bulk gene expression samples (bulk RNA-Seq)
 #'
 #' Deconvolute bulk gene expression samples (bulk RNA-Seq). This function
-#' requires a \code{DigitalDLSorter} object with a trained Deep Neural Network
+#' requires a \code{SpatialDDLS} object with a trained Deep Neural Network
 #' model (\code{\link{trained.model}} slot) and the new bulk RNA-Seq samples to
 #' be deconvoluted in the \code{deconv.data} slot. See
 #' \code{?\link{loadDeconvData}} for more details.
 #'
 #' This function is intended for users who have built a devonvolution model
 #' using their own single-cell RNA-Seq data. If you want to use a pre-trained
-#' model to deconvolute your samples, see \code{?\link{deconvDigitalDLSorter}}.
+#' model to deconvolute your samples, see \code{?\link{deconvSpatialDDLS}}.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.data} and \code{deconv.data} slots.
-#' @param name.data Name of the data stored in the \code{DigitalDLSorter}
+#' @param name.data Name of the data stored in the \code{SpatialDDLS}
 #'   object. If not provided, the first data set will be used.
 #' @param batch.size Number of samples per gradient update. If not specified,
 #'   \code{batch.size} will default to 128.
@@ -1160,7 +1160,7 @@ deconvDigitalDLSorter <- function(
 #'   results.
 #' @param verbose Show informative messages during the execution.
 #'
-#' @return \code{\linkS4class{DigitalDLSorter}} object with
+#' @return \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{deconv.results} slot. The resulting information is a data frame with
 #'   samples (\eqn{i}) as rows and cell types (\eqn{j}) as columns. Each entry
 #'   represents the proportion of \eqn{j} cell type in \eqn{i} sample. If
@@ -1170,8 +1170,8 @@ deconvDigitalDLSorter <- function(
 #'
 #' @export
 #'
-#' @seealso \code{\link{trainDigitalDLSorterModel}}
-#'   \code{\linkS4class{DigitalDLSorter}}
+#' @seealso \code{\link{trainDeconvModel}}
+#'   \code{\linkS4class{SpatialDDLS}}
 #'
 #' @examples
 #' \dontrun{
@@ -1212,7 +1212,7 @@ deconvDigitalDLSorter <- function(
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDigitalDLSorterModel(
+#' DDLS <- trainDeconvModel(
 #'   object = DDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
@@ -1233,18 +1233,18 @@ deconvDigitalDLSorter <- function(
 #' # simplify arguments
 #' simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
 #'                  CellGroup2 = c("CellType3", "CellType5"))
-#' DDLS <- deconvDigitalDLSorterObj(
+#' DDLS <- deconvSpatialDDLSObj(
 #'   object = DDLS,
 #'   name.data = "Example",
 #'   simplify.set = simplify,
 #'   simplify.majority = simplify
 #' )
 #' }
-#' @references Torroja, C. and Sánchez-Cabo, F. (2019). digitalDLSorter: A Deep
+#' @references Torroja, C. and Sánchez-Cabo, F. (2019). SpatialDDLS: A Deep
 #'   Learning algorithm to quantify immune cell populations based on scRNA-Seq
 #'   data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
 #'   
-deconvDigitalDLSorterObj <- function(
+deconvSpatialDDLSObj <- function(
   object,
   name.data,
   batch.size = 128,
@@ -1256,12 +1256,12 @@ deconvDigitalDLSorterObj <- function(
 ) {
   # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
-  if (!is(object, "DigitalDLSorter")) {
-    stop("The provided object is not of class DigitalDLSorter")
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object))) {
-    stop("There is not trained model in DigitalDLSorter object")
+    stop("There is not trained model in SpatialDDLS object")
   } else if (!name.data %in% names(deconv.data(object))) {
-    stop("'name.data' provided is not present in DigitalDLSorter object")
+    stop("'name.data' provided is not present in SpatialDDLS object")
   }
   if (!scaling %in% c("standarize", "rescaling")) {
     stop("'scaling' argument must be one of the following options: 'standarize', 'rescaling'")
