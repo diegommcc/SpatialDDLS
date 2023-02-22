@@ -648,6 +648,72 @@ setMethod(
   }
 )
 
+# spatial.experiments
+
+#' @title Get and set \code{spatial.experiments} slot in a
+#'   \code{\linkS4class{SpatialDDLS}} object
+#'
+#' @docType methods
+#' @name spatial.experiments
+#' @rdname spatial.experiments
+#' @aliases spatial.experiments,SpatialDDLS-method
+#' 
+#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param name.data Name of the ST data. If \code{NULL} (by default), all
+#'   data contained in the \code{spatial.experiments} slot are returned.
+#'
+#' @export spatial.experiments
+#'   
+setGeneric(
+  name = "spatial.experiments", 
+  def = function(object, name.data = NULL) standardGeneric("spatial.experiments")
+)
+setMethod(
+  f = "spatial.experiments",
+  signature = "SpatialDDLS",
+  definition = function(object, name.data) {
+    if (is.null(name.data)) object@spatial.experiments
+    else {
+      if (!name.data %in% names(object@spatial.experiments)) {
+        stop("'name.data' provided does not exists in spatial.experiments slot")
+      }
+      return(object@spatial.experiments[[name.data]])
+    }
+  }
+)
+
+#' @docType methods
+#' @rdname spatial.experiments
+#' @aliases spatial.experiments<-,SpatialDDLS-method
+#' 
+#' @param value List whose names are the reference of the stored data.
+#' 
+#' @export spatial.experiments<-
+#'
+setGeneric(
+  name = "spatial.experiments<-", 
+  def = function(object, name.data = NULL, value) {
+    standardGeneric("spatial.experiments<-")
+  }
+)
+setMethod(
+  f = "spatial.experiments<-",
+  signature = "SpatialDDLS",
+  definition = function(object, name.data, value) {
+    if (is.null(name.data)) object@spatial.experiments <- value
+    else {
+      if (!name.data %in% names(object@spatial.experiments)) {
+        warning(
+          "'name.data' provided already exists in spatial.experiments slot. ", 
+          "It will be overwritten"
+        )
+      }
+      object@spatial.experiments[[name.data]] <- value
+    }
+    return(object)
+  }
+)
+
 # zinb.params
 
 #' @title Get and set \code{zinb.params} slot in a
@@ -797,61 +863,61 @@ setMethod(
   }
 )
 
-# bulk.simul
+# mixed.spot.profiles
 
-#' Get and set \code{bulk.simul} slot in a
+#' Get and set \code{mixed.spot.profiles} slot in a
 #'   \code{\linkS4class{SpatialDDLS}} object
 #'
 #' @docType methods
-#' @name bulk.simul
-#' @rdname bulk.simul
-#' @aliases bulk.simul,SpatialDDLS-method
+#' @name mixed.spot.profiles
+#' @rdname mixed.spot.profiles
+#' @aliases mixed.spot.profiles,SpatialDDLS-method
 #' 
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #' @param type.data Element of the list. Can be \code{'train'}, \code{'test'} or
 #'   \code{'both'} (the last by default).
 #'
-#' @export bulk.simul
+#' @export mixed.spot.profiles
 #'   
 setGeneric(
-  name = "bulk.simul", 
-  def = function(object, type.data = "both") standardGeneric("bulk.simul")
+  name = "mixed.spot.profiles", 
+  def = function(object, type.data = "both") standardGeneric("mixed.spot.profiles")
 )
 setMethod(
-  f = "bulk.simul",
+  f = "mixed.spot.profiles",
   signature = "SpatialDDLS",
   definition = function(object, type.data) {
-    if (type.data == "train") object@bulk.simul[["train"]]
-    else if (type.data == "test") object@bulk.simul[["test"]]
-    else if (type.data == "both") object@bulk.simul
-    else stop(paste("No", type.data, "in bulk.simul slot"))
+    if (type.data == "train") object@mixed.spot.profiles[["train"]]
+    else if (type.data == "test") object@mixed.spot.profiles[["test"]]
+    else if (type.data == "both") object@mixed.spot.profiles
+    else stop(paste("No", type.data, "in mixed.spot.profiles slot"))
   }
 )
 
 #' @docType methods
-#' @rdname bulk.simul
-#' @aliases bulk.simul<-,SpatialDDLS-method
+#' @rdname mixed.spot.profiles
+#' @aliases mixed.spot.profiles<-,SpatialDDLS-method
 #' 
 #' @param value List with two elements, train and test, each one being
 #'   a \code{\linkS4class{SummarizedExperiment}} object with simulated bulk
 #'   RNA-Seq samples.
 #'
-#' @export bulk.simul<-
+#' @export mixed.spot.profiles<-
 #'   
 setGeneric(
-  name = "bulk.simul<-", 
+  name = "mixed.spot.profiles<-", 
   def = function(object, type.data = "both", value) {
-    standardGeneric("bulk.simul<-")
+    standardGeneric("mixed.spot.profiles<-")
   }
 )
 setMethod(
-  f = "bulk.simul<-",
+  f = "mixed.spot.profiles<-",
   signature = "SpatialDDLS",
   definition = function(object, type.data, value) {
-    if (type.data == "train") object@bulk.simul[["train"]] <- value
-    else if (type.data == "test") object@bulk.simul[["test"]] <- value
-    else if (type.data == "both") object@bulk.simul <- value
-    else stop(paste("No", type.data, "in bulk.simul slot"))
+    if (type.data == "train") object@mixed.spot.profiles[["train"]] <- value
+    else if (type.data == "test") object@mixed.spot.profiles[["test"]] <- value
+    else if (type.data == "both") object@mixed.spot.profiles <- value
+    else stop(paste("No", type.data, "in mixed.spot.profiles slot"))
     return(object)
   }
 )
@@ -901,128 +967,62 @@ setMethod(
   }
 )
 
-# deconv.data
+# deconv.spots
 
-#' @title Get and set \code{deconv.data} slot in a
+#' @title Get and set \code{deconv.spots} slot in a
 #'   \code{\linkS4class{SpatialDDLS}} object
 #'
 #' @docType methods
-#' @name deconv.data
-#' @rdname deconv.data
-#' @aliases deconv.data,SpatialDDLS-method
+#' @name deconv.spots
+#' @rdname deconv.spots
+#' @aliases deconv.spots,SpatialDDLS-method
 #' 
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #' @param name.data Name of the data. If \code{NULL} (by default), all
-#'   data contained in the \code{deconv.data} slot are returned.
+#'   results contained in the \code{deconv.spots} slot are returned.
 #'
-#' @export deconv.data
+#' @export deconv.spots
 #'   
 setGeneric(
-  name = "deconv.data", 
-  def = function(object, name.data = NULL) standardGeneric("deconv.data")
+  name = "deconv.spots", 
+  def = function(object, name.data = NULL) standardGeneric("deconv.spots")
 )
 setMethod(
-  f = "deconv.data",
+  f = "deconv.spots",
   signature = "SpatialDDLS",
   definition = function(object, name.data) {
-    if (is.null(name.data)) object@deconv.data
+    if (is.null(name.data)) object@deconv.spots
     else {
-      if (!name.data %in% names(object@deconv.data)) {
-        stop("'name.data' provided does not exists in deconv.data slot")
+      if (!name.data %in% names(object@deconv.spots)) {
+        stop("'name.data' provided does not exists in deconv.spots slot")
       }
-      return(object@deconv.data[[name.data]])
+      return(object@deconv.spots[[name.data]])
     }
   }
 )
 
 #' @docType methods
-#' @rdname deconv.data
-#' @aliases deconv.data<-,SpatialDDLS-method
-#' 
-#' @param value List whose names are the reference of the stored data.
-#' 
-#' @export deconv.data<-
-#'
-setGeneric(
-  name = "deconv.data<-", 
-  def = function(object, name.data = NULL, value) {
-    standardGeneric("deconv.data<-")
-  }
-)
-setMethod(
-  f = "deconv.data<-",
-  signature = "SpatialDDLS",
-  definition = function(object, name.data, value) {
-    if (is.null(name.data)) object@deconv.data <- value
-    else {
-      if (!name.data %in% names(object@deconv.data)) {
-        warning(
-          "'name.data' provided already exists in deconv.data slot. ", 
-          "It will be overwritten"
-        )
-      }
-      object@deconv.data[[name.data]] <- value
-    }
-    return(object)
-  }
-)
-
-# deconv.results
-
-#' @title Get and set \code{deconv.results} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
-#'
-#' @docType methods
-#' @name deconv.results
-#' @rdname deconv.results
-#' @aliases deconv.results,SpatialDDLS-method
-#' 
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param name.data Name of the data. If \code{NULL} (by default), all
-#'   results contained in the \code{deconv.results} slot are returned.
-#'
-#' @export deconv.results
-#'   
-setGeneric(
-  name = "deconv.results", 
-  def = function(object, name.data = NULL) standardGeneric("deconv.results")
-)
-setMethod(
-  f = "deconv.results",
-  signature = "SpatialDDLS",
-  definition = function(object, name.data) {
-    if (is.null(name.data)) object@deconv.results
-    else {
-      if (!name.data %in% names(object@deconv.results)) {
-        stop("'name.data' provided does not exists in deconv.results slot")
-      }
-      return(object@deconv.results[[name.data]])
-    }
-  }
-)
-
-#' @docType methods
-#' @rdname deconv.results
-#' @aliases deconv.results<-,SpatialDDLS-method
+#' @rdname deconv.spots
+#' @aliases deconv.spots<-,SpatialDDLS-method
 #'
 #' @param value List whose names are the reference of the stored results.
 #'
-#' @export deconv.results<-
+#' @export deconv.spots<-
 #'   
 setGeneric(
-  name = "deconv.results<-", 
+  name = "deconv.spots<-", 
   def = function(object, name.data = NULL, value) {
-    standardGeneric("deconv.results<-")
+    standardGeneric("deconv.spots<-")
   }
 )
 setMethod(
-  f = "deconv.results<-",
+  f = "deconv.spots<-",
   signature = "SpatialDDLS",
   definition = function(object, name.data, value) {
     if (is.null(name.data)) {
-      object@deconv.results <- value  
+      object@deconv.spots <- value  
     } else {
-      object@deconv.results[[name.data]] <- value
+      object@deconv.spots[[name.data]] <- value
     }
     return(object)
   }
@@ -1244,7 +1244,7 @@ setMethod(
 #' Bar plot of deconvoluted cell type proportions in bulk RNA-Seq samples.
 #'
 #' @param data \code{\linkS4class{SpatialDDLS}} object with
-#'   \code{deconv.results} slot or a data frame/matrix with cell types as
+#'   \code{deconv.spots} slot or a data frame/matrix with cell types as
 #'   columns and samples as rows.
 #' @param colors Vector of colors to be used.
 #' @param simplify Type of simplification performed during deconvolution. Can be
@@ -1258,7 +1258,7 @@ setMethod(
 #' @param legend.title Title of the legend plot.
 #' @param angle Angle of text ticks.
 #' @param name.data If a \code{\linkS4class{SpatialDDLS}} is given, name of
-#'   the element that stores the results in the \code{deconv.results} slot.
+#'   the element that stores the results in the \code{deconv.spots} slot.
 #' @param theme \pkg{ggplot2} theme.
 #' @param ... Other arguments for specific methods.
 #'
@@ -1275,7 +1275,7 @@ setMethod(
 #' barPlotCellTypes(deconvResults)
 #'
 #' # Using a SpatialDDLS object
-#' DDLS <- SpatialDDLS(deconv.results = list(Example = deconvResults))
+#' DDLS <- SpatialDDLS(deconv.spots = list(Example = deconvResults))
 #' barPlotCellTypes(DDLS)
 #' 
 #' @rdname barPlotCellTypes
@@ -1321,32 +1321,32 @@ setMethod(
     theme = NULL,
     name.data = NULL
   ) {
-    if (is.null(deconv.results(data))) {
+    if (is.null(deconv.spots(data))) {
       stop("There are no results in SpatialDDLS object. Please see ?deconvDigitalDLSorterObj")
     } else if (is.null(name.data)) {
       message("'name.data' not provided. By default, first results are used")
       name.data <- 1
-    } else if (!any(name.data %in% names(deconv.results(data))) &&
-               !any(name.data %in% seq_along(deconv.results(data)))) {
+    } else if (!any(name.data %in% names(deconv.spots(data))) &&
+               !any(name.data %in% seq_along(deconv.spots(data)))) {
       stop("Provided 'name.data' does not exist")
     }
     if (!is.null(simplify) && !is.na(simplify)) {
-      if (!is(deconv.results(data)[[name.data]], "list")) {
+      if (!is(deconv.spots(data)[[name.data]], "list")) {
         stop("No simplified results available")
       } else {
         if (simplify != "simpli.set" && simplify != "simpli.majority") {
           stop("simplify argument must be one of the following options: ",
                "'simpli.set' or 'simpli.majority'")
-        } else if (!any(simplify == names(deconv.results(data)[[name.data]]))) {
+        } else if (!any(simplify == names(deconv.spots(data)[[name.data]]))) {
           stop(paste(simplify, "data is not present in DeconvDLModel object"))
         }
-        res <- deconv.results(data)[[name.data]][[simplify]]
+        res <- deconv.spots(data)[[name.data]][[simplify]]
       }
     } else {
-      if (is(deconv.results(data)[[name.data]], "list")) {
-        res <- deconv.results(data)[[name.data]][[1]]
+      if (is(deconv.spots(data)[[name.data]], "list")) {
+        res <- deconv.spots(data)[[name.data]][[1]]
       } else {
-        res <- deconv.results(data)[[name.data]]
+        res <- deconv.spots(data)[[name.data]]
       }
     }
     if (is.null(colnames(res))) {
@@ -1404,119 +1404,3 @@ setMethod(
 )
 
 
-#' Load data to be deconvoluted into a DeconvDLModel object
-#'
-#' Load data to be deconvoluted. Data can be provided from a file path of a
-#' tabulated text file (tsv and tsv.gz formats are accepted) or a
-#' \code{\linkS4class{SummarizedExperiment}} object.
-#'
-#' @param object \code{\linkS4class{DeconvDLModel}} object with
-#'   \code{trained.model} slot.
-#' @param data File path where the data is stored or a
-#'   \code{\linkS4class{SummarizedExperiment}} object.
-#' @param name.data Name under which the data is stored in the
-#'   \code{\linkS4class{DeconvDLModel}} object. When \code{data} is a file
-#'   path and \code{name.data} is not provided, the base name of file will be
-#'   used.
-#'
-#' @return A \code{\linkS4class{DeconvDLModel}} object with \code{deconv.data}
-#'   slot with the new bulk-RNA-Seq samples loaded.
-#'
-#' @export
-#'
-#' @seealso \code{\link{trainDigitalDLSorterModel}}
-#'   \code{\link{deconvDigitalDLSorterObj}}
-#'   
-setGeneric("loadDeconvData", function(
-  object,
-  data,
-  name.data = NULL
-) {
-  standardGeneric("loadDeconvData")
-})
-
-#' @export
-#'
-#' @rdname loadDeconvData
-setMethod(
-  f = "loadDeconvData",
-  signature = signature(object = "PropCellTypes", data = "character"),
-  definition = function(
-    object,
-    data,
-    name.data = NULL
-  ) {
-    if (!is(object, "PropCellTypes")) {
-      stop("Provided object is not of PropCellTypes class")
-    }
-    counts <- .readTabFiles(file = data)
-    if (is.null(rownames(counts)) || is.null(colnames(counts))) {
-      stop("New data must have genes as rows and samples as columns")
-    }
-    se.object <- SummarizedExperiment::SummarizedExperiment(
-      assays = list(counts = counts),
-      rowData = data.frame(rownames(counts)),
-      colData = data.frame(colnames(counts)),
-    )
-    # generate name for data if is not provided
-    if (is.null(name.data)) {
-      name.data <- tools::file_path_sans_ext(basename(data))
-    }
-    # create or not a new list
-    if (is.null(object@deconv.data)) list.data <- list()
-    else list.data <- object@deconv.data
-    # check if name.data exists
-    if (name.data %in% names(list.data)) {
-      stop(paste(name.data, "data already exists in 'deconv.data' slot"))
-    }
-    list.data[[name.data]] <- se.object
-    object@deconv.data <- list.data
-    return(object)
-  }
-)
-
-#' @export
-#'
-#' @rdname loadDeconvData
-setMethod(
-  f = "loadDeconvData",
-  signature = signature(object = "PropCellTypes", 
-                        data = "SummarizedExperiment"),
-  definition = function(
-    object,
-    data,
-    name.data = NULL
-  ) {
-    if (!is(object, "PropCellTypes")) {
-      stop("The provided object is not of PropCellTypes class")
-    } else if (!is(data, "SummarizedExperiment")) {
-      stop("The provided object is not of SummarizedExperiment class")
-    }
-    if (length(assays(data)) == 0) {
-      stop("assay slot of SummarizedExperiment object is empty")
-    } else if (length(assays(data)) > 1) {
-      warning(paste("There are more than one assays in SummarizedExperiment object,",
-                    "only the first assay will be considered. Remember that it is", "
-                  recommended that the provided data be of the same nature as",
-                  "the data with which the model has been trained (e.g. TPMs)"))
-    }
-    # generate name for data if is not provided
-    if (is.null(name.data)) {
-      if (is.null(deconv.data(object))) {
-        name.data <- "deconv_1"
-      } else {
-        name.data <- paste0("decon_", length(deconv.data(object)) + 1)
-      }
-    }
-    # create or not a new list
-    if (is.null(deconv.data(object))) list.data <- list()
-    else list.data <- deconv.data(object)
-    # check if name.data exists
-    if (name.data %in% names(list.data)) {
-      stop(paste(name.data, "data already exists in deconv.data slot"))
-    }
-    list.data[[name.data]] <- data
-    deconv.data(object) <- list.data
-    return(object)
-  }
-)

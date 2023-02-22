@@ -49,7 +49,7 @@ NULL
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.matrix}
-#'   and \code{bulk.simul} slots.
+#'   and \code{mixed.spot.profiles} slots.
 #' @param combine Type of profiles to be used for training. Can be
 #'   \code{'both'}, \code{'single-cell'} or \code{'bulk'} (\code{'both'} by
 #'   default). For test data, both types of profiles will be used.
@@ -89,7 +89,7 @@ NULL
 #'   (\code{NULL} by default). If provided, the arguments related to the neural
 #'   network architecture will be ignored.
 #' @param shuffle Boolean indicating whether data will be shuffled (\code{TRUE}
-#'   by default). Note that if \code{bulk.simul} is not \code{NULL}, the data
+#'   by default). Note that if \code{mixed.spot.profiles} is not \code{NULL}, the data
 #'   already has been shuffled and \code{shuffle} will be ignored.
 #' @param on.the.fly Boolean indicating whether data will be generated 'on the
 #'   fly' during training (\code{FALSE} by default).
@@ -206,7 +206,7 @@ trainDeconvModel <- function(
   if (!any(combine %in% c("both", "bulk", "single-cell"))) {
     stop("'combine' argument must be one of the following options: 'both', 'bulk' or 'single-cell'")
   }
-  # bulk.simul and single-cell.real/simul must be provided, since we evaluate 
+  # mixed.spot.profiles and single-cell.real/simul must be provided, since we evaluate 
   # our model on both type of samples compulsory
   # check if data provided is correct regarding on the fly training
   if (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))) {
@@ -225,14 +225,14 @@ trainDeconvModel <- function(
   }
   if (!on.the.fly) {
     if (verbose) message("=== Training and test from stored data was selected")
-    if ((combine == "both" && is.null(bulk.simul(object)) ||
+    if ((combine == "both" && is.null(mixed.spot.profiles(object)) ||
          combine == "both" && (is.null(single.cell.real(object)) && 
                                is.null(single.cell.simul(object))))) {
-      stop("If 'combine = both' is selected, 'bulk.simul' and at least ",
+      stop("If 'combine = both' is selected, 'mixed.spot.profiles' and at least ",
            "one single cell slot must be provided")
-    } else if (combine == "bulk" && is.null(bulk.simul(object))) {
-      stop("If 'combine' = bulk is selected, 'bulk.simul' must be provided")
-    } else if (is.null(bulk.simul(object, "test"))) {
+    } else if (combine == "bulk" && is.null(mixed.spot.profiles(object))) {
+      stop("If 'combine' = bulk is selected, 'mixed.spot.profiles' must be provided")
+    } else if (is.null(mixed.spot.profiles(object, "test"))) {
       stop("trainDeconvModel evaluates DNN model on both types of ", 
            "profiles: bulk and single-cell. Therefore, bulk data for test ", 
            "must be provided")
@@ -580,7 +580,7 @@ trainDeconvModel <- function(
   bulk.data <- grepl(pattern = "Spot_", rownames(sel.data))
   if (any(bulk.data)) {
     bulk.samples <-  as.matrix(
-      assay(bulk.simul(object, type.data))[, rownames(sel.data)[bulk.data],
+      assay(mixed.spot.profiles(object, type.data))[, rownames(sel.data)[bulk.data],
                                            drop = FALSE]
     )
   } 
@@ -734,7 +734,7 @@ trainDeconvModel <- function(
     } else {
       tpsm <- tpsm[sample(nrow(tpsm)), ]
       probs.matrix <- prob.cell.types(object, type.data)@prob.matrix[
-        colnames(bulk.simul(object, type.data)), ] / 100
+        colnames(mixed.spot.profiles(object, type.data)), ] / 100
       if (nrow(tpsm) > nrow(probs.matrix)) {
         probs.matrix <- .mergePropsSort(m.small = probs.matrix, m.big = tpsm)
       } else if (nrow(tpsm) <= nrow(probs.matrix)) {
@@ -747,7 +747,7 @@ trainDeconvModel <- function(
       probs.matrix <- prob.cell.types(object, type.data) %>% prob.matrix() / 100
     } else {
       probs.matrix <- prob.cell.types(object, type.data)@prob.matrix[
-        colnames(bulk.simul(object, type.data)), ] / 100
+        colnames(mixed.spot.profiles(object, type.data)), ] / 100
     }
   } else if (combine == "single-cell") {
     if (verbose) message("    Using only single-cell samples\n")

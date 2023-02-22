@@ -325,12 +325,12 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' \item \code{\linkS4class{ZinbModel}} class with estimated parameters for the
 #' simulation of new single-cell profiles. \item
 #' \code{\linkS4class{SummarizedExperiment}} class for large bulk RNA-Seq data
-#' storage. \item \code{\linkS4class{PropCellTypes}} class for the
-#' compositional cell matrices constructed during the process. See
+#' storage. \item \code{\linkS4class{PropCellTypes}} class for the compositional
+#' cell matrices constructed during the process. See
 #' \code{?\linkS4class{PropCellTypes}} for details. \item
-#' \code{\linkS4class{DeconvDLModel}} class to store the information
-#' related to Deep Neural Network models. This step is performed using
-#' \code{keras}. See \code{?\linkS4class{DeconvDLModel}} for details. }
+#' \code{\linkS4class{DeconvDLModel}} class to store the information related to
+#' Deep Neural Network models. This step is performed using \code{keras}. See
+#' \code{?\linkS4class{DeconvDLModel}} for details. }
 #'
 #' \pkg{digitalDLSorteR} can be used in two ways: to build new deconvolution
 #' models from single-cell RNA-Seq data or to deconvolute bulk RNA-Seq samples
@@ -352,30 +352,28 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' @slot single.cell.real Real single-cell data stored in a
 #'   \code{SingleCellExperiment} object. The count matrix is stored as
 #'   \code{\linkS4class{dgCMatrix}} or \code{HDF5Array} objects.
+#' @slot spatial.experiments List of \code{\linkS4class{SpatialExperiment}}
+#'   objects with data to be deconvoluted.
 #' @slot zinb.params \code{\linkS4class{ZinbModel}} object with estimated
 #'   parameters for the simulation of new single-cell expression profiles.
 #' @slot single.cell.simul Simulated single-cell expression profiles from the
 #'   ZINB-WaVE model.
-#' @slot prob.cell.types \code{\linkS4class{PropCellTypes}} class with
-#'   cell composition matrices built for the simulation of pseudo-bulk RNA-Seq
+#' @slot prob.cell.types \code{\linkS4class{PropCellTypes}} class with cell
+#'   composition matrices built for the simulation of pseudo-bulk RNA-Seq
 #'   profiles with known cell composition.
-#' @slot bulk.simul A list of simulated train and test bulk RNA-Seq samples.
-#'   Each entry is a \code{\linkS4class{SummarizedExperiment}} object. The count
-#'   matrices can be stored as \code{HDF5Array} files using HDF5 files as
-#'   back-end in case of RAM limitations.
-#' @slot trained.model \code{\linkS4class{DeconvDLModel}} object with all
-#'   the information related to the trained model. See
+#' @slot mixed.spot.profiles A list of simulated train and test bulk RNA-Seq
+#'   samples. Each entry is a \code{\linkS4class{SummarizedExperiment}} object.
+#'   The count matrices can be stored as \code{HDF5Array} files using HDF5 files
+#'   as back-end in case of RAM limitations.
+#' @slot trained.model \code{\linkS4class{DeconvDLModel}} object with all the
+#'   information related to the trained model. See
 #'   \code{?\linkS4class{DeconvDLModel}} for more details.
-#' @slot deconv.data List of \code{\linkS4class{SummarizedExperiment}} objects
-#'   where it is possible to store new bulk RNA-Seq experiments for
-#'   deconvolution. The name of the entries corresponds to the name of the data
-#'   provided. See \code{\link{deconvDigitalDLSorterObj}} for details.
-#' @slot deconv.results Slot containing the deconvolution results of applying
+#' @slot deconv.spots Slot containing the deconvolution results of applying
 #'   the deconvolution model to the data present in the
 #'   \code{\link{deconv.data}} slot. It is a list in which the names corresponds
 #'   to the data from which they come.
 #' @slot project Name of the project.
-#' @slot version Version of DigitalDLSorteR this object was built under.
+#' @slot version Version of \pkg{SpatialDDLS} this object was built under.
 #'
 #'
 #' @exportClass SpatialDDLS
@@ -385,13 +383,13 @@ SpatialDDLS <- setClass(
   Class = "SpatialDDLS",
   slots = c(
     single.cell.real = "SingleCellExperimentOrNULL",
+    spatial.experiments = "ListOrNULL",
     zinb.params = "ZinbParametersModelOrNULL",
     single.cell.simul = "SingleCellExperimentOrNULL",
     prob.cell.types = "ListOrNULL",
-    bulk.simul = "ListOrNULL",
+    mixed.spot.profiles = "ListOrNULL",
     trained.model = "DeconvDLModelOrNULL",
-    deconv.data = "ListOrNULL",
-    deconv.results = "ListOrNULL",
+    deconv.spots = "ListOrNULL",
     project = "character",
     version = "package_version"
   )
@@ -403,24 +401,24 @@ setMethod(
   definition = function(
     .Object,
     single.cell.real = NULL,
+    spatial.experiments = NULL, 
     zinb.params = NULL,
     single.cell.simul = NULL,
     prob.cell.types = NULL,
-    bulk.simul = NULL,
+    mixed.spot.profiles = NULL, 
     trained.model = NULL,
-    deconv.data = NULL,
-    deconv.results = NULL,
+    deconv.spots = NULL,
     project = "SpatialDDLSProject",
     version = packageVersion(pkg = "digitalDLSorteR")
   ) {
     .Object@single.cell.real <- single.cell.real
+    .Object@spatial.experiments <- spatial.experiments
     .Object@zinb.params <- zinb.params
     .Object@single.cell.simul <- single.cell.simul
     .Object@prob.cell.types <- prob.cell.types
-    .Object@bulk.simul <- bulk.simul
+    .Object@mixed.spot.profiles <- mixed.spot.profiles
     .Object@trained.model <- trained.model
-    .Object@deconv.data <- deconv.data
-    .Object@deconv.results <- deconv.results
+    .Object@deconv.spots <- deconv.spots
     .Object@project <- project
     .Object@version <- version
     return(.Object)
@@ -462,9 +460,9 @@ setMethod(
 
 .finalShow <- function(se) {
   cat("   ", dim(se)[2], "features and", dim(se)[1], "samples: ")
-  n.bulk <- sum(grepl("Bulk\\.*", rowData(se)[[1]]))
-  n.sc <- abs(n.bulk - dim(se)[1])
-  cat(n.bulk, "bulk profiles and", n.sc, "single-cell profiles\n")
+  n.spot <- sum(grepl("Spot\\.*", rowData(se)[[1]]))
+  n.sc <- abs(n.spot - dim(se)[1])
+  cat(n.bulk, "mixed spots and", n.sc, "single-cell profiles\n")
 }
 
 .zinbModelShow <- function(zinb.model) {
@@ -488,8 +486,9 @@ setMethod(
 
 .allSlotsNull <- function(object) {
   list.slots <- list(
-    "single.cell.real", "zinb.params", "single.cell.simul", "prob.cell.types",
-    "bulk.simul", "trained.model", "deconv.data", "deconv.results"
+    "single.cell.real", "spatial.experiments", "zinb.params", 
+    "single.cell.simul", "prob.cell.types", "mixed.spot.profiles", 
+    "trained.model", "deconv.spots"
   )
   res <- all(
     unlist(
@@ -519,6 +518,15 @@ setMethod(
       cat("Real single-cell profiles:\n")
       .sceShow(S4Vectors::DataFrame())
     }
+    if (!is.null(object@spatial.experiments)) {
+      cat("Spatial experiments:\n")
+      cat(" ", length(object@spatial.experiments), "experiments\n")
+      if (length(object@spatial.experiments) < 3)
+        sapply(object@spatial.experiments, .sceShow)
+    } else {
+      cat("Spatial experiments:\n")
+      .sceShow(S4Vectors::DataFrame())
+    }
     if (!is.null(object@zinb.params)) {
       .zinbModelShow(object@zinb.params@zinbwave.model)
     }
@@ -534,13 +542,13 @@ setMethod(
         }
       })
     }
-    if (!is.null(object@bulk.simul)) {
-      cat("Simulated bulk samples:\n")
+    if (!is.null(object@mixed.spot.profiles)) {
+      cat("Simulated spot samples:\n")
       lapply(
         X = c("train", "test"), FUN = function(x) {
-          if (x %in% names(object@bulk.simul)) {
-            cat(paste(" ", x, "bulk samples:\n"))
-            .bulkShow(object@bulk.simul[[x]])
+          if (x %in% names(object@mixed.spot.profiles)) {
+            cat(paste(" ", x, "spots:\n"))
+            .bulkShow(object@mixed.spot.profiles[[x]])
           }
         }
       )
@@ -548,23 +556,12 @@ setMethod(
     if (!is.null(object@trained.model)) {
       cat(show(object@trained.model), "\n")
     }
-    if (!is.null(object@deconv.data)) {
-      cat("Bulk samples to deconvolute:\n")
-      lapply(
-        X = names(object@deconv.data), FUN = function(x) {
-          if (x %in% names(object@deconv.data)) {
-            cat(paste(" ", x, "bulk samples:\n"))
-            .bulkShow(object@deconv.data[[x]])
-          }
-        }
-      )
-    }
-    if (!is.null(object@deconv.results)) {
+    if (!is.null(object@deconv.spots)) {
       cat("Results (estimated cell proportions):\n")
       lapply(
-        X = names(object@deconv.results), FUN = function(x) {
-          if (x %in% names(object@deconv.results)) {
-            cat(paste("  Results of", x, "bulk samples\n"))
+        X = names(object@deconv.spots), FUN = function(x) {
+          if (x %in% names(object@deconv.spots)) {
+            cat(paste("  Results of", x, "mixed spots\n"))
           }
         }
       )
@@ -574,12 +571,6 @@ setMethod(
 )
 
 .onLoad <- function(libname, pkgname) {
-  # make github digitalDLSorteRmodels repo available (data package)
-  repos = getOption("repos")
-  repos["github"] = "https://diegommcc.github.io/digitalDLSorteRmodelsRepo/"
-  options(repos = repos)
-  invisible(repos)
-  # set conda environment for tensorflow
   if (.isConda()) {
     tryCatch(
       expr = reticulate::use_condaenv("digitaldlsorter-env", required = TRUE),

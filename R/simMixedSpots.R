@@ -810,7 +810,7 @@ setCount <- function(
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
 #'
-#' @return A \code{\linkS4class{SpatialDDLS}} object with \code{bulk.simul}
+#' @return A \code{\linkS4class{SpatialDDLS}} object with \code{mixed.spot.profiles}
 #'   slot containing a list with one or two entries (depending on selected
 #'   \code{type.data} argument): \code{'train'} and \code{'test'}. Each entry
 #'   contains a \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
@@ -930,8 +930,8 @@ simMixedSpotProfiles <- function(
     message(paste("=== Setting parallel environment to", threads, "thread(s)"))
   }
   if (type.data == "both") {
-    if (!is.null(object@bulk.simul)) {
-      warning("'bulk.simul' slot will be overwritten\n\n",
+    if (!is.null(object@mixed.spot.profiles)) {
+      warning("'mixed.spot.profiles' slot will be overwritten\n\n",
               call. = FALSE, immediate. = TRUE)
     }
     bulk.counts <- lapply(
@@ -956,10 +956,10 @@ simMixedSpotProfiles <- function(
       }
     )
     names(bulk.counts) <- c("train", "test")
-    object@bulk.simul <- bulk.counts
+    object@mixed.spot.profiles <- bulk.counts
   } else {
-    if (!is.null(bulk.simul(object)) && type.data %in% names(bulk.simul(object))) {
-      warning(paste(type.data, "data in 'bulk.simul' slot will be overwritten", 
+    if (!is.null(mixed.spot.profiles(object)) && type.data %in% names(mixed.spot.profiles(object))) {
+      warning(paste(type.data, "data in 'mixed.spot.profiles' slot will be overwritten", 
                     "\n\n"),
               call. = FALSE, immediate. = TRUE)
     }
@@ -979,14 +979,14 @@ simMixedSpotProfiles <- function(
       threads = threads,
       verbose = verbose
     )
-    if (!is.null(bulk.simul(object))) {
-      if (type.data %in% names(bulk.simul(object))) {
-        bulk.simul(object, type.data) <- NULL
+    if (!is.null(mixed.spot.profiles(object))) {
+      if (type.data %in% names(mixed.spot.profiles(object))) {
+        mixed.spot.profiles(object, type.data) <- NULL
       }
-      bulk.simul(object) <- c(bulk.simul(object), type.data = bulk.counts)
+      mixed.spot.profiles(object) <- c(mixed.spot.profiles(object), type.data = bulk.counts)
     } else {
-      bulk.simul(object) <- list(bulk.counts)
-      names(bulk.simul(object)) <- type.data
+      mixed.spot.profiles(object) <- list(bulk.counts)
+      names(mixed.spot.profiles(object)) <- type.data
     }
   }
   if (verbose) message("\nDONE")

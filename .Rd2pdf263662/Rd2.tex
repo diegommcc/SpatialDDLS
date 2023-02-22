@@ -1,0 +1,69 @@
+\documentclass[letterpaper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\usepackage[utf8]{inputenc} % @SET ENCODING@
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `SpatialDDLS'}}
+\par\bigskip{\large \today}
+\end{center}
+\inputencoding{utf8}
+\ifthenelse{\boolean{Rd@use@hyper}}{\hypersetup{pdftitle = {SpatialDDLS: Deconvolution of spatial transcriptomics data Based on Deep Learning}}}{}\ifthenelse{\boolean{Rd@use@hyper}}{\hypersetup{pdfauthor = {Diego Mañanes; Carlos Torroja; Fatima Sanchez-Cabo}}}{}\begin{description}
+\raggedright{}
+\item[Type]\AsIs{Package}
+\item[Title]\AsIs{Deconvolution of spatial transcriptomics data Based on Deep Learning}
+\item[Version]\AsIs{0.3.2}
+\item[Maintainer]\AsIs{Diego Mañanes }\email{dmananesc@cnic.es}\AsIs{}
+\item[Description]\AsIs{Deconvolution of spatial trascriptomics data using context-specific deconvolution models based on Deep Neural Networks using scRNA-Seq data as input.}
+\item[License]\AsIs{GPL-3}
+\item[URL]\AsIs{}\url{https://diegommcc.github.io/digitalDLSorteR/}\AsIs{, }\url{https://github.com/diegommcc/digitalDLSorteR}\AsIs{}
+\item[BugReports]\AsIs{}\url{https://github.com/diegommcc/digitalDLSorteR/issues}\AsIs{}
+\item[Encoding]\AsIs{UTF-8}
+\item[Depends]\AsIs{R (>= 4.0.0)}
+\item[Imports]\AsIs{rlang,
+Matrix,
+methods,
+tidyr,
+SpatialExperiment,
+SingleCellExperiment,
+SummarizedExperiment,
+zinbwave,
+stats,
+pbapply,
+S4Vectors,
+dplyr,
+tools,
+reshape2,
+gtools,
+reticulate,
+keras,
+tensorflow,
+ggplot2,
+ggpubr,
+RColorBrewer}
+\item[Suggests]\AsIs{knitr,
+rmarkdown,
+BiocParallel,
+rhdf5,
+DelayedArray,
+DelayedMatrixStats,
+HDF5Array,
+testthat}
+\item[SystemRequirements]\AsIs{Python (>= 2.7.0), TensorFlow (https://www.tensorflow.org/)}
+\item[RoxygenNote]\AsIs{7.1.2}
+\item[Roxygen]\AsIs{list(markdown = TRUE)}
+\item[Collate]\AsIs{'AllClasses.R'
+'AllGenerics.R'
+'SpatialDDLS.R'
+'dnnModel.R'
+'evalMetrics.R'
+'loadData.R'
+'simMixedSpots.R'
+'simSingleCell.R'
+'utils.R'}
+\item[VignetteBuilder]\AsIs{knitr}
+\end{description}
+\Rdcontents{\R{} topics documented:}
