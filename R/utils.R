@@ -210,7 +210,7 @@ preparingToSave <- function(
   } else {
     colors <- default.colors()
   }
-  p <- p + scale_fill_manual(values = colors) + DigitalDLSorterTheme()
+  p <- p + scale_fill_manual(values = colors) + SpatialDDLSTheme()
   if (is.null(x.label)) {
     p <- p + theme(axis.title.x = element_blank())
   } else {
@@ -417,7 +417,7 @@ plotTrainingHistory <- function(
   plot(
     trained.model(object)@training.history,
     metrics = metrics, method = "ggplot2"
-  ) + ggtitle(title) + DigitalDLSorterTheme()
+  ) + ggtitle(title) + SpatialDDLSTheme()
 }
 
 # custom ggplot2 theme

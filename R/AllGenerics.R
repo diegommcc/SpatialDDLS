@@ -599,7 +599,7 @@ setMethod(
 )
 
 ################################################################################
-################ getters and setters for SpatialDDLS class #################
+################## getters and setters for SpatialDDLS class ###################
 ################################################################################
 
 # single.cell.real
@@ -657,27 +657,36 @@ setMethod(
 #' @name spatial.experiments
 #' @rdname spatial.experiments
 #' @aliases spatial.experiments,SpatialDDLS-method
-#' 
+#'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param name.data Name of the ST data. If \code{NULL} (by default), all
-#'   data contained in the \code{spatial.experiments} slot are returned.
+#' @param index.st Index of the ST data. It can be a position or a name if a
+#'   named list is provided. If \code{NULL} (by default), all data contained in
+#'   the \code{spatial.experiments} slot are returned.
 #'
 #' @export spatial.experiments
 #'   
 setGeneric(
   name = "spatial.experiments", 
-  def = function(object, name.data = NULL) standardGeneric("spatial.experiments")
+  def = function(object, index.st = NULL) standardGeneric("spatial.experiments")
 )
 setMethod(
   f = "spatial.experiments",
   signature = "SpatialDDLS",
-  definition = function(object, name.data) {
-    if (is.null(name.data)) object@spatial.experiments
-    else {
-      if (!name.data %in% names(object@spatial.experiments)) {
-        stop("'name.data' provided does not exists in spatial.experiments slot")
-      }
-      return(object@spatial.experiments[[name.data]])
+  definition = function(object, index.st) {
+    if (is.null(index.st)) {
+      return(object@spatial.experiments)
+    } else {
+      if (is.character(index.st) & !is.null(names(object@spatial.experiments))) {
+        if (!index.st %in% names(object@spatial.experiments)) 
+          stop("'index.st' provided does not exists in spatial.experiments slot")
+      } else if (is.character(index.st) & is.null(names(object@spatial.experiments))) {
+        stop("spatial.experiment slot does not contain names, so `index.st` must be an integer")
+      } 
+    }
+    if (length(index.st) > 1) {
+      object@spatial.experiments[index.st]
+    } else {
+      object@spatial.experiments[[index.st]]
     }
   }
 )
@@ -692,23 +701,23 @@ setMethod(
 #'
 setGeneric(
   name = "spatial.experiments<-", 
-  def = function(object, name.data = NULL, value) {
+  def = function(object, index.st = NULL, value) {
     standardGeneric("spatial.experiments<-")
   }
 )
 setMethod(
   f = "spatial.experiments<-",
   signature = "SpatialDDLS",
-  definition = function(object, name.data, value) {
-    if (is.null(name.data)) object@spatial.experiments <- value
+  definition = function(object, index.st, value) {
+    if (is.null(index.st)) object@spatial.experiments <- value
     else {
-      if (!name.data %in% names(object@spatial.experiments)) {
+      if (!index.st %in% names(object@spatial.experiments)) {
         warning(
-          "'name.data' provided already exists in spatial.experiments slot. ", 
+          "'index.st' provided already exists in spatial.experiments slot. ", 
           "It will be overwritten"
         )
       }
-      object@spatial.experiments[[name.data]] <- value
+      object@spatial.experiments[[index.st]] <- value
     }
     return(object)
   }
@@ -985,18 +994,26 @@ setMethod(
 #'   
 setGeneric(
   name = "deconv.spots", 
-  def = function(object, name.data = NULL) standardGeneric("deconv.spots")
+  def = function(object, index.st = NULL) standardGeneric("deconv.spots")
 )
 setMethod(
   f = "deconv.spots",
   signature = "SpatialDDLS",
-  definition = function(object, name.data) {
-    if (is.null(name.data)) object@deconv.spots
-    else {
-      if (!name.data %in% names(object@deconv.spots)) {
-        stop("'name.data' provided does not exists in deconv.spots slot")
-      }
-      return(object@deconv.spots[[name.data]])
+  definition = function(object, index.st) {
+    if (is.null(index.st)) {
+      return(object@deconv.spots)
+    } else {
+      if (is.character(index.st) & !is.null(names(object@deconv.spots))) {
+        if (!index.st %in% names(object@deconv.spots)) 
+          stop("'index.st' provided does not exists in `deconv.spots` slot")
+      } else if (is.character(index.st) & is.null(names(object@deconv.spots))) {
+        stop("`deconv.spots` slot does not contain names, so `index.st` must be an integer")
+      } 
+    }
+    if (length(index.st) > 1) {
+      object@deconv.spots[index.st]
+    } else {
+      object@deconv.spots[[index.st]]
     }
   }
 )

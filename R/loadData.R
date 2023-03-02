@@ -370,7 +370,7 @@ NULL
   if (!all(row.zero)) {
     if (verbose) {
       message(paste("=== Removing", sum(!row.zero),
-                    "genes without expression in any cell\n")) 
+                    "genes without expression in any cell")) 
     }
     counts <- counts[row.zero, ]
     genes.metadata <- genes.metadata[genes.metadata[, gene.ID.column] %in%
@@ -496,7 +496,7 @@ NULL
     stop(paste("Please, provide a 'single.cell' argument"))
   } else if (missing(cell.ID.column) || missing(gene.ID.column) || 
              is.null(cell.ID.column) || is.null(gene.ID.column)) {
-    stop("'cell.ID.column' and 'gene.ID.column' arguments are needed. Please, look ",
+    stop("'cell.ID.column' and 'gene.ID.column' arguments are needed. Please, see ",
          "?loadSCProfiles")
   }
   if (!is.null(file.backend)) {
@@ -568,6 +568,9 @@ NULL
     } else if (is(list.data[[1]], "dgTMatrix")) {
       list.data[[1]] <- as(list.data[[1]], "dgCMatrix") 
     }
+  }
+  if (verbose) {
+    message("#### Processing SC data")
   }
   list.data <- .processData(
     counts = list.data[[1]],
@@ -665,10 +668,24 @@ NULL
     message("=== Only 1 SpatialExperiment object provided")
     list.st.objects <- list(list.st.objects)
     n.slides <- 1
-  } 
-  ## as we are going to run this, let's take the genes to calculate the intersection
-  # return(list.st.objects)
-  
+  } else if (!is(list.st.objects, "list")) {
+    stop(
+      "`st.data` argument must be a SpatialExperiment object ", 
+      "or list of SpatialExperiment objects"
+    )
+  }
+  ## check if there are names in the provided list
+  if (!is.null(names(list.st.objects))) {
+    if (length(unique(names(list.st.objects))) != length(names(list.st.objects))) {
+      warning(
+        "`st.data` list contains repeated names. Making them unique", 
+        call. = FALSE, immediate. = TRUE
+      )
+      names.st.objs <- make.unique(names(list.st.objects))
+    }
+  } else {
+    names.st.objs <- NULL
+  }
   list.st.objects <- lapply(
     X = list.st.objects,
     FUN = function(obj) {
@@ -681,7 +698,6 @@ NULL
         verbose = TRUE
       )
       genes <- rowData(obj)[[gene.ID.column]]
-      
       return(list(obj.mod, genes))
     }
   )
@@ -689,9 +705,9 @@ NULL
   ## calculate genes shared in at least X slides (assuming genes are unique in each vector)
   if (n.slides == 0 | n.slides > length(list.st.objects)) {
     warning(
-      paste0("`st.n.slides` parameter must be a valid number between 1 and he total", 
+      paste0("`st.n.slides` parameter must be a valid number between 1 and the total", 
       " number of SpatialExperiment objects provided in `st.data`. 
-      Setting n.slides = ", length(list.st.objects))
+      Setting st.n.slides = ", length(list.st.objects))
     )
     n.slides <- length(list.st.objects)
   }
@@ -700,7 +716,8 @@ NULL
   inter.genes <- names(num.genes[num.genes >= n.slides])
   
   return(
-    lapply(X = list.st.objects, FUN = function(obj) obj[[1]][inter.genes, ])
+    lapply(X = list.st.objects, FUN = function(obj) obj[[1]][inter.genes, ]) %>% 
+      setNames(names.st.objs)
   )
 }
 
@@ -741,6 +758,9 @@ NULL
     list.data[[1]] <- Matrix::Matrix(as.matrix(list.data[[1]]), sparse = TRUE)  
   } else if (is(list.data[[1]], "dgTMatrix")) {
     list.data[[1]] <- as(list.data[[1]], "dgCMatrix") 
+  }
+  if (verbose) {
+    message("===== Processing ST data")
   }
   ## filtering genes
   list.data <- .processData(
@@ -884,14 +904,14 @@ createSpatialDDLSobject <- function(
     st.data,
     st.cell.ID.column,
     st.gene.ID.column,
-    sc.name.dataset.h5,
     sc.min.counts = 0,
     sc.min.cells = 0,
     st.min.counts = 0,
     st.min.cells = 0,
     st.n.slides = 3,
-    intersection.genes = TRUE,
+    shared.genes = TRUE,
     #TODO: functions for HDF5 files: keep them??
+    sc.name.dataset.h5 = NULL, ## if HDF5 provided
     sc.file.backend = NULL,
     sc.name.dataset.backend = NULL,
     sc.compression.level = NULL,
@@ -913,7 +933,7 @@ createSpatialDDLSobject <- function(
     )  
   } else {
     spatial.experiments <- NULL
-    message("=== ST not provided")
+    if (verbose) message("#### Spatial transcriptomics data not provided")
   }
   ## single-cell profiles
   single.cell.real <- .loadSCData(
@@ -934,12 +954,20 @@ createSpatialDDLSobject <- function(
   # TODO: include messages with stats: number of genes lost, etc.
   ## intersection between datasets
   if (!missing(st.data)) {
-    if (intersection.genes) {
+    if (shared.genes) {
       inter.genes <- intersect(
         rownames(single.cell.real), rownames(spatial.experiments[[1]])
       )
+      if (verbose) {
+        message(
+          "=== Number of shared genes between SC and ST datasets: ", 
+          length(inter.genes)
+        )
+      }
       single.cell.real <- single.cell.real[inter.genes, ]
-      spatial.experiments <- lapply(X = spatial.experiments, FUN = function(obj) obj[inter.genes, ])
+      spatial.experiments <- lapply(
+        X = spatial.experiments, FUN = function(obj) obj[inter.genes, ]
+      )
     }
   }
   
@@ -1076,6 +1104,9 @@ loadSTProfiles <- function(
     st.n.slides = 3,
     verbose = TRUE
 ) {
+  if (!is(object, "SpatialDDLS")) {
+    stop("The object provided is not of SpatialDDLS class")
+  } 
   ## only load spatial data
   spatial.experiments <- .loadSTData(
     list.st.objects = st.data,
@@ -1083,9 +1114,10 @@ loadSTProfiles <- function(
     gene.ID.column = gene.ID.column,
     min.cells = min.cells,
     min.counts = min.counts,
-    st.n.slides = st.n.slides,
+    n.slides = st.n.slides,
     verbose = verbose
   )
   spatial.experiments(object) <- spatial.experiments
+  
   return(object)
 }

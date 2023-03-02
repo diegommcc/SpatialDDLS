@@ -621,7 +621,8 @@ trainDeconvModel <- function(
       .cpmCalculate(x = cell.samples[, rownames(sel.data), drop = FALSE] + 1)
     )
   }
-  return(t(scaling(counts)))
+  
+  return(scaling(t(counts)))
 }
 
 .dataForDNN.onFly <- function(
@@ -683,7 +684,8 @@ trainDeconvModel <- function(
       .cpmCalculate(x = cell.samples[, rownames(sel.data), drop = FALSE] + 1)
     )
   }
-  return(t(scaling(counts)))
+  
+  return(scaling(t(counts)))
 }
 
 .targetForDNN <- function(
@@ -912,217 +914,6 @@ trainDeconvModel <- function(
 ###################### Deconvolution of spatial slides #########################
 ################################################################################
 
-#'Deconvolute bulk RNA-Seq samples using a pre-trained SpatialDDLS model
-#'
-#'Deconvolute bulk gene expression samples (bulk RNA-Seq) to enumerate and
-#'quantify the proportion of cell types present in a bulk sample using Deep
-#'Neural Network models. This function is intended for users who want to use
-#'pre-trained models integrated in the package. So far, the available models
-#'allow to deconvolute the immune infiltration of breast cancer (using data from
-#'Chung et al., 2017) and the immune infiltration of colorectal cancer (using
-#'data from Li et al., 2017) samples. For the former, two models are available
-#'at two different levels of specificity: specific cell types
-#'(\code{breast.chung.specific}) and generic cell types
-#'(\code{breast.chung.generic}). See \code{breast.chung.generic},
-#'\code{breast.chung.specific}, and \code{colorectal.li} documentation from the
-#'\pkg{SpatialDDLSdata} package for more details.
-#'
-#'This function is intended for users who want to use \pkg{SpatialDDLS} to
-#'deconvolute their bulk RNA-Seq samples using pre-trained models. For users who
-#'want to build their own models from other scRNA-Seq datasets, see the
-#'\code{\link{loadSCProfiles}} and \code{\link{deconvSpatialDDLSObj}}
-#'functions.
-#'
-#'@param data Matrix or data frame with bulk RNA-Seq samples with genes as rows
-#'  in SYMBOL notation and samples as columns.
-#'@param model Pre-trained DNN model to use to deconvolute \code{data}. Up to
-#'  now, the available models are intended to deconvolute samples from breast
-#'  cancer (\code{breast.chung.generic} and \code{breast.chung.specific}) and
-#'  colorectal cancer (\code{colorectal.li}). These pre-trained models are
-#'  stored in the \pkg{SpatialDDLSdata} package, so it must be installed
-#'  together with \pkg{SpatialDDLS} to use this function.
-#'@param batch.size Number of samples loaded into RAM each time during the
-#'  deconvolution process. If not specified, \code{batch.size} will be set to
-#'  128.
-#'@param normalize Normalize data before deconvolution (\code{TRUE} by default).
-#'@param scaling How to scale data before training. It may be:
-#'  \code{"standarize"} (values are centered around the mean with a unit
-#'  standard deviation) or \code{"rescale"} (values are shifted and rescaled so
-#'  that they end up ranging between 0 and 1). If \code{normalize = FALSE}, data
-#'  is not scaled.
-#'@param simplify.set List specifying which cell types should be compressed into
-#'  a new label whose name will be the list name item. See examples and
-#'  vignettes for details.
-#'@param simplify.majority List specifying which cell types should be compressed
-#'  into the cell type with the highest proportion in each sample. Unlike
-#'  \code{simplify.set}, this argument allows to maintain the complexity of the
-#'  results while compressing the information, as no new labels are created.
-#'@param verbose Show informative messages during execution.
-#'
-#'@return A data frame with samples (\eqn{i}) as rows and cell types (\eqn{j})
-#'  as columns. Each entry represents the predicted proportion of cell type
-#'  \eqn{j} in sample \eqn{i}.
-#'
-#'@export
-#'
-#'@seealso \code{\link{deconvSpatialDDLSObj}}
-#'
-#' @examples
-#' \dontrun{
-#' set.seed(123)
-#' sce <- SingleCellExperiment::SingleCellExperiment(
-#'   assays = list(
-#'     counts = matrix(
-#'       rpois(30, lambda = 5), nrow = 15, ncol = 20,
-#'       dimnames = list(paste0("Gene", seq(15)), paste0("RHC", seq(20)))
-#'     )
-#'   ),
-#'   colData = data.frame(
-#'     Cell_ID = paste0("RHC", seq(20)),
-#'     Cell_Type = sample(x = paste0("CellType", seq(6)), size = 20,
-#'                        replace = TRUE)
-#'   ),
-#'   rowData = data.frame(
-#'     Gene_ID = paste0("Gene", seq(15))
-#'   )
-#' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
-#' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
-#'   cell.ID.column = "Cell_ID",
-#'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
-#'   verbose = TRUE
-#' )
-#' # training of DDLS model
-#' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDeconvModel(
-#'   object = DDLS,
-#'   on.the.fly = TRUE,
-#'   batch.size = 15,
-#'   num.epochs = 5
-#' )
-#' # simulating bulk RNA-Seq data
-#' countsBulk <- matrix(
-#'   stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)),
-#'   nrow = 40, ncol = 15,
-#'   dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
-#' )
-#' # this is only an example. See vignettes to see how to use pre-trained models
-#' # from the SpatialDDLSmodels data package
-#' results1 <- deconvSpatialDDLS(
-#'   data = countsBulk,
-#'   model = trained.model(DDLS),
-#'   normalize = TRUE
-#' )
-#' # simplify arguments
-#' simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
-#'                  CellGroup2 = c("CellType3", "CellType5"))
-#' # in this case the names of the list will be the new labels
-#' results2 <- deconvSpatialDDLS(
-#'   countsBulk,
-#'   model = trained.model(DDLS),
-#'   normalize = TRUE,
-#'   simplify.set = simplify
-#' )
-#' # in this case the cell type with the highest proportion will be the new label
-#' results3 <- deconvSpatialDDLS(
-#'   countsBulk,
-#'   model = trained.model(DDLS),
-#'   normalize = TRUE,
-#'   simplify.majority = simplify
-#' )
-#' }
-#'
-#'@references Chung, W., Eum, H. H., Lee, H. O., Lee, K. M., Lee, H. B., Kim, K.
-#'  T., et al. (2017). Single-cell RNA-seq enables comprehensive tumour and
-#'  immune cell profiling in primary breast cancer. Nat. Commun. 8 (1), 15081.
-#'  doi: \doi{10.1038/ncomms15081}.
-#'  
-deconvSpatialDDLS <- function(
-  data,
-  model = NULL,
-  batch.size = 128,
-  normalize = TRUE,
-  scaling = "standarize",
-  simplify.set = NULL,
-  simplify.majority = NULL,
-  verbose = TRUE
-) {
-  # check if python dependencies are covered
-  .checkPythonDependencies(alert = "error")
-  if (!is.matrix(data) && !is.data.frame(data)) {
-    stop("'data' must be a matrix or data.frame")
-  }
-  if (is.null(model)) {
-    stop("Model cannot be NULL. Please see available models in ", 
-         "SpatialDDLSdata package and ?deconvSpatialDDLS")
-  } else if (is(object = model, class2 = "list")) {
-      model <- listToDDLSDNN(model)
-  } else if (!is(object = model, class2 = "DeconvDLModel")) {
-      stop("'model' is not an object of DeconvDLModel class. Please ",
-           "see available models in SpatialDDLSdata package and ?deconvSpatialDDLS")
-  }
-  if (!scaling %in% c("standarize", "rescaling")) {
-    stop("'scaling' argument must be one of the following options: 'standarize', 'rescaling'")
-  } else {
-    if (scaling == "standarize") {
-      scaling.fun <- base::scale
-    } else if (scaling == "rescaling") {
-      scaling.fun <- rescale.function
-    }
-  }
-  model.dnn <- model
-  if (is.list(model.dnn@model)) {
-    model.dnn <- .loadModelFromJSON(model.dnn)  
-  }
-  # check data --> check if there are duplicated genes and aggregate
-  results <- .deconvCore(
-    deconv.counts = data,
-    model = model.dnn,
-    batch.size = batch.size,
-    normalize = normalize,
-    scaling = scaling.fun,
-    verbose = verbose
-  )
-  if (!is.null(simplify.set) && !is.null(simplify.majority)) {
-    stop("Only one type of simplification can be selected")
-  } else {
-    if (!is.null(simplify.set)) {
-      if (!is(simplify.set, "list")) {
-            stop("'simplify.set' must be a list in which each element is a ", 
-                 "cell type considered by the model that will be aggregated")
-      }
-      results <- .simplifySetGeneral(
-        results = results,
-        simplify.set = simplify.set
-      )
-    } else if (!is.null(simplify.majority)) {
-      if (!is(simplify.majority, "list")) {
-        stop("'simplify.majority' must be a list in which each element is a ", 
-             "vector of more than two cell types considered by the model")
-      }
-      results <- .simplifyMajorityGeneral(
-        results = results,
-        simplify.majority = simplify.majority
-      )
-    }
-  }
-  if (verbose) message("DONE")
-
-  return(results)
-}
-
 #' Deconvolute bulk gene expression samples (bulk RNA-Seq)
 #'
 #' Deconvolute bulk gene expression samples (bulk RNA-Seq). This function
@@ -1244,10 +1035,10 @@ deconvSpatialDDLS <- function(
 #'   Learning algorithm to quantify immune cell populations based on scRNA-Seq
 #'   data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
 #'   
-deconvSpatialDDLSObj <- function(
+deconvSpatialDDLS <- function(
   object,
-  name.data,
-  batch.size = 128,
+  index.st,
+  batch.size = 64,
   normalize = TRUE,
   scaling = "standarize",
   simplify.set = NULL,
@@ -1260,11 +1051,11 @@ deconvSpatialDDLSObj <- function(
     stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object))) {
     stop("There is not trained model in SpatialDDLS object")
-  } else if (!name.data %in% names(deconv.data(object))) {
-    stop("'name.data' provided is not present in SpatialDDLS object")
+  } else if (is.null(spatial.experiments(object))) {
+    stop("No spatial transcriptomics data provided. See ?createSpatialDDLSobject or ?loadSTProfiles")
   }
   if (!scaling %in% c("standarize", "rescaling")) {
-    stop("'scaling' argument must be one of the following options: 'standarize', 'rescaling'")
+    stop("'scaling' argument must be one of the following options: 'standarize' or 'rescaling'")
   } else {
     if (scaling == "standarize") {
       scaling.fun <- base::scale
@@ -1272,54 +1063,75 @@ deconvSpatialDDLSObj <- function(
       scaling.fun <- rescale.function
     }
   }
-  # checking if model is json format or compiled
+  # checking if DNN model is json format or compiled
   if (is.list(trained.model(object)@model)) {
     model.comp <- .loadModelFromJSON(trained.model(object))
     trained.model(object) <- model.comp
   }
-  if (missing(name.data)) {
-    message("   No 'name.data' provided. Using the first dataset\n")
-    index <- 1
-  }
-  deconv.counts <- as.matrix(assay(deconv.data(object, name.data)))
-  # deconvolution
-  results <- .deconvCore(
-    deconv.counts = deconv.counts,
-    model = trained.model(object),
-    batch.size = batch.size,
-    normalize = normalize,
-    scaling = scaling.fun,
-    verbose = verbose
-  )
-
-  if (!is.null(simplify.set) || !is.null(simplify.majority)) {
-    deconv.results(object, name.data) <- list(raw = results)
-    if (!is.null(simplify.set)) {
-      if (!is(simplify.set, "list")) {
-        stop("'simplify.set' must be a list in which each element is a ", 
-             "cell type considered by the model that will be aggregated")
-      }
-      results.set <- .simplifySetGeneral(
-        results = results,
-        simplify.set = simplify.set
-      )
-      deconv.results(object, name.data)[["simpli.set"]] <- results.set
-    }
-    if (!is.null(simplify.majority)) {
-      if (!is(simplify.majority, "list")) {
-        stop("'simplify.majority' must be a list in which each element is a ", 
-             "cell type considered by the model")
-      }
-      results.maj <- .simplifyMajorityGeneral(
-        results = results,
-        simplify.majority = simplify.majority
-      )
-      deconv.results(object, name.data)[["simpli.majority"]] <- results.maj
-    }
+  if (missing(index.st)) {
+    message(
+      "   No 'index.st' provided. Deconvoluting all ST ", 
+      "contained in the `spatial.experiments` slot\n"
+    )
+    index.st <- seq_along(spatial.experiments(object))
   } else {
-    deconv.results(object, name.data) <- results
+    if (is.character(index.st) & !is.null(names(spatial.experiments(object)))) {
+      ## check if all index.st 
+      stopifnot(
+        "`index.st` contains elements not present in spatial.experiments slot " = index.st %in% names(spatial.experiments(objects))
+      )
+    }
   }
+  if (is.character(index.st)) {
+    namesList <- index.st
+  } else {
+    namesList <- names(spatial.experiments(object))[index.st]
+  }
+  deconv.st <- lapply(
+    X = index.st,
+    FUN = function(index) {
+      deconv.counts <- assay(spatial.experiments(object, index))
+      results <-.deconvCore(
+        deconv.counts = deconv.counts,
+        model = trained.model(object),
+        batch.size = batch.size,
+        normalize = normalize,
+        scaling = scaling.fun,
+        verbose = verbose
+      )
+      if (!is.null(simplify.set) || !is.null(simplify.majority)) {
+        list.res <- list(raw = results)
+        if (!is.null(simplify.set)) {
+          if (!is(simplify.set, "list")) {
+            stop("'simplify.set' must be a list in which each element is a ", 
+                 "cell type considered by the model that will be aggregated")
+          }
+          results.set <- .simplifySetGeneral(
+            results = results,
+            simplify.set = simplify.set
+          )
+          list.res[["simpli.set"]] <- results.set
+        }
+        if (!is.null(simplify.majority)) {
+          if (!is(simplify.majority, "list")) {
+            stop("'simplify.majority' must be a list in which each element is a ", 
+                 "cell type considered by the model")
+          }
+          results.maj <- .simplifyMajorityGeneral(
+            results = results,
+            simplify.majority = simplify.majority
+          )
+          list.res[["simpli.majority"]] <- results.maj
+        }
+        return(list.res)
+      } 
+      return(results)
+    }
+  ) %>% setNames(namesList)
+  deconv.spots(object) <- deconv.st
+  
   if (verbose) message("DONE")
+  
   return(object)
 }
 
@@ -1341,10 +1153,12 @@ deconvSpatialDDLSObj <- function(
   deconv.counts <- deconv.counts[filter.features, ]
   # set features missing in deconv.data
   fill.features <- !features(model) %in% rownames(deconv.counts)
-  m.new <- matrix(0L, nrow = sum(fill.features), ncol = ncol(deconv.counts))
-  rownames(m.new) <- features(model)[fill.features]
-  deconv.counts <- rbind(deconv.counts, m.new)
-  deconv.counts <- deconv.counts[features(model), ]
+  if (any(fill.features)) {
+    m.new <- matrix(0L, nrow = sum(fill.features), ncol = ncol(deconv.counts))
+    rownames(m.new) <- features(model)[fill.features]
+    deconv.counts <- rbind(deconv.counts, m.new)
+    deconv.counts <- deconv.counts[features(model), ]  
+  }
   if (verbose) {
     message(paste("=== Filtering", sum(!filter.features),
                   "features in data that are not present in trained model\n"))
@@ -1354,9 +1168,10 @@ deconvSpatialDDLSObj <- function(
   if (normalize) {
     if (verbose) message("=== Normalizing and scaling data\n")
     deconv.counts <- log2(.cpmCalculate(x = deconv.counts + 1))
-    deconv.counts <- scaling(deconv.counts)
+    # here is the problem
+    deconv.counts <- scaling(t(deconv.counts))
   }
-  deconv.counts <- t(deconv.counts)
+  # deconv.counts <- t(deconv.counts)
   deconv.generator <- .predictDeconvDataGenerator(
     data = deconv.counts,
     model = model,

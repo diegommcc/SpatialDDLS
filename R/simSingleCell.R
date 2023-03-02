@@ -143,8 +143,8 @@ estimateZinbwaveParams <- function(
     )
   }
   # extract data from SCE to list
-  list.data <- .extractDataFromSCE(
-    SCEobject = single.cell.real(object),
+  list.data <- .extractDataFromSE(
+    SEobject = single.cell.real(object),
     cell.ID.column = cell.ID.column,
     gene.ID.column = gene.ID.column,
     new.data = FALSE
@@ -866,8 +866,8 @@ simSCProfiles <- function(
     compression.level <- hdf5Params[[2]]
   }
   # extract data and model
-  list.data <- .extractDataFromSCE(
-    SCEobject = single.cell.real(object),
+  list.data <- .extractDataFromSE(
+    SEobject = single.cell.real(object),
     cell.ID.column = cell.ID.column,
     new.data = FALSE
   )
