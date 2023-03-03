@@ -987,7 +987,7 @@ setMethod(
 #' @aliases deconv.spots,SpatialDDLS-method
 #' 
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param name.data Name of the data. If \code{NULL} (by default), all
+#' @param index.st Name of the data. If \code{NULL} (by default), all
 #'   results contained in the \code{deconv.spots} slot are returned.
 #'
 #' @export deconv.spots
@@ -1028,18 +1028,18 @@ setMethod(
 #'   
 setGeneric(
   name = "deconv.spots<-", 
-  def = function(object, name.data = NULL, value) {
+  def = function(object, index.st = NULL, value) {
     standardGeneric("deconv.spots<-")
   }
 )
 setMethod(
   f = "deconv.spots<-",
   signature = "SpatialDDLS",
-  definition = function(object, name.data, value) {
-    if (is.null(name.data)) {
+  definition = function(object, index.st, value) {
+    if (is.null(index.st)) {
       object@deconv.spots <- value  
     } else {
-      object@deconv.spots[[name.data]] <- value
+      object@deconv.spots[[index.st]] <- value
     }
     return(object)
   }
@@ -1274,7 +1274,7 @@ setMethod(
 #' @param title Title of the plot.
 #' @param legend.title Title of the legend plot.
 #' @param angle Angle of text ticks.
-#' @param name.data If a \code{\linkS4class{SpatialDDLS}} is given, name of
+#' @param index.st If a \code{\linkS4class{SpatialDDLS}} is given, name of
 #'   the element that stores the results in the \code{deconv.spots} slot.
 #' @param theme \pkg{ggplot2} theme.
 #' @param ... Other arguments for specific methods.
@@ -1307,12 +1307,13 @@ setGeneric(
     colors = NULL,
     simplify = NULL,
     color.line = NA,
-    x.label = "Bulk samples",
+    x.label = "Spots",
     rm.x.text = FALSE,
     title = "Results of deconvolution",
     legend.title = "Cell types",
     angle = 90,
     theme = NULL, 
+    index.st = NULL,
     ...
   ) {
     standardGeneric("barPlotCellTypes")
@@ -1336,34 +1337,34 @@ setMethod(
     legend.title = "Cell types",
     angle = 90,
     theme = NULL,
-    name.data = NULL
+    index.st = NULL
   ) {
     if (is.null(deconv.spots(data))) {
       stop("There are no results in SpatialDDLS object. Please see ?deconvDigitalDLSorterObj")
-    } else if (is.null(name.data)) {
-      message("'name.data' not provided. By default, first results are used")
-      name.data <- 1
-    } else if (!any(name.data %in% names(deconv.spots(data))) &&
-               !any(name.data %in% seq_along(deconv.spots(data)))) {
-      stop("Provided 'name.data' does not exist")
+    } else if (is.null(index.st)) {
+      message("'index.st' not provided. Setting index.st <- 1")
+      index.st <- 1
+    } else if (!any(index.st %in% names(deconv.spots(data))) &&
+               !any(index.st %in% seq_along(deconv.spots(data)))) {
+      stop("Provided 'index.st' does not exist")
     }
     if (!is.null(simplify) && !is.na(simplify)) {
-      if (!is(deconv.spots(data)[[name.data]], "list")) {
+      if (!is(deconv.spots(data)[[index.st]], "list")) {
         stop("No simplified results available")
       } else {
         if (simplify != "simpli.set" && simplify != "simpli.majority") {
           stop("simplify argument must be one of the following options: ",
                "'simpli.set' or 'simpli.majority'")
-        } else if (!any(simplify == names(deconv.spots(data)[[name.data]]))) {
+        } else if (!any(simplify == names(deconv.spots(data)[[index.st]]))) {
           stop(paste(simplify, "data is not present in DeconvDLModel object"))
         }
-        res <- deconv.spots(data)[[name.data]][[simplify]]
+        res <- deconv.spots(data)[[index.st]][[simplify]]
       }
     } else {
-      if (is(deconv.spots(data)[[name.data]], "list")) {
-        res <- deconv.spots(data)[[name.data]][[1]]
+      if (is(deconv.spots(data)[[index.st]], "list")) {
+        res <- deconv.spots(data)[[index.st]][[1]]
       } else {
-        res <- deconv.spots(data)[[name.data]]
+        res <- deconv.spots(data)[[index.st]]
       }
     }
     if (is.null(colnames(res))) {

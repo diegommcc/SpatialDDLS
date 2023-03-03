@@ -10,7 +10,7 @@ NULL
 #' access to the cell composition matrix of simulated training or test
 #' pseudo-bulk RNA-Seq data.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{prob.cell.types} slot.
 #' @param type.data Subset of data to e shown: \code{train} or \code{test}.
 #'
@@ -22,8 +22,8 @@ NULL
 #'
 #'   
 getProbMatrix <- function(object, type.data) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("Provided object is not a DigitalDLSorter object")
+  if (!is(object, "SpatialDDLS")) {
+    stop("Provided object is not a SpatialDDLS object")
   } else if (!any(type.data == c("train", "test"))) {
     stop("'type.data' argument must be 'train' or 'test'")
   } else if (is.null(prob.cell.types(object))) {
@@ -49,7 +49,7 @@ getProbMatrix <- function(object, type.data) {
 #' These plots are only for diagnostic purposes. This is the reason because they
 #' are generated without any parameter introduced by the user.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{prob.cell.types} slot with \code{plot} slot.
 #' @param type.data Subset of data to show: \code{train} or \code{test}.
 #' @param set Integer determining which of the 6 different subsets to display.
@@ -116,8 +116,8 @@ showProbPlot <- function(
   set,
   type.plot = "boxplot"
 ) {
-  if (!is(object, "DigitalDLSorter")) {
-    stop("Provided object is not a DigitalDLSorter object")
+  if (!is(object, "SpatialDDLS")) {
+    stop("Provided object is not a SpatialDDLS object")
   } else if (is.null(object@prob.cell.types) || 
              (length(object@prob.cell.types) == 0)) {
     stop("'prob.cell.types' slot is empty")
@@ -134,11 +134,11 @@ showProbPlot <- function(
   return(prob.cell.types(object, type.data)@plots[[set]][[type.plot]])
 }
 
-#' Prepare \code{\linkS4class{DigitalDLSorter}} object to be saved as an RDA
+#' Prepare \code{\linkS4class{SpatialDDLS}} object to be saved as an RDA
 #' file
 #'
-#' Prepare a \code{\linkS4class{DigitalDLSorter}} object that has a
-#' \code{\linkS4class{DigitalDLSorterDNN}} object with a trained DNN model.
+#' Prepare a \code{\linkS4class{SpatialDDLS}} object that has a
+#' \code{\linkS4class{SpatialDDLSDNN}} object with a trained DNN model.
 #' \code{keras} models cannot be stored natively as R objects (e.g. RData or RDS
 #' files). By saving the structure as a JSON-like character object and the
 #' weights as a list, it is possible to retrieve the model and make predictions.
@@ -147,17 +147,17 @@ showProbPlot <- function(
 #'
 #' It is possible to save the entire model as an HDF5 file with the
 #' \code{\link{saveTrainedModelAsH5}} function and to load it into a
-#' \code{\linkS4class{DigitalDLSorter}} object with the
+#' \code{\linkS4class{SpatialDDLS}} object with the
 #' \code{\link{loadTrainedModelFromH5}} function.
 #'
-#' It is also possible to save a \code{\linkS4class{DigitalDLSorter}} object as
+#' It is also possible to save a \code{\linkS4class{SpatialDDLS}} object as
 #' an RDS file with the \code{saveRDS} function without any preparation.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with the
+#' @param object \code{\linkS4class{SpatialDDLS}} object with the
 #'   \code{trained.data} slot.
 #'
-#' @return A \code{\linkS4class{DigitalDLSorter}} or
-#'   \code{\linkS4class{DigitalDLSorterDNN}} object with its trained keras model
+#' @return A \code{\linkS4class{SpatialDDLS}} or
+#'   \code{\linkS4class{SpatialDDLSDNN}} object with its trained keras model
 #'   transformed from a \code{keras.engine.sequential.Sequential} class into a
 #'   \code{list} with the architecture as a JSON-like character object and the
 #'   weights as a list.
@@ -171,11 +171,11 @@ preparingToSave <- function(
 ) {
   # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
-  if (!is(object, "DigitalDLSorter") && !is(object, "DigitalDLSorterDNN")) {
-    stop("Provided object is not a DigitalDLSorter object")
+  if (!is(object, "SpatialDDLS") && !is(object, "SpatialDDLSDNN")) {
+    stop("Provided object is not a SpatialDDLS object")
   }
   if (is.null(trained.model(object))) {
-    stop("Provided object has not a DigitalDLSorterDNN object. It is not necessary ",
+    stop("Provided object has not a SpatialDDLSDNN object. It is not necessary ",
             "to prepare this object to save it to disk")
   } else if (length(trained.model(object)@model) == 0) {
     stop("Provided object has not a trained DNN model. It is not necessary ",
@@ -233,17 +233,17 @@ preparingToSave <- function(
 ####################### Utils functions related to DNN #########################
 ################################################################################
 
-#' Save a trained \code{\linkS4class{DigitalDLSorter}} Deep Neural Network model
+#' Save a trained \code{\linkS4class{SpatialDDLS}} Deep Neural Network model
 #' to disk as an HDF5 file
 #'
-#' Save a trained \code{\linkS4class{DigitalDLSorter}} Deep Neural Network model
+#' Save a trained \code{\linkS4class{SpatialDDLS}} Deep Neural Network model
 #' to disk as an HDF5 file. Note that this function does not save the
-#' \code{\linkS4class{DigitalDLSorterDNN}} object, but the trained keras model.
+#' \code{\linkS4class{SpatialDDLSDNN}} object, but the trained keras model.
 #' This is the alternative to the \code{\link{saveRDS}} and
 #' \code{\link{preparingToSave}} functions if you want to keep the state of the
 #' optimizer.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot.
 #' @param file.path Valid file path where to save the model to.
 #' @param overwrite Overwrite file if it already exists.
@@ -253,7 +253,7 @@ preparingToSave <- function(
 #'
 #' @export
 #'
-#' @seealso \code{\link{trainDigitalDLSorterModel}}
+#' @seealso \code{\link{trainSpatialDDLSModel}}
 #'   \code{\link{loadTrainedModelFromH5}}
 #'   
 saveTrainedModelAsH5 <- function(
@@ -263,13 +263,13 @@ saveTrainedModelAsH5 <- function(
 ) {
   # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
-  if (!is(object, "DigitalDLSorter")) {
-    stop("Provided object is not a DigitalDLSorter object")
+  if (!is(object, "SpatialDDLS")) {
+    stop("Provided object is not a SpatialDDLS object")
   } else if (is.null(trained.model(object))) {
     stop("'trained.model' slot is empty")
   } else if (length(trained.model(object)@model) == 0) {
     stop("There is not a model to save on disk. First, train a model with ",
-         "'trainDigitalDLSorterModel' function")
+         "'trainSpatialDDLSModel' function")
   }
   if (file.exists(file.path)) {
     if (overwrite) {
@@ -306,26 +306,26 @@ saveTrainedModelAsH5 <- function(
 }
 
 #' Load from an HDF5 file a trained Deep Neural Network model into a
-#' \code{\linkS4class{DigitalDLSorter}} object
+#' \code{\linkS4class{SpatialDDLS}} object
 #'
 #' Load from an HDF5 file a trained Deep Neural Network model into a
-#' \code{\linkS4class{DigitalDLSorter}} object. Note that HDF5 file must be a
+#' \code{\linkS4class{SpatialDDLS}} object. Note that HDF5 file must be a
 #' valid trained model (\pkg{keras} object).
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot.
 #' @param file.path Valid file path where the model are stored.
 #' @param reset.slot Deletes \code{trained.slot} if it already exists. A new
-#'   \code{\link{DigitalDLSorterDNN}} object will be formed, but will not
+#'   \code{\link{SpatialDDLSDNN}} object will be formed, but will not
 #'   contain other slots (\code{FALSE} by default).
 #'
-#' @return \code{\linkS4class{DigitalDLSorter}} object with \code{trained.model}
+#' @return \code{\linkS4class{SpatialDDLS}} object with \code{trained.model}
 #'   slot with the new keras DNN model incorporated.
 #'
 #' @export
 #'
-#' @seealso \code{\link{trainDigitalDLSorterModel}}
-#'   \code{\link{deconvDigitalDLSorterObj}} \code{\link{saveTrainedModelAsH5}}
+#' @seealso \code{\link{trainSpatialDDLSModel}}
+#'   \code{\link{deconvSpatialDDLSObj}} \code{\link{saveTrainedModelAsH5}}
 #'   
 loadTrainedModelFromH5 <- function(
   object,
@@ -334,8 +334,8 @@ loadTrainedModelFromH5 <- function(
 ) {
   # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
-  if (!is(object, "DigitalDLSorter")) {
-    stop("Provided object is not a DigitalDLSorter object")
+  if (!is(object, "SpatialDDLS")) {
+    stop("Provided object is not a SpatialDDLS object")
   } else if (!file.exists(file.path)) {
     stop(paste(file.path, "file does not exist. Please, provide a valid file path"))
   }
@@ -345,7 +345,7 @@ loadTrainedModelFromH5 <- function(
     if (reset.slot) {
       message("  'reset.slot' is TRUE, 'trained.model' slot will be restart")
     } else {
-      message("  'reset.slot' is FALSE, just 'model' slot of DigitalDLSorterDNN",
+      message("  'reset.slot' is FALSE, just 'model' slot of SpatialDDLSDNN",
               "object will be overwritten")
     }
   } else {
@@ -361,11 +361,11 @@ loadTrainedModelFromH5 <- function(
     }
   )
   if (!slot.exists) {
-    model <- new(Class = "DigitalDLSorterDNN",
+    model <- new(Class = "SpatialDDLSDNN",
                  model = loaded.model)
   } else {
     if (reset.slot) {
-      model <- new(Class = "DigitalDLSorterDNN",
+      model <- new(Class = "SpatialDDLSDNN",
                    model = loaded.model)
     } else {
       model(object@trained.model) <- loaded.model
@@ -376,15 +376,15 @@ loadTrainedModelFromH5 <- function(
   return(object)
 }
 
-#' Plot training history of a trained DigitalDLSorter Deep Neural Network model
+#' Plot training history of a trained SpatialDDLS Deep Neural Network model
 #'
-#' Plot training history of a trained DigitalDLSorter Deep Neural Network model.
+#' Plot training history of a trained SpatialDDLS Deep Neural Network model.
 #'
-#' @param object \code{\linkS4class{DigitalDLSorter}} object with
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot.
 #' @param title Title of plot.
 #' @param metrics Metrics to be plotted. If \code{NULL} (by default), all
-#'   metrics available in the \code{\linkS4class{DigitalDLSorterDNN}} object
+#'   metrics available in the \code{\linkS4class{SpatialDDLSDNN}} object
 #'   will be plotted.
 #'
 #' @return A ggplot object with the progression of the selected metrics during
@@ -392,8 +392,8 @@ loadTrainedModelFromH5 <- function(
 #'
 #' @export
 #'
-#' @seealso \code{\link{trainDigitalDLSorterModel}}
-#'   \code{\link{deconvDigitalDLSorterObj}}
+#' @seealso \code{\link{trainSpatialDDLSModel}}
+#'   \code{\link{deconvSpatialDDLSObj}}
 #'   
 plotTrainingHistory <- function(
   object,
@@ -402,8 +402,8 @@ plotTrainingHistory <- function(
 ) {
   # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
-  if (!is(object, "DigitalDLSorter")) {
-    stop("Provided object is not of DigitalDLSorter class")
+  if (!is(object, "SpatialDDLS")) {
+    stop("Provided object is not of SpatialDDLS class")
   } else if (is.null(trained.model(object))) {
     stop("'trained.model' slot is empty")
   } else if (is.null(trained.model(object)@training.history)) {
@@ -432,19 +432,19 @@ SpatialDDLSTheme <- function() {
 ##################### Functions to transform list into DDLS ####################
 ################################################################################
 
-#' Transform DigitalDLSorterDNN-like list into an actual DigitalDLSorterDNN
+#' Transform SpatialDDLSDNN-like list into an actual SpatialDDLSDNN
 #' object
 #'
-#' Transform DigitalDLSorterDNN-like list into an actual
-#' \code{DigitalDLSorterDNN} object. This function allows to use pre-trained
-#' models in the \pkg{digitalDLSorteR} package. These models are stored in the
-#' digitalDLSorteRmodels package.
+#' Transform SpatialDDLSDNN-like list into an actual
+#' \code{SpatialDDLSDNN} object. This function allows to use pre-trained
+#' models in the \pkg{SpatialDDLS} package. These models are stored in the
+#' SpatialDDLSmodels package.
 #'
 #' @param listTo A list in which each element must correspond to each slot of an
-#'   \code{DigitalDLSorterDNN} object. The names must be the same as the slot
+#'   \code{SpatialDDLSDNN} object. The names must be the same as the slot
 #'   names.
 #'
-#' @return \code{DigitalDLSorterDNN} object with the data provided in the
+#' @return \code{SpatialDDLSDNN} object with the data provided in the
 #'   original list.
 #'
 #' @export
@@ -456,10 +456,10 @@ listToDDLSDNN <- function(listTo) {
     "model", "training.history", "test.metrics", "test.pred", 
     "cell.types", "features", "test.deconv.metrics"
   ))) {
-    stop("The list provided is not valid to create a DigitalDLSorterDNN object")
+    stop("The list provided is not valid to create a SpatialDDLSDNN object")
   }
   return(
-    digitalDLSorteR::DigitalDLSorterDNN(
+    SpatialDDLS::SpatialDDLSDNN(
       model = listTo$model,
       training.history = listTo$training.history,
       test.metrics = listTo$test.metrics, 
@@ -471,18 +471,18 @@ listToDDLSDNN <- function(listTo) {
   )
 }
 
-#' Transform DigitalDLSorter-like list into an actual DigitalDLSorterDNN object
+#' Transform SpatialDDLS-like list into an actual SpatialDDLSDNN object
 #'
-#' Transform DigitalDLSorter-like list into an actual \code{DigitalDLSorter}
+#' Transform SpatialDDLS-like list into an actual \code{SpatialDDLS}
 #' object. This function allows to generate the examples and the vignettes of
-#' \pkg{digitalDLSorteR} package as these are the data used. These data are
-#' stored in the digitalDLSorteRdata package.
+#' \pkg{SpatialDDLS} package as these are the data used. These data are
+#' stored in the SpatialDDLSdata package.
 #'
 #' @param listTo A list in which each element must correspond to each slot of an
-#'   \code{DigitalDLSorter} object. The names must be the same as the slot
+#'   \code{SpatialDDLS} object. The names must be the same as the slot
 #'   names.
 #'
-#' @return \code{DigitalDLSorter} object the data provided in the original list.
+#' @return \code{SpatialDDLS} object the data provided in the original list.
 #'
 #' @export
 #'
@@ -494,7 +494,7 @@ listToDDLS <- function(listTo) {
     "prob.cell.types", "mixed.spot.profiles", "trained.model", "deconv.data", 
     "deconv.results", "project", "version"
   ))) {
-    stop("The list provided is not valid to create a DigitalDLSorter object")
+    stop("The list provided is not valid to create a SpatialDDLS object")
   }
   # for prob.cell.types slot: ProbMatrixCellTypes 
   if (is.null(listTo$prob.cell.types)){
@@ -519,14 +519,14 @@ listToDDLS <- function(listTo) {
       )
     )
   }
-  # for trained.model slot: DigitalDLSorterDNN
+  # for trained.model slot: SpatialDDLSDNN
   if (is.null(listTo$trained.model)){
     trained.model <- NULL
   } else if (is(listTo$trained.model, "list")) {
     trained.model <- listToDDLSDNN(listTo$trained.model)
   }
   return(
-    DigitalDLSorter(
+    SpatialDDLS(
       single.cell.real = listTo$single.cell.real,
       zinb.params = listTo$zinb.params,
       single.cell.simul = listTo$single.cell.simul,
@@ -579,21 +579,21 @@ listToDDLS <- function(listTo) {
   dependencies <- c(python = .isPython(), tf = .isTensorFlow())
   if (!all(dependencies)) {
     messageT <- c(
-      "There is no a Python interpreter with all the digitalDLSorteR \
+      "There is no a Python interpreter with all the SpatialDDLS \
         dependencies covered available. Please, look at \
-        https://diegommcc.github.io/digitalDLSorteR/articles/kerasIssues.html \
+        https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html \
         or see ?installPythonDepend"
     )
     warningT <- c(
-      "There is no a Python interpreter with all the digitalDLSorteR \
+      "There is no a Python interpreter with all the SpatialDDLS \
         dependencies covered available. Please, look at \
-        https://diegommcc.github.io/digitalDLSorteR/articles/kerasIssues.html \
+        https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html \
         or see ?installPythonDepend"
     )
     errorT <- c(
-      "There is no a Python interpreter with all the digitalDLSorteR \
+      "There is no a Python interpreter with all the SpatialDDLS \
         dependencies covered available. Please, look at \
-        https://diegommcc.github.io/digitalDLSorteR/articles/kerasIssues.html \
+        https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html \
         or see ?installPythonDepend"
     )
     switch(
@@ -608,21 +608,21 @@ listToDDLS <- function(listTo) {
   return(invisible(all(dependencies)))
 }
 
-#' Install Python dependencies for digitalDLSorteR
+#' Install Python dependencies for SpatialDDLS
 #'
 #' This is a helper function to install Python dependencies needed: a Python
 #' interpreter with TensorFlow Python library and its dependencies. It is
 #' performed using the \pkg{reticulate} package and the installer of the
 #' \pkg{tensorflow} R package. The available options are virtual or conda
-#' environments. The new environment is called digitaldlsorter-env. In any case,
+#' environments. The new environment is called SpatialDDLS-env. In any case,
 #' this installation can be manually done as it is explained in
-#' \url{https://diegommcc.github.io/digitalDLSorteR/articles/kerasIssues.html},
+#' \url{https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html},
 #' but we recommend using this function.
 #'
 #' This function is intended to make easier the installation of the requirements
-#' needed to use \pkg{digitalDLSorteR}. It will automatically install Miniconda
+#' needed to use \pkg{SpatialDDLS}. It will automatically install Miniconda
 #' (if wanted, see Parameters) and create an environment called
-#' 'digitaldlsorter-env'. If you want to use other python/conda environment, see
+#' 'SpatialDDLS-env'. If you want to use other python/conda environment, see
 #' \code{?tensorflow::use_condaenv} and/or the vignettes.
 #'
 #' @param conda Path to a conda executable. Use \code{"auto"} (by default)
@@ -675,10 +675,10 @@ installTFpython <- function(
     }
   }
   dirConda <- reticulate::conda_binary("auto")
-  message("\n=== Creating digitaldlsorter-env environment")
+  message("\n=== Creating SpatialDDLS-env environment")
   status2 <- tryCatch(
     reticulate::conda_create(
-      envname = "digitaldlsorter-env", 
+      envname = "SpatialDDLS-env", 
       packages = "python==3.7.11"
     ), 
     error = function(e) {
@@ -692,13 +692,13 @@ installTFpython <- function(
       call. = FALSE
     )
   }
-  message("\n=== Installing tensorflow in digitaldlsorter-env environment")
+  message("\n=== Installing tensorflow in SpatialDDLS-env environment")
   status3 <- tryCatch(
     tensorflow::install_tensorflow(
       version = "2.5-cpu", 
       method = "conda", 
       conda = dirConda, 
-      envname = "digitaldlsorter-env"
+      envname = "SpatialDDLS-env"
     ), 
     error = function(e) {
       return(TRUE)
@@ -712,6 +712,6 @@ installTFpython <- function(
     )
   }
   message("Installation complete!")
-  message(c("Restart R and load digitalDLSorteR. If you find any problem, \
+  message(c("Restart R and load SpatialDDLS. If you find any problem, \
          see ?tensorflow::use_condaenv and kerasIssues.Rmd vignette"))
 }

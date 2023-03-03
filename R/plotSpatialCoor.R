@@ -173,11 +173,11 @@ plotSpatialPropAll <- function(
   )
   # TODO: change this to parse a gradient palette blablabla
   if (missing(colors)) colors <- scale_color_gradient(low = "white", high = "blue")
-  if (is.null(title)) title.plot <- "Predicted proportions"
+  if (is.null(title)) title <- "Predicted proportions"
   plot <- ggplot(
     dfPlot, aes(x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], color = Proportion)
   ) + geom_point(size = size.point, alpha = alpha.point) + colors + 
-    ggtitle(title.plot) + 
+    ggtitle(title) + 
     SpatialDDLSTheme() 
   if (color.scale == "shared") {
     plot <- plot + facet_wrap(~ CellType, nrow = nrow, ncol = ncol) 

@@ -173,7 +173,8 @@ NULL
 #'   
 trainDeconvModel <- function(
   object,
-  combine = "both",
+  type.data.train = "bulk",
+  type.data.test = "bulk",
   batch.size = 64,
   num.epochs = 10,
   num.hidden.layers = 2,
@@ -203,8 +204,11 @@ trainDeconvModel <- function(
   } else if (batch.size < 10) {
     stop("'batch.size' argument must be greater than or equal to 10")
   } 
-  if (!any(combine %in% c("both", "bulk", "single-cell"))) {
-    stop("'combine' argument must be one of the following options: 'both', 'bulk' or 'single-cell'")
+  if (!any(type.data.train %in% c("both", "bulk", "single-cell"))) {
+    stop("'type.data.train' argument must be one of the following options: 'both', 'bulk' or 'single-cell'")
+  }
+  if (!any(type.data.test %in% c("both", "bulk", "single-cell"))) {
+    stop("'type.data.test' argument must be one of the following options: 'both', 'bulk' or 'single-cell'")
   }
   # mixed.spot.profiles and single-cell.real/simul must be provided, since we evaluate 
   # our model on both type of samples compulsory
@@ -224,27 +228,31 @@ trainDeconvModel <- function(
     }
   }
   if (!on.the.fly) {
-    if (verbose) message("=== Training and test from stored data was selected")
-    if ((combine == "both" && is.null(mixed.spot.profiles(object)) ||
-         combine == "both" && (is.null(single.cell.real(object)) && 
-                               is.null(single.cell.simul(object))))) {
-      stop("If 'combine = both' is selected, 'mixed.spot.profiles' and at least ",
-           "one single cell slot must be provided")
-    } else if (combine == "bulk" && is.null(mixed.spot.profiles(object))) {
-      stop("If 'combine' = bulk is selected, 'mixed.spot.profiles' must be provided")
-    } else if (is.null(mixed.spot.profiles(object, "test"))) {
-      stop("trainDeconvModel evaluates DNN model on both types of ", 
-           "profiles: bulk and single-cell. Therefore, bulk data for test ", 
-           "must be provided")
-    }
-    .pseudobulk.fun <- NULL
+    ## checking if all data are provided
+    vec.type.data <- c(type.data.train, type.data.test)
+    for (type in seq_along(vec.type.data)) {
+      if (verbose & type == 1) message("=== Training and test from stored data")
+      text.message <- ifelse(type == 1, "train" , "test")
+      if (
+        (vec.type.data[type] == "both" && 
+         is.null(mixed.spot.profiles(object, type.data = text.message)) ||
+         vec.type.data[type] == "both" && 
+         (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))))
+      ) {
+        stop("If `type.data", text.message, "` = both' is selected, 'mixed.spot.profiles' and at least ",
+             "one single cell slot must be provided")
+      } else if (vec.type.data[type] == "bulk" && is.null(mixed.spot.profiles(object, type.data = text.message))) {
+        stop("If `type.data", text.message, "` = bulk is selected, 'mixed.spot.profiles' must be provided")
+      } 
+      
+    }  
   } else {
     if (verbose) message("=== Training and test on the fly was selected")
-    if (combine == "both" && (is.null(single.cell.real(object)) && 
-                               is.null(single.cell.simul(object)))) {
-      stop("If 'combine = both' is selected, at least ",
+    if ((type.data.train == "both" | type.data.train == "single-cell") && 
+        (is.null(single.cell.real(object)) && is.null(single.cell.simul(object)))) {
+      stop("If `type.data.train` = both' is selected, at least ",
            "one single cell slot must be provided")
-    }
+  } 
     ## just in case of on.the.fly = TRUE
     if (!pseudobulk.function %in% c("MeanCPM", "AddCPM", "AddRawCount")) {
       stop("'pseudobulk.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCount'")
@@ -258,12 +266,13 @@ trainDeconvModel <- function(
       }
     }
   }
-  # single-cell must e provided independently of on.the.fly
-  if (combine == "single-cell" && (is.null(single.cell.real(object)) && 
-                                   is.null(single.cell.simul(object)))) {
-    stop("If combine = 'single-cell' is selected, at least ",
-         "one single cell slot must be provided")
-  }
+  # TODO: now, this part can be erased
+  # single-cell must be provided independently of on.the.fly
+  # if (type.data.train == "single-cell" && (is.null(single.cell.real(object)) && 
+  #                                  is.null(single.cell.simul(object)))) {
+  #   stop("If type.data.train = 'single-cell' is selected, at least ",
+  #        "one single cell slot must be provided")
+  # }
   if (!is.null(trained.model(object))) {
     warning("'trained.model' slot is not empty. So far, SpatialDDLS",
             " does not support for multiple trained models, so the current model",
@@ -276,12 +285,12 @@ trainDeconvModel <- function(
   if (verbose) verbose.model <- 1
   else verbose.model <- 0
   prob.matrix.train <- .targetForDNN(
-    object = object, combine = combine, 
+    object = object, combine = type.data.train, 
     shuffle = TRUE, type.data = "train", 
     fly = on.the.fly, verbose = verbose
   )
   prob.matrix.test <- .targetForDNN(
-    object = object, combine = "both", 
+    object = object, combine = type.data.test, 
     shuffle = FALSE, type.data = "test", 
     fly = on.the.fly, verbose = verbose
   )
@@ -388,7 +397,7 @@ trainDeconvModel <- function(
     fun.pseudobulk = .pseudobulk.fun,
     scaling = scaling.fun,
     batch.size = batch.size,
-    combine = combine,
+    combine = type.data.train,
     shuffle = shuffle,
     pattern = pattern,
     min.index = NULL,
@@ -464,6 +473,7 @@ trainDeconvModel <- function(
   return(object)
 }
 
+# TODO: combine argument here is necessary?
 .trainGenerator <- function(
   object,
   funGen,
