@@ -661,7 +661,7 @@ NULL
   gene.ID.column,
   min.cells = 0, 
   min.counts = 0,
-  n.slides = length(list.st.objects),
+  n.slides = 1,
   verbose = TRUE
 ) {
   if (is(list.st.objects, "SpatialExperiment")) {
@@ -713,47 +713,62 @@ NULL
     )
     n.slides <- length(list.st.objects)
   }
-  
-  all.genes <- sapply(X = list.st.objects, FUN = function(x) x[[2]])
-  num.genes <- table(unlist(all.genes))
-  inter.genes <- names(num.genes[num.genes >= n.slides])
-  return(
-    lapply(
-      list.st.objects, function(x) {
-        ## genes not present in inter.genes: they will be 0s
-        genes.out <- inter.genes[!inter.genes %in% x[[2]]]
-        ## now, inter.genes.subset will be used to filter the original matrix
-        inter.genes.subset <- inter.genes[inter.genes %in% x[[2]]]
-        x[[1]] <- x[[1]][inter.genes.subset, ]
-        ## and now we can generate rows for those genes not detected in this slide
-        if (identical(genes.out, character(0))) {
-          return(list(x[[1]], x[[2]]))
-        } else {
-          zero.genes <- matrix(
-            0L, nrow = length(genes.out), ncol = ncol(x[[1]]), 
-            dimnames = list(genes.out, NULL)
-          )
-          counts <- rbind(
-            SummarizedExperiment::assays(x[[1]])[[1]], zero.genes
-          )[inter.genes, ]
-          genes.metadata <- S4Vectors::DataFrame(rownames(counts)) %>% 
-            setNames(colnames(SummarizedExperiment::rowData(x[[1]])))
-          
-          return(
-            SpatialExperiment::SpatialExperiment(
-              assays = rbind(
-                SummarizedExperiment::assays(x[[1]])[[1]], zero.genes
-              )[inter.genes, ],
-              colData = x[[1]]@colData,
-              rowData = S4Vectors::DataFrame(rownames(counts)) %>% 
-                setNames(colnames(SummarizedExperiment::rowData(x[[1]]))),
-              spatialCoords = SpatialExperiment::spatialCoords(x[[1]])
+  ## if n.slides == 1 & length(list.st.objects) == 1: only the first element, 
+  # no subset
+  if (n.slides == 1 & length(list.st.objects) == 1) {
+    return(
+      list(list.st.objects[[1]][[1]]) %>% setNames(names.st.objs)
+    )
+  ## if n.slides == 1 but length(list.st.objects) != 1: no subset, but lapply
+  # tyo make it a list of n elements
+  } else if (n.slides == 1) {
+    return(
+      lapply(X = list.st.objects, FUN = function(x) x[[1]]) %>% 
+        setNames(names.st.objs)
+    )
+  ## if n.slides != 1 & length(list.st.objects) != 1: subset, vectorized
+  } else {
+    all.genes <- sapply(X = list.st.objects, FUN = function(x) x[[2]])
+    num.genes <- table(unlist(all.genes))
+    inter.genes <- names(num.genes[num.genes >= n.slides])
+    return(
+      lapply(
+        list.st.objects, function(x) {
+          ## genes not present in inter.genes: they will be 0s
+          genes.out <- inter.genes[!inter.genes %in% x[[2]]]
+          ## now, inter.genes.subset will be used to filter the original matrix
+          inter.genes.subset <- inter.genes[inter.genes %in% x[[2]]]
+          x[[1]] <- x[[1]][inter.genes.subset, ]
+          ## and now we can generate rows for those genes not detected in this slide
+          if (identical(genes.out, character(0))) {
+            return(x[[1]])
+          } else {
+            zero.genes <- matrix(
+              0L, nrow = length(genes.out), ncol = ncol(x[[1]]), 
+              dimnames = list(genes.out, NULL)
             )
-          )
+            counts <- rbind(
+              SummarizedExperiment::assays(x[[1]])[[1]], zero.genes
+            )[inter.genes, ]
+            genes.metadata <- S4Vectors::DataFrame(rownames(counts)) %>% 
+              setNames(colnames(SummarizedExperiment::rowData(x[[1]])))
+            
+            return(
+              SpatialExperiment::SpatialExperiment(
+                assays = rbind(
+                  SummarizedExperiment::assays(x[[1]])[[1]], zero.genes
+                )[inter.genes, ],
+                colData = x[[1]]@colData,
+                rowData = S4Vectors::DataFrame(rownames(counts)) %>% 
+                  setNames(colnames(SummarizedExperiment::rowData(x[[1]]))),
+                spatialCoords = SpatialExperiment::spatialCoords(x[[1]])
+              )
+            )
+          }
         }
-      }
-    )  %>% setNames(names.st.objs)
-  )
+      ) %>% setNames(names.st.objs)
+    )
+  }
 }
 
 
@@ -810,12 +825,20 @@ NULL
     file.backend = NULL,
     verbose = verbose
   )
-  ## modify original st.object
-  st.object@assays <- SummarizedExperiment::Assays(list.data[[1]])
-  st.object@colData <- list.data[[2]]
-  rowData(st.object) <- list.data[[3]]
-
-  return(st.object)
+  # ## modify original st.object
+  # st.object@assays <- SummarizedExperiment::Assays(list.data[[1]])
+  # st.object@colData <- list.data[[2]]
+  # # TODO: error
+  # rowData(st.object) <- list.data[[3]]
+  # message(class(list.data[[1]]))
+  return(
+    SpatialExperiment::SpatialExperiment(
+      assays = list.data[[1]],
+      colData = list.data[[2]],
+      rowData = list.data[[3]],
+      spatialCoords = SpatialExperiment::spatialCoords(st.object)
+    )
+  )
 }
 
 ################################################################################
@@ -962,7 +985,7 @@ createSpatialDDLSobject <- function(
       min.counts = st.min.counts,
       n.slides = st.n.slides,
       verbose = verbose
-    )  %>% lapply(X = ., function(x) x[[1]])
+    ) #  %>% lapply(X = ., function(x) x[[1]])
   } else {
     spatial.experiments <- NULL
     if (verbose) message(">>> Spatial transcriptomics data not provided")

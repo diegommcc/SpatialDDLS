@@ -127,9 +127,11 @@ calculateEvalMetrics <- function(
   use.met <- valid.met[names(valid.met) %in% metrics]
   if (length(use.met) == 0) stop("The provided metrics are not valid. Only 'MAE' and/or 'MSE' are accepted")
   
+  # TODO: why this is run instead of taking predictions from the object??
   # extract information
   testProbsDeconv <- .targetForDNN(
-    object, combine = "both", type.data = "test", fly = TRUE, shuffle = FALSE
+    object, combine = "both", type.data = "test", 
+    downsampling = NULL, fly = TRUE, shuffle = FALSE
   )
   predictionsDeconv <- trained.model(object)@test.pred
   # results test

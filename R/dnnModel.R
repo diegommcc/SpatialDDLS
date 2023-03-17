@@ -175,6 +175,7 @@ trainDeconvModel <- function(
   object,
   type.data.train = "bulk",
   type.data.test = "bulk",
+  sc.downsampling = NULL,
   batch.size = 64,
   num.epochs = 10,
   num.hidden.layers = 2,
@@ -287,11 +288,13 @@ trainDeconvModel <- function(
   prob.matrix.train <- .targetForDNN(
     object = object, combine = type.data.train, 
     shuffle = TRUE, type.data = "train", 
+    downsampling = sc.downsampling,
     fly = on.the.fly, verbose = verbose
   )
   prob.matrix.test <- .targetForDNN(
     object = object, combine = type.data.test, 
     shuffle = FALSE, type.data = "test", 
+    downsampling = NULL,
     fly = on.the.fly, verbose = verbose
   )
   n.train <- nrow(prob.matrix.train)
@@ -698,30 +701,65 @@ trainDeconvModel <- function(
   return(scaling(t(counts)))
 }
 
+.downsampleCells <- function(object, downsampling, type.data, verbose) {
+  ## check if downsampling is a valid number
+  listcells <- prob.cell.types(object, type.data) %>% set.list()
+  if (all(downsampling > sapply(listcells, length))) {
+    warning(
+      "Downsampling is not possible: all cell types have less than ", 
+      downsampling, " cells", call. = FALSE, immediate. = TRUE
+    )
+  } else {
+    vecdown <- sapply(listcells, length) > downsampling
+    if (any(vecdown)) {
+      if (verbose)
+        message(
+          "=== Downsampling to ", downsampling, " cells for: ", 
+          paste(names(vecdown)[vecdown], collapse = ", ")
+        )
+      for (i in names(vecdown)[vecdown]) {
+        listcells[[i]] <- sample(x = listcells[[i]], size = downsampling)  
+      }
+    } else {
+      if (verbose)
+        message("=== No cell types with # of cells greater than ", downsampling)
+    }  
+  }
+  return(listcells)
+}
+
 .targetForDNN <- function(
   object, 
   combine,
   type.data,
+  downsampling,
   fly,
   shuffle,
   verbose
 ) {
   if (combine == "both") {
+    if (!is.null(downsampling)) {
+      listcells <- .downsampleCells(
+        object = object, downsampling = downsampling, 
+        type.data = type.data, verbose = verbose
+      )    
+    } else {
+      listcells <- prob.cell.types(object, type.data) %>% set.list()
+    }
     tpsm <- matrix(
       unlist(sapply(
-        X = names(prob.cell.types(object, type.data) %>% set.list()),
+        X = names(listcells),
         FUN = function (x, l) {
           v <- rep(0, length(l))
           names(v) <- names(l)
           v[x] <- 1
           return(rep(v, length(l[[x]])))
         }, 
-        l = prob.cell.types(object, type.data) %>% set.list()
+        l = listcells
       )), 
-      ncol = length(prob.cell.types(object, type.data) %>% set.list()), 
+      ncol = length(listcells), 
       byrow = TRUE,
-      dimnames = list(unlist(prob.cell.types(object, type.data) %>% set.list()),
-                      names(prob.cell.types(object, type.data) %>% set.list()))
+      dimnames = list(unlist(listcells), names(listcells))
     )
     allCellTypes <- colnames(prob.cell.types(object, type.data) %>% prob.matrix())
     if (!all(allCellTypes %in% colnames(tpsm))) {
@@ -763,19 +801,27 @@ trainDeconvModel <- function(
     }
   } else if (combine == "single-cell") {
     if (verbose) message("    Using only single-cell samples\n")
+    if (!is.null(downsampling)) {
+      listcells <- .downsampleCells(
+        object = object, downsampling = downsampling, 
+        type.data = type.data, verbose = verbose
+      )    
+    } else {
+      listcells <- prob.cell.types(object, type.data) %>% set.list()
+    }
+    
     probs.matrix <- matrix(
       unlist(sapply(
-        X = names(prob.cell.types(object, type.data) %>% set.list()),
+        X = names(listcells),
         FUN = function (x, l) {
           v <- rep(0, length(l))
           names(v) <- names(l)
           v[x] <- 1
           return(rep(v, length(l[[x]])))
-        }, l = prob.cell.types(object, type.data) %>% set.list()
-      )), ncol = length(prob.cell.types(object, type.data) %>% set.list()), 
+        }, l = listcells
+      )), ncol = length(listcells), 
       byrow = TRUE,
-      dimnames = list(unlist(prob.cell.types(object, type.data) %>% set.list()),
-                      names(prob.cell.types(object, type.data) %>% set.list()))
+      dimnames = list(unlist(listcells), names(listcells))
     )
     allCellTypes <- colnames(prob.cell.types(object, type.data) %>% prob.matrix())
     if (!any(allCellTypes %in% colnames(probs.matrix))) {
