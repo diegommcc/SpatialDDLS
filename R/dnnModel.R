@@ -6,55 +6,51 @@ NULL
 ################### Train and evaluate deconvolution model #####################
 ################################################################################
 
-#' Train deconvolution model
+#' Train deconvolution model for spatial transcriptomics data
 #'
 #' Train a Deep Neural Network model using the training data from
-#' \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model
-#' is evaluated with test data and prediction results are otained to determine
-#' its performance (see \code{?\link{calculateEvalMetrics}}). Training and
-#' evaluation can be performed using simulated profiles stored in the
-#' \code{\linkS4class{SpatialDDLS}} object or 'on the fly' by simulating the
-#' pseudo-bulk profiles at the same time as the training/evaluation is performed
-#' (see Details).
+#' \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
+#' evaluated using test data and prediction results are obtained to determine
+#' its performance (see \code{?\link{calculateEvalMetrics}}).
 #'
 #' \strong{Keras/Tensorflow environment}
 #'
-#' All Deep Learning related steps in the \pkg{SpatialDDLS} package are
+#' All Deep Learning-related steps in the \pkg{SpatialDDLS} package are
 #' performed by using the \pkg{keras} package, an API in R for \pkg{keras} in
-#' Python available on CRAN. We recommend using the installation guide available
-#' at \url{https://tensorflow.rstudio.com/} in order to set a more customized
-#' configuration.
+#' Python available on CRAN.
 #'
-#' \strong{Simulation of bulk RNA-Seq profiles 'on the fly'}
+#' \strong{Simulation of mixed spot transcriptional profiles 'on the fly'}
 #'
-#' \code{trainDeconvModel} allows to avoid storing bulk RNA-Seq
-#' profiles by using \code{on.the.fly} argument. This functionality aims to
-#' avoid exexcution times and memory usage of the \code{simBulkProfiles}
-#' function, as the simulated pseudo-bulk profiles are built in each batch
-#' during training/evaluation.
+#' \code{trainDeconvModel} allows to avoid storing simulated mixed spot profiles
+#' by using the \code{on.the.fly} argument. This functionality aims to avoid the
+#' long execution times and memory usage of the \code{simMixedSpotProfiles}
+#' function: simulated profiles are built in each batch during
+#' training/evaluation.
 #'
 #' \strong{Neural network architecture}
 #'
-#' By default, \code{\link{trainDeconvModel}} implements the
-#' architecture selected in Torroja and Sánchez-Cabo, 2019. However, as the
-#' default architecture may not produce good results depending on the dataset,
-#' it is possible to change its parameters by using the corresponding argument:
-#' number of hidden layers, number of neurons for each hidden layer, dropout
-#' rate, activation function and loss function. For more customized models, it
-#' is possible to provide a pre-built model in the \code{custom.model} argument
-#' (a \code{keras.engine.sequential.Sequential} object) where it is necessary
-#' that the number of input neurons is equal to the number of considered
+#' It is possible to change the DNN's architecture: number of hidden layers,
+#' number of neurons for each hidden layer, dropout rate, activation function,
+#' and loss function. For more customized models, it is possible to provide a
+#' pre-built model through the \code{custom.model} argument (a
+#' \code{keras.engine.sequential.Sequential} object) where it is necessary that
+#' the number of input neurons is equal to the number of considered
 #' features/genes and the number of output neurons is equal to the number of
 #' considered cell types.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.matrix}
 #'   and \code{mixed.spot.profiles} slots.
-#' @param combine Type of profiles to be used for training. Can be
-#'   \code{'both'}, \code{'single-cell'} or \code{'bulk'} (\code{'both'} by
-#'   default). For test data, both types of profiles will be used.
-#' @param batch.size Number of samples per gradient update. If not specified,
-#'   \code{batch.size} will default to 64.
+#' @param type.data.train Type of profiles to be used for training. It can be
+#'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
+#'   default).
+#' @param type.data.test Type of profiles to be used for evaluation. It can be
+#'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'both'} by
+#'   default).
+#' @param sc.downsampling It is only used if \code{type.data.train} is equal to
+#'   \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
+#'   single-cell profiles used for training (\code{NULL} by default).
+#' @param batch.size Number of samples per gradient update (64 by default).
 #' @param num.epochs Number of epochs to train the model (10 by default).
 #' @param num.hidden.layers Number of hidden layers of the neural network (2 by
 #'   default). This number must be equal to the length of \code{num.units}
@@ -62,13 +58,12 @@ NULL
 #' @param num.units Vector indicating the number of neurons per hidden layer
 #'   (\code{c(200, 200)} by default). The length of this vector must be equal to
 #'   \code{num.hidden.layers} argument.
-#' @param activation.fun Activation function to use (\code{'relu'} by default).
-#'   See the
+#' @param activation.fun Activation function (\code{'relu'} by default). See the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/activation_relu.html}{keras
-#'   documentation} to know available activation functions.
+#'    documentation} to know available activation functions.
 #' @param dropout.rate Float between 0 and 1 indicating the fraction of the
-#'   input neurons to drop in layer dropouts (0.25 by default). By default,
-#'   \pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.
+#'   input neurons to be dropped in layer dropouts (0.25 by default). By
+#'   default, \pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.
 #' @param loss Character indicating loss function selected for model training
 #'   (\code{'kullback_leibler_divergence'} by default). See the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/loss-functions.html}{keras
@@ -82,27 +77,26 @@ NULL
 #'   \code{"standarize"} (values are centered around the mean with a unit
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1).
-#' @param custom.model Allows to use a custom neural network. It must be a
+#' @param custom.model It allows to use a custom neural network. It must be a
 #'   \code{keras.engine.sequential.Sequential} object in which the number of
 #'   input neurons is equal to the number of considered features/genes, and the
 #'   number of output neurons is equal to the number of cell types considered
 #'   (\code{NULL} by default). If provided, the arguments related to the neural
 #'   network architecture will be ignored.
 #' @param shuffle Boolean indicating whether data will be shuffled (\code{TRUE}
-#'   by default). Note that if \code{mixed.spot.profiles} is not \code{NULL}, the data
-#'   already has been shuffled and \code{shuffle} will be ignored.
+#'   by default).
 #' @param on.the.fly Boolean indicating whether data will be generated 'on the
 #'   fly' during training (\code{FALSE} by default).
-#' @param pseudobulk.function Function used to build pseudo-bulk samples. It may
-#'   be: \itemize{ \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-#'   transformed into CPMs and cross-cell averages are calculated. Then,
-#'   \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
-#'   profiles (raw counts) are transformed into CPMs and are added up across
-#'   cells. Then, log-CPMs are calculated. \item \code{"AddRawCount"}:
-#'   single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
-#'   are calculated.}
-#' @param threads Number of threads used during simulation of pseudo-bulk
-#'   samples if \code{on.the.fly = TRUE} (1 by default).
+#' @param agg.function Function used to build mixed spot transcriptional
+#'   profiles. It may be: \itemize{ \item \code{"MeanCPM"}: single-cell profiles
+#'   (raw counts) are transformed into CPMs and cross-cell averages are
+#'   calculated. Then, \code{log2(CPM + 1)} is calculated. \item
+#'   \code{"AddCPM"}: single-cell profiles (raw counts) are transformed into
+#'   CPMs and are added up across cells. Then, log-CPMs are calculated. \item
+#'   \code{"AddRawCount"}: single-cell profiles (raw counts) are added up across
+#'   cells. Then, log-CPMs are calculated.}
+#' @param threads Number of threads used during simulation of mixed spots
+#'   transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).
 #' @param view.metrics.plot Boolean indicating whether to show plots of loss and
 #'   metrics progression during training (\code{TRUE} by default). \pkg{keras}
 #'   for R allows to see the progression of the model during training if you are
@@ -110,15 +104,14 @@ NULL
 #' @param verbose Boolean indicating whether to display model progression during
 #'   training and model architecture information (\code{TRUE} by default).
 #'
-#' @return A \code{\linkS4class{SpatialDDLS}} object with
-#'   \code{trained.model} slot containing a
-#'   \code{\linkS4class{DeconvDLModel}} object. For more information about
-#'   the structure of this class, see \code{?\linkS4class{DeconvDLModel}}.
+#' @return A \code{\linkS4class{SpatialDDLS}} object with \code{trained.model}
+#'   slot containing a \code{\linkS4class{DeconvDLModel}} object. For more
+#'   information about the structure of this class, see
+#'   \code{?\linkS4class{DeconvDLModel}}.
 #'
 #' @export
 #'
-#' @seealso \code{\link{plotTrainingHistory}}
-#'   \code{\link{deconvSpatialDDLS}} \code{\link{deconvSpatialDDLSObj}}
+#' @seealso \code{\link{plotTrainingHistory}} \code{\link{deconvSpatialDDLS}}
 #'
 #' @examples
 #' \dontrun{
@@ -173,8 +166,8 @@ NULL
 #'   
 trainDeconvModel <- function(
   object,
-  type.data.train = "bulk",
-  type.data.test = "bulk",
+  type.data.train = "mixed",
+  type.data.test = "mixed",
   sc.downsampling = NULL,
   batch.size = 64,
   num.epochs = 10,
@@ -189,7 +182,7 @@ trainDeconvModel <- function(
   custom.model = NULL,
   shuffle = FALSE,
   on.the.fly = FALSE,
-  pseudobulk.function = "MeanCPM",
+  agg.function = "MeanCPM",
   threads = 1,
   view.metrics.plot = TRUE,
   verbose = TRUE
@@ -200,25 +193,23 @@ trainDeconvModel <- function(
     stop("The provided object is not of SpatialDDLS class")
   } else if (is.null(prob.cell.types(object))) {
     stop("'prob.cell.types' slot is empty")
-  } else if (num.epochs <= 1) {
+  } else if (num.epochs <= 2) {
     stop("'num.epochs' argument must be greater than or equal to 2")
   } else if (batch.size < 10) {
-    stop("'batch.size' argument must be greater than or equal to 10")
+    stop("'batch.size' argument must be greater than 10")
   } 
-  if (!any(type.data.train %in% c("both", "bulk", "single-cell"))) {
-    stop("'type.data.train' argument must be one of the following options: 'both', 'bulk' or 'single-cell'")
+  if (!any(type.data.train %in% c("both", "mixed", "single-cell"))) {
+    stop("'type.data.train' argument must be one of the following options: 'both', 'mixed' or 'single-cell'")
   }
-  if (!any(type.data.test %in% c("both", "bulk", "single-cell"))) {
-    stop("'type.data.test' argument must be one of the following options: 'both', 'bulk' or 'single-cell'")
+  if (!any(type.data.test %in% c("both", "mixed", "single-cell"))) {
+    stop("'type.data.test' argument must be one of the following options: 'both', 'mixed' or 'single-cell'")
   }
-  # mixed.spot.profiles and single-cell.real/simul must be provided, since we evaluate 
-  # our model on both type of samples compulsory
   # check if data provided is correct regarding on the fly training
-  if (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))) {
-    stop("At least one single-cell slot must be provided ('single.cell.real' ", 
-         "or 'single.cell.simul') as trainDeconvModel evaluates ", 
-         "DNN model on both types of profiles: bulk and single-cell")
-  }
+  # if (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))) {
+  #   stop("At least one single-cell slot must be provided ('single.cell.real' ", 
+  #        "or 'single.cell.simul') as trainDeconvModel evaluates ", 
+  #        "DNN model on both types of profiles: mixed and single-cell")
+  # }
   if (!scaling %in% c("standarize", "rescale")) {
     stop("'scaling' argument must be one of the following options: 'standarize', 'rescale'")
   } else {
@@ -242,8 +233,8 @@ trainDeconvModel <- function(
       ) {
         stop("If `type.data", text.message, "` = both' is selected, 'mixed.spot.profiles' and at least ",
              "one single cell slot must be provided")
-      } else if (vec.type.data[type] == "bulk" && is.null(mixed.spot.profiles(object, type.data = text.message))) {
-        stop("If `type.data", text.message, "` = bulk is selected, 'mixed.spot.profiles' must be provided")
+      } else if (vec.type.data[type] == "mixed" && is.null(mixed.spot.profiles(object, type.data = text.message))) {
+        stop("If `type.data", text.message, "` = mixed is selected, 'mixed.spot.profiles' must be provided")
       } 
       
     }  
@@ -255,32 +246,25 @@ trainDeconvModel <- function(
            "one single cell slot must be provided")
   } 
     ## just in case of on.the.fly = TRUE
-    if (!pseudobulk.function %in% c("MeanCPM", "AddCPM", "AddRawCount")) {
-      stop("'pseudobulk.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCount'")
+    if (!agg.function %in% c("MeanCPM", "AddCPM", "AddRawCount")) {
+      stop("'agg.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCount'")
     } else {
-      if (pseudobulk.function == "MeanCPM") {
-        .pseudobulk.fun <- pseudobulk.fun.mean.cpm
-      } else if (pseudobulk.function == "AddCPM") {
-        .pseudobulk.fun <- pseudobulk.fun.add.cpm
-      } else if (pseudobulk.function == "AddRawCount") {
-        .pseudobulk.fun <- pseudobulk.fun.add.raw.counts
+      if (agg.function == "MeanCPM") {
+        .agg.fun <- aggregation.fun.mean.cpm
+      } else if (agg.function == "AddCPM") {
+        .agg.fun <- aggregation.fun.add.cpm
+      } else if (agg.function == "AddRawCount") {
+        .agg.fun <- aggregation.fun.add.raw.counts
       }
     }
   }
-  # TODO: now, this part can be erased
-  # single-cell must be provided independently of on.the.fly
-  # if (type.data.train == "single-cell" && (is.null(single.cell.real(object)) && 
-  #                                  is.null(single.cell.simul(object)))) {
-  #   stop("If type.data.train = 'single-cell' is selected, at least ",
-  #        "one single cell slot must be provided")
-  # }
   if (!is.null(trained.model(object))) {
     warning("'trained.model' slot is not empty. So far, SpatialDDLS",
             " does not support for multiple trained models, so the current model",
             " will be overwritten\n",
             call. = FALSE, immediate. = TRUE)
   }
-  # plots in RStudio during training --> does not work in terminal
+  # plots in RStudio during training --> does not work without RStudio
   if (view.metrics.plot) view.plot <- "auto"
   else view.plot <- 0
   if (verbose) verbose.model <- 1
@@ -338,7 +322,7 @@ trainDeconvModel <- function(
       model <- model %>% 
         layer_batch_normalization(name = paste0("BatchNormalization", i)) %>%
         layer_activation(activation = activation.fun, 
-                         name = paste0("ActivationReLu", i)) %>%
+                         name = paste0("Activation", i)) %>%
         layer_dropout(rate = dropout.rate, name = paste0("Dropout", i))
     }
     # final layer --> compression and proportions
@@ -397,7 +381,7 @@ trainDeconvModel <- function(
     funGen = .dataForDNN,
     prob.matrix = prob.matrix.train,
     type.data = "train",
-    fun.pseudobulk = .pseudobulk.fun,
+    fun.aggregation = .agg.fun,
     scaling = scaling.fun,
     batch.size = batch.size,
     combine = type.data.train,
@@ -415,7 +399,6 @@ trainDeconvModel <- function(
     verbose = verbose.model,
     view_metrics = view.plot
   )
-  # }
   if (verbose)
     message(paste0("\n=== Evaluating DNN in test data (", n.test, " samples)"))
 
@@ -425,7 +408,7 @@ trainDeconvModel <- function(
     funGen = .dataForDNN,
     target = TRUE,
     prob.matrix = prob.matrix.test,
-    fun.pseudobulk = .pseudobulk.fun,
+    fun.aggregation = .agg.fun,
     scaling = scaling.fun,
     batch.size = batch.size,
     pattern = pattern,
@@ -447,7 +430,7 @@ trainDeconvModel <- function(
     funGen = .dataForDNN,
     target = FALSE,
     prob.matrix = prob.matrix.test,
-    fun.pseudobulk = .pseudobulk.fun,
+    fun.aggregation = .agg.fun,
     scaling = scaling.fun,
     batch.size = batch.size,
     pattern = pattern,
@@ -476,13 +459,12 @@ trainDeconvModel <- function(
   return(object)
 }
 
-# TODO: combine argument here is necessary?
 .trainGenerator <- function(
   object,
   funGen,
   prob.matrix,
   type.data,
-  fun.pseudobulk,
+  fun.aggregation,
   scaling,
   batch.size,
   combine,
@@ -519,7 +501,7 @@ trainDeconvModel <- function(
         sel.data = sel.data, 
         pattern = pattern,
         type.data = type.data,
-        fun.pseudobulk = fun.pseudobulk,
+        fun.aggregation = fun.aggregation,
         scaling = scaling,
         threads = threads
       )
@@ -534,12 +516,10 @@ trainDeconvModel <- function(
         sel.data = sel.data, 
         pattern = pattern,
         type.data = type.data,
-        fun.pseudobulk = fun.pseudobulk,
+        fun.aggregation = fun.aggregation,
         scaling = scaling,
         threads = threads
       )
-      # attr(counts, "scaled:center") <- NULL
-      # attr(counts, "scaled:scale") <- NULL
       return(list(counts, sel.data))
     }
   }
@@ -550,7 +530,7 @@ trainDeconvModel <- function(
   funGen,
   prob.matrix,
   target,
-  fun.pseudobulk,
+  fun.aggregation,
   scaling,
   batch.size,
   pattern,
@@ -572,7 +552,7 @@ trainDeconvModel <- function(
       sel.data = sel.data, 
       pattern = pattern,
       type.data = "test",
-      fun.pseudobulk = fun.pseudobulk,
+      fun.aggregation = fun.aggregation,
       scaling = scaling,
       threads = threads
     )
@@ -586,7 +566,7 @@ trainDeconvModel <- function(
   sel.data,
   pattern,
   type.data,
-  fun.pseudobulk,
+  fun.aggregation,
   scaling,
   threads
 ) {
@@ -643,7 +623,7 @@ trainDeconvModel <- function(
   sel.data,
   pattern,
   type.data,
-  fun.pseudobulk,
+  fun.aggregation,
   scaling,
   threads
 ) {
@@ -657,7 +637,7 @@ trainDeconvModel <- function(
       FUN = .setBulk,
       object = object,
       pattern = pattern,
-      fun.pseudobulk = fun.pseudobulk
+      fun.aggregation = fun.aggregation
     )
   } 
   if (any(!bulk.data))  {
@@ -697,12 +677,15 @@ trainDeconvModel <- function(
       .cpmCalculate(x = cell.samples[, rownames(sel.data), drop = FALSE] + 1)
     )
   }
-  
   return(scaling(t(counts)))
 }
 
-.downsampleCells <- function(object, downsampling, type.data, verbose) {
-  ## check if downsampling is a valid number
+.downsampleCells <- function(
+  object, 
+  downsampling, 
+  type.data, 
+  verbose  
+) {
   listcells <- prob.cell.types(object, type.data) %>% set.list()
   if (all(downsampling > sapply(listcells, length))) {
     warning(
@@ -791,8 +774,8 @@ trainDeconvModel <- function(
         probs.matrix <- .mergePropsSort(m.small = tpsm, m.big = probs.matrix)
       }
     }
-  } else if (combine == "bulk") {
-    if (verbose) message("    Using only simulated bulk samples\n")
+  } else if (combine == "mixed") {
+    if (verbose) message("    Using only simulated mixed samples\n")
     if (fly) {
       probs.matrix <- prob.cell.types(object, type.data) %>% prob.matrix() / 100
     } else {
@@ -1080,7 +1063,7 @@ trainDeconvModel <- function(
 #' # simplify arguments
 #' simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
 #'                  CellGroup2 = c("CellType3", "CellType5"))
-#' DDLS <- deconvSpatialDDLSObj(
+#' DDLS <- deconvSpatialDDLS(
 #'   object = DDLS,
 #'   name.data = "Example",
 #'   simplify.set = simplify,

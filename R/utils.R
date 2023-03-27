@@ -541,6 +541,102 @@ listToDDLS <- function(listTo) {
   )
 }
 
+
+#' Bar plot of deconvoluted cell type proportions
+#'
+#' Bar plot of deconvoluted cell type proportions.
+#'
+#' @param data \code{\linkS4class{SpatialDDLS}} object with the
+#'   \code{deconv.spots} slot containing predicted cell type proportions.
+#' @param colors Vector of colors to be used.
+#' @param simplify Type of simplification performed during deconvolution. It can
+#'   be \code{simpli.set} or \code{simpli.maj} (\code{NULL} by default).
+#' @param color.line Color of the border bars.
+#' @param x.label Label of x-axis.
+#' @param rm.x.text Logical value indicating whether to remove x-axis ticks
+#'   (name of samples).
+#' @param title Title of the plot.
+#' @param legend.title Title of the legend plot.
+#' @param angle Angle of text ticks.
+#' @param index.st Name or index of the element wanted to be shown in the
+#'   \code{deconv.spots} slot.
+#' @param theme \pkg{ggplot2} theme.
+#'
+#' @return A ggplot object with the provided cell proportions represented as a
+#'   bar plot.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' DDLS <- SpatialDDLS(deconv.spots = list(Example = deconvResults))
+#' barPlotCellTypes(DDLS)
+#'
+#' @rdname barPlotCellTypes
+#'
+#' @seealso \code{\link{deconvSpatialDDLS}}
+#'   
+barPlotCellTypes <- function(
+  data,
+  colors = NULL,
+  simplify = NULL,
+  color.line = NA,
+  x.label = "Spots",
+  rm.x.text = FALSE,
+  title = "Results of deconvolution",
+  legend.title = "Cell types",
+  angle = 90,
+  theme = NULL,
+  index.st = NULL
+) {
+  if (is.null(deconv.spots(data))) {
+    stop("There are no results in SpatialDDLS object. Please see ?deconvSpatialDDLS")
+  } else if (is.null(index.st)) {
+    message("'index.st' not provided. Setting index.st <- 1")
+    index.st <- 1
+  } else if (!any(index.st %in% names(deconv.spots(data))) &&
+             !any(index.st %in% seq_along(deconv.spots(data)))) {
+    stop("Provided 'index.st' does not exist")
+  }
+  if (!is.null(simplify) && !is.na(simplify)) {
+    if (!is(deconv.spots(data)[[index.st]], "list")) {
+      stop("No simplified results available")
+    } else {
+      if (simplify != "simpli.set" && simplify != "simpli.majority") {
+        stop("simplify argument must be one of the following options: ",
+             "'simpli.set' or 'simpli.majority'")
+      } else if (!any(simplify == names(deconv.spots(data)[[index.st]]))) {
+        stop(paste(simplify, "data is not present in DeconvDLModel object"))
+      }
+      res <- deconv.spots(data)[[index.st]][[simplify]]
+    }
+  } else {
+    if (is(deconv.spots(data)[[index.st]], "list")) {
+      res <- deconv.spots(data)[[index.st]][[1]]
+    } else {
+      res <- deconv.spots(data)[[index.st]]
+    }
+  }
+  if (is.null(colnames(res))) {
+    stop(
+      "'data' must have colnames (corresponding cell types). Please run deconvSpatialDDLS"
+    )
+  }
+  return(
+    .barPlot(
+      data = res,
+      colors = colors,
+      color.line = color.line,
+      x.label = x.label,
+      rm.x.text = rm.x.text,
+      title = title,
+      legend.title = legend.title,
+      angle = angle,
+      theme = theme
+    )
+  )
+}
+
 ################################################################################
 ############################# Python dependencies ##############################
 ################################################################################
@@ -715,3 +811,4 @@ installTFpython <- function(
   message(c("Restart R and load SpatialDDLS. If you find any problem, \
          see ?tensorflow::use_condaenv and kerasIssues.Rmd vignette"))
 }
+

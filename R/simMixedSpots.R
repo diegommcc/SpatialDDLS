@@ -225,10 +225,12 @@ genMixSpotProp <- function(
   # check if n.cells is invalid
   if (n.cells <= 0) {
     stop("'n.cells' must be greater than zero")
-  } else if (n.cells < length(unique(cells.metadata[, cell.type.column]))) {
-    stop("'n.cells' must be equal to or greater than the number of cell types in",
-         " experiment. We recommend more than 100 cells per bulk sample")
   }
+  # TODO: is this needed?
+  # else if (n.cells < length(unique(cells.metadata[, cell.type.column]))) {
+  #   stop("'n.cells' must be equal to or greater than the number of cell types in",
+  #        " experiment. We recommend more than 100 cells per bulk sample")
+  # }
   # check proportions --> avoid num.sim.spots too low
   total.train <- ceiling(num.sim.spots * train.freq.spots)
   total.test <- num.sim.spots - total.train
@@ -904,11 +906,11 @@ simMixedSpotProfiles <- function(
     stop("'mixing.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCount'")
   } else {
     if (mixing.function == "MeanCPM") {
-      .pseudobulk.fun <- pseudobulk.fun.mean.cpm
+      .agg.fun <- aggregation.fun.mean.cpm
     } else if (mixing.function == "AddCPM") {
-      .pseudobulk.fun <- pseudobulk.fun.add.cpm
+      .agg.fun <- aggregation.fun.add.cpm
     } else if (mixing.function == "AddRawCount") {
-      .pseudobulk.fun <- pseudobulk.fun.add.raw.counts
+      .agg.fun <- aggregation.fun.add.raw.counts
     }
   }
   if (!is.null(file.backend)) {
@@ -949,7 +951,7 @@ simMixedSpotProfiles <- function(
         .generateBulkProfiles(
           object = object,
           type.data = x,
-          fun.pseudobulk = .pseudobulk.fun,
+          fun.pseudobulk = .agg.fun,
           unit = mixing.function,
           file.backend = file.backend,
           compression.level = compression.level,
@@ -975,7 +977,7 @@ simMixedSpotProfiles <- function(
     bulk.counts <- .generateBulkProfiles(
       object = object,
       type.data = type.data,
-      fun.pseudobulk = .pseudobulk.fun,
+      fun.pseudobulk = .agg.fun,
       unit = mixing.function,
       file.backend = file.backend,
       compression.level = compression.level,
@@ -1148,15 +1150,15 @@ simMixedSpotProfiles <- function(
   else return(apply(X = x, MARGIN = 2, FUN = function(x) (x / sum(x)) * 1e6))
 }
 
-pseudobulk.fun.mean.cpm <- function(x) {
+aggregation.fun.mean.cpm <- function(x) {
   rowMeans(log2(.cpmCalculate(x = x + 1)))
 }
 
-pseudobulk.fun.add.cpm <- function(x) {
+aggregation.fun.add.cpm <- function(x) {
   .cpmCalculate(x = rowSums(log2(.cpmCalculate(x = x + 1))))
 }
 
-pseudobulk.fun.add.raw.counts <- function(x) {
+aggregation.fun.add.raw.counts <- function(x) {
   log2(.cpmCalculate(x = rowSums(x) + 1))
 }
 
