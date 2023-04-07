@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{installTFpython}
 \alias{installTFpython}
-\title{Install Python dependencies for digitalDLSorteR}
+\title{Install Python dependencies for SpatialDDLS}
 \usage{
 installTFpython(conda = "auto", install.conda = FALSE, miniconda.path = NULL)
 }
@@ -27,16 +27,16 @@ This is a helper function to install Python dependencies needed: a Python
 interpreter with TensorFlow Python library and its dependencies. It is
 performed using the \pkg{reticulate} package and the installer of the
 \pkg{tensorflow} R package. The available options are virtual or conda
-environments. The new environment is called digitaldlsorter-env. In any case,
+environments. The new environment is called SpatialDDLS-env. In any case,
 this installation can be manually done as it is explained in
-\url{https://diegommcc.github.io/digitalDLSorteR/articles/kerasIssues.html},
+\url{https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html},
 but we recommend using this function.
 }
 \details{
 This function is intended to make easier the installation of the requirements
-needed to use \pkg{digitalDLSorteR}. It will automatically install Miniconda
+needed to use \pkg{SpatialDDLS}. It will automatically install Miniconda
 (if wanted, see Parameters) and create an environment called
-'digitaldlsorter-env'. If you want to use other python/conda environment, see
+'SpatialDDLS-env'. If you want to use other python/conda environment, see
 \code{?tensorflow::use_condaenv} and/or the vignettes.
 }
 \examples{

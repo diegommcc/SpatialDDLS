@@ -55,6 +55,7 @@ Collate:
     'dnnModel.R'
     'evalMetrics.R'
     'loadData.R'
+    'plotSpatialCoor.R'
     'simMixedSpots.R'
     'simSingleCell.R'
     'utils.R'

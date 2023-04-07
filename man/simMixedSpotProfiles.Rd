@@ -19,29 +19,28 @@ simMixedSpotProfiles(
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with
-\code{single.cell.real}/\code{single.cell.simul} and \code{prob.cell.types}
-slots.}
+\code{single.cell.real}/\code{single.cell.simul}, and
+\code{prob.cell.types} slots.}
 
-\item{type.data}{Type of data to generate between \code{'train'},
-\code{'test'} or \code{'both'} (the last by default).}
+\item{type.data}{Type of data to generate: \code{'train'}, \code{'test'} or
+\code{'both'} (the last by default).}
 
-\item{mixing.function}{Function used to build pseudo-bulk samples. It may
-be: \itemize{ \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-transformed into CPMs and cross-cell averages are calculated. Then,
-\code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
-profiles (raw counts) are transformed into CPMs and are added up across
-cells. Then, log-CPMs are calculated. \item \code{"AddRawCount"}:
-single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
-are calculated.}}
+\item{mixing.function}{Function used to build pseudo-bulk samples. It may be:
+\itemize{  \item \code{"AddRawCount"}: single-cell profiles (raw counts)
+are added up across cells. Then, log-CPMs are calculated (by default).
+\item \code{"MeanCPM"}: single-cell profiles (raw counts) are transformed
+into CPMs and cross-cell averages are calculated. Then, \code{log2(CPM +
+  1)} is calculated. \item \code{"AddCPM"}: single-cell profiles (raw counts)
+are transformed into CPMs and are added up across cells. Then, log-CPMs are
+calculated.}}
 
-\item{file.backend}{Valid file path to store the simulated single-cell
-expression profiles as an HDF5 file (\code{NULL} by default). If provided,
-the data is stored in HDF5 files used as back-end by using the
-\pkg{DelayedArray}, \pkg{HDF5Array} and \pkg{rhdf5} packages instead of
-loading all data into RAM memory. This is suitable for situations where you
-have large amounts of data that cannot be loaded into memory. Note that
-operations on this data will be performed in blocks (i.e subsets of
-determined size) which may result in longer execution times.}
+\item{file.backend}{Valid file path to store simulated mixed spot expression
+profiles as an HDF5 file (\code{NULL} by default). If provided, data are
+stored in HDF5 files used as back-end by using the \pkg{DelayedArray},
+\pkg{HDF5Array} and \pkg{rhdf5} packages instead of loading all data into
+RAM memory. Note that operations on this matrix will be performed in blocks
+(i.e subsets of determined size) which may result in longer execution
+times.}
 
 \item{compression.level}{The compression level used if \code{file.backend} is
 provided. It is an integer value between 0 (no compression) and 9 (highest
@@ -49,16 +48,15 @@ and slowest compression). See
 \code{?\link[HDF5Array]{getHDF5DumpCompressionLevel}} from the
 \pkg{HDF5Array} package for more information.}
 
-\item{block.processing}{Boolean indicating whether the data should be
-simulated in blocks (only if \code{file.backend} is used, \code{FALSE} by
-default). This functionality is suitable for cases where is not possible to
-load all data into memory and it leads to larger execution times.}
+\item{block.processing}{Boolean indicating whether data should be simulated
+in blocks (only if \code{file.backend} is used, \code{FALSE} by default).
+This functionality is suitable for cases where is not possible to load all
+data into memory and it leads to longer execution times.}
 
-\item{block.size}{Only if \code{block.processing = TRUE}. Number of
-pseudo-bulk expression profiles that will be simulated in each iteration
-during the process. Larger numbers result in higher memory usage but
-shorter execution times. Set according to available computational resources
-(1000 by default).}
+\item{block.size}{Only if \code{block.processing = TRUE}. Number of mixed
+spot expression profiles that will be simulated in each iteration. Larger
+numbers result in higher memory usage but shorter execution times. Set
+according to available computational resources (1000 by default).}
 
 \item{chunk.dims}{Specifies the dimensions that HDF5 chunk will have. If
 \code{NULL}, the default value is a vector of two items: the number of
@@ -67,61 +65,60 @@ simulation, and a single sample to reduce read times in the following
 steps. A larger number of columns written in each chunk can lead to longer
 read times.}
 
-\item{threads}{Number of threads used during the simulation of pseudo-bulk
-samples (1 by default). Set according to computational resources and avoid
-it if \code{block.size} will be used.}
+\item{threads}{Number of threads used during simulation (1 by default).}
 
 \item{verbose}{Show informative messages during the execution (\code{TRUE} by
 default).}
 }
 \value{
-A \code{\linkS4class{SpatialDDLS}} object with \code{mixed.spot.profiles}
-slot containing a list with one or two entries (depending on selected
-\code{type.data} argument): \code{'train'} and \code{'test'}. Each entry
-contains a \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
-with simulated bulk samples in the \code{assay} slot, sample names in the
-\code{colData} slot and feature names in the \code{rowData} slot.
+A \code{\linkS4class{SpatialDDLS}} object with
+\code{mixed.spot.profiles} slot containing a list with one or two entries
+(depending on selected \code{type.data} argument): \code{'train'} and
+\code{'test'}. Each entry contains a
+\code{\link[SummarizedExperiment]{SummarizedExperiment}} object with the
+simulated mixed slot profiles.
 }
 \description{
-Simulate training and test pseudo-bulk RNA-Seq profiles using the cell
-composition matrices generated by the \code{\link{genMixSpotProp}}
-function. The samples are generated under the assumption that the expression
-level of the \eqn{i} gene in the \eqn{j} bulk sample is given by the sum of
-the expression levels of the cell types \eqn{X_{ijk}} that make them up
-weighted by the proportions of these \eqn{k} cell types in each sample. In
-practice, as described in Torroja and Sanchez-Cabo, 2019, these profiles are
-generated by summing a number of cells of different cell types determined by
-proportions from a matrix of known cell composition. The number of simulated
-pseudo-bulk RNA-Seq samples and the number of cells composing each sample are
-determined by \code{\link{genMixSpotProp}} (see Documentation)
-\strong{Note:} this step can be avoided by using the \code{on.the.fly}
-argument in the \code{\link{trainSpatialDDLSModel}} function. See
-Documentation for more information.
+Simulate training and test mixed spot transcriptional profles using cell
+composition matrices generated by the \code{\link{genMixSpotProp}} function.
 }
 \details{
-\pkg{digitalDLSorteR} allows the use of HDF5 files as back-end to store the
-resulting data using the \pkg{DelayedArray} and \pkg{HDF5Array} packages.
-This functionality allows to work without keeping the data loaded into RAM,
-which could be of vital importance during some computationally heavy steps
-such as neural network training on RAM-limited machines. You must provide a
-valid file path in the \code{file.backend} argument to store the resulting
-file with the '.h5' extension. The data will be accessible from R without
-being loaded into memory. This option slightly slows down execution times, as
-subsequent transformations of the data will be done in blocks rather than
-using all the data. We recommend this option according to the computational
-resources available and the number of pseudo-bulk samples to be generated.
+Mixed spots are generated under the assumption that the expression level of
+the \eqn{i} gene in the \eqn{j} spot is given by the sum of the expression
+levels of the cell types \eqn{X_{ijk}} that make them up weighted by the
+proportions of these \eqn{k} cell types in each sample. In practice, as
+described in Torroja and Sanchez-Cabo, 2019, these profiles are generated by
+summing gene expression levels of a determined number of cells of different
+cell types specified by a known cell composition matrix. The number of
+simulated mixed spots and cells used to simulate each spot are determined by
+\code{\link{genMixSpotProp}} (see Documentation) \strong{Note:} this step can
+be avoided by using the \code{on.the.fly} argument in the
+\code{\link{trainDeconvModel}} function. See Documentation for more
+information.
+
+\pkg{SpatialDDLS} allows to use HDF5 files as back-end to store simulated
+data using the \pkg{DelayedArray} and \pkg{HDF5Array} packages. This
+functionality allows to work without keeping the data loaded into RAM, which
+could be of vital importance during some computationally heavy steps such as
+neural network training on RAM-limited machines. You must provide a valid
+file path in the \code{file.backend} argument to store the resulting file
+with the '.h5' extension. This option slows down execution times, as
+subsequent transformations of the data will be done in blocks. We recommend
+this option according to the computational resources available and the number
+of simulated spots to be generated, but, in most of the cases, it is not
+necessary.
 
 Note that if you use the \code{file.backend} argument with
-\code{block.processing = FALSE}, all pseudo-bulk profiles will be simulated
-in one step and, therefore, loaded into RAM. Then, the data will be written
-to an HDF5 file. To avoid the RAM collapse, pseudo-bulk profiles can be
-simulated and written to HDF5 files in blocks of \code{block.size} size by
-setting \code{block.processing = TRUE}.
+\code{block.processing = FALSE}, all mixed spot profiles will be simulated in
+one step and, therefore, loaded into RAM. Then, the matrix will be written to
+an HDF5 file. To avoid the RAM collapse, these profiles can be simulated and
+written to HDF5 files in blocks of \code{block.size} size by setting
+\code{block.processing = TRUE}.
 
 It is possible to avoid this step by using the \code{on.the.fly} argument in
-the \code{\link{trainSpatialDDLSModel}} function. In this way, data is
-generated 'on the fly' during the neural network training. For more details,
-see \code{?\link{trainSpatialDDLSModel}}.
+the \code{\link{trainDeconvModel}} function. In this way, data are generated
+'on the fly' during the neural network training. For more details, see
+\code{?\link{trainDeconvModel}}.
 }
 \examples{
 set.seed(123) # reproducibility
@@ -175,7 +172,6 @@ Pagès H (2020). HDF5Array: HDF5 backend for DelayedArray objects. R package
 version 1.18.0.
 }
 \seealso{
-\code{\link{genMixSpotProp}}
-\code{\linkS4class{PropCellTypes}}
-\code{\link{trainSpatialDDLSModel}}
+\code{\link{genMixSpotProp}} \code{\linkS4class{PropCellTypes}}
+\code{\link{trainDeconvModel}}
 }

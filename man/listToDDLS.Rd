@@ -2,23 +2,23 @@
 % Please edit documentation in R/utils.R
 \name{listToDDLS}
 \alias{listToDDLS}
-\title{Transform DigitalDLSorter-like list into an actual DigitalDLSorterDNN object}
+\title{Transform SpatialDDLS-like list into an actual SpatialDDLSDNN object}
 \usage{
 listToDDLS(listTo)
 }
 \arguments{
 \item{listTo}{A list in which each element must correspond to each slot of an
-\code{DigitalDLSorter} object. The names must be the same as the slot
+\code{SpatialDDLS} object. The names must be the same as the slot
 names.}
 }
 \value{
-\code{DigitalDLSorter} object the data provided in the original list.
+\code{SpatialDDLS} object the data provided in the original list.
 }
 \description{
-Transform DigitalDLSorter-like list into an actual \code{DigitalDLSorter}
+Transform SpatialDDLS-like list into an actual \code{SpatialDDLS}
 object. This function allows to generate the examples and the vignettes of
-\pkg{digitalDLSorteR} package as these are the data used. These data are
-stored in the digitalDLSorteRdata package.
+\pkg{SpatialDDLS} package as these are the data used. These data are
+stored in the SpatialDDLSdata package.
 }
 \seealso{
 \code{\link{listToDDLSDNN}}

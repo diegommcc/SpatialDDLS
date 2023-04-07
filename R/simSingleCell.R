@@ -6,7 +6,7 @@ NULL
 ######################### Estimate Zinbwave parameters #########################
 ################################################################################
 
-#' Estimate the parameters of the ZINB-WaVE model to simulate new single-cell
+#' Estimate parameters of the ZINB-WaVE model to simulate new single-cell
 #' RNA-Seq expression profiles
 #'
 #' Estimate the parameters of the ZINB-WaVE model using a real single-cell
@@ -713,7 +713,7 @@ estimateZinbwaveParams <- function(
 #'   types will be simulated.
 #' @param file.backend Valid file path to store the simulated single-cell
 #'   expression profiles as an HDF5 file (\code{NULL} by default). If provided,
-#'   the data is stored in HDF5 files used as back-end by using the
+#'   the data are stored in HDF5 files used as back-end by using the
 #'   \pkg{DelayedArray}, \pkg{HDF5Array} and \pkg{rhdf5} packages instead of
 #'   loading all data into RAM memory. This is suitable for situations where you
 #'   have large amounts of data that cannot be loaded into memory. Note that
@@ -1098,7 +1098,7 @@ simSCProfiles <- function(
   rownames(sim.cells.metadata) <- names(cell.set.names)
   sim.cells.metadata$Simulated <- TRUE
   if (any(colnames(sim.cells.metadata) == "suffix"))
-    warning("\n'suffix' column in cells metadata is going to be overwritten")
+    warning("\n'suffix' column in cells metadata are going to be overwritten")
   
   sim.cells.metadata$suffix <- suffix.names
   if (any(apply(sim.counts, MARGIN = 2, FUN = sum) == 0)) {

@@ -2,8 +2,7 @@
 % Please edit documentation in R/loadData.R
 \name{createSpatialDDLSobject}
 \alias{createSpatialDDLSobject}
-\title{Create a \code{\linkS4class{SpatialDDLS}} object from single-cell RNA-seq
-data and spatial transcriptomics data}
+\title{Create a \code{\linkS4class{SpatialDDLS}} object}
 \usage{
 createSpatialDDLSobject(
   sc.data,
@@ -12,12 +11,13 @@ createSpatialDDLSobject(
   st.data,
   st.cell.ID.column,
   st.gene.ID.column,
-  sc.name.dataset.h5,
   sc.min.counts = 0,
   sc.min.cells = 0,
   st.min.counts = 0,
   st.min.cells = 0,
   st.n.slides = 3,
+  shared.genes = TRUE,
+  sc.name.dataset.h5 = NULL,
   sc.file.backend = NULL,
   sc.name.dataset.backend = NULL,
   sc.compression.level = NULL,
@@ -28,62 +28,76 @@ createSpatialDDLSobject(
 )
 }
 \arguments{
-\item{verbose}{Show informative messages during the execution (\code{TRUE} by
-default).}
+\item{sc.data}{Single-cell RNA-seq profiles to be used as reference. If data
+are provided from files, \code{single.cell.real} must be a vector of three
+elements: single-cell counts, cells metadata and genes metadata. If data
+are provided from a \code{\linkS4class{SingleCellExperiment}} object,
+single-cell counts must be present in the \code{assay} slot, cells metadata
+in the \code{colData} slot, and genes metadata in the \code{rowData} slot.}
 
-\item{project}{Name of the project for \code{\linkS4class{SpatialDDLS}}
-object.}
-
-\item{single.cell.data}{If data is provided from files,
-\code{single.cell.real} must be a vector of three elements: single-cell
-counts, cells metadata and genes metadata. If data is provided from a
-\code{\linkS4class{SingleCellExperiment}} object, single-cell counts must
-be present in the \code{assay} slot, cells metadata in the \code{colData}
-slot and genes metadata in the \code{rowData} slot.}
-
-\item{cell.ID.column}{Name or number of the column in the cells metadata
+\item{sc.cell.ID.column}{Name or number of the column in the cells metadata
 corresponding to cell names in expression matrix.}
 
-\item{gene.ID.column}{Name or number of the column in the genes metadata
+\item{sc.gene.ID.column}{Name or number of the column in the genes metadata
 corresponding to the names used for features/genes.}
 
-\item{name.dataset.h5}{Name of the data set if HDF5 file is provided.}
+\item{st.data}{Spatial transcriptomics datasets to be deconvoluted. It can be
+a single \code{\linkS4class{SpatialExperiment}} object or a list of them.}
 
-\item{min.counts}{Minimum gene counts to filter (0 by default).}
+\item{st.cell.ID.column}{Name or number of the column in the cells metadata
+corresponding to cell names in expression matrix.}
 
-\item{min.cells}{Minimum of cells with more than \code{min.counts} (0 by
+\item{st.gene.ID.column}{Name or number of the column in the genes metadata
+corresponding to the names used for features/genes.}
+
+\item{sc.min.counts}{Minimum gene counts to filter (0 by default).}
+
+\item{sc.min.cells}{Minimum of cells with more than \code{min.counts} (0 by
 default).}
 
-\item{file.backend}{Valid file path where to store the loaded data as HDF5
-file. If provided, data is stored in HDF5 files as back-end using
+\item{st.min.counts}{Minimum gene counts to filter (0 by default).}
+
+\item{st.min.cells}{Minimum of cells with more than \code{min.counts} (0 by
+default).}
+
+\item{sc.name.dataset.h5}{Name of the data set if HDF5 file is provided.}
+
+\item{sc.file.backend}{Valid file path where to store the loaded data as HDF5
+file. If provided, data are stored in HDF5 files as back-end using
 \pkg{DelayedArray} and \pkg{HDF5Array} packages instead of being loaded
 into RAM. This is suitable for situations where you have large amounts of
 data that cannot be stored in memory. Note that operations on these data
 will be performed by blocks (i.e subsets of determined size), which may
 result in longer execution times. \code{NULL} by default.}
 
-\item{name.dataset.backend}{Name of the dataset of the HDF5 file to be used.
-Note that it cannot exist. If \code{NULL} (by default), a random dataset
-name will be used.}
+\item{sc.name.dataset.backend}{Name of the dataset of the HDF5 file to be
+used. Note that it cannot exist. If \code{NULL} (by default), a random
+dataset name will be used.}
 
-\item{compression.level}{The compression level used if \code{file.backend} is
-provided. It is an integer value between 0 (no compression) and 9 (highest
-and slowest compression). See
+\item{sc.compression.level}{The compression level used if \code{file.backend}
+is provided. It is an integer value between 0 (no compression) and 9
+(highest and slowest compression). See
 \code{?\link[HDF5Array]{getHDF5DumpCompressionLevel}} from the
 \pkg{HDF5Array} package for more information.}
 
-\item{chunk.dims}{Specifies dimensions that HDF5 chunk will have. If
+\item{sc.chunk.dims}{Specifies dimensions that HDF5 chunk will have. If
 \code{NULL}, the default value is a vector of two items: the number of
 genes considered by \code{\linkS4class{SpatialDDLS}} object during the
 simulation, and only one sample in order to increase read times in the
 following steps. A larger number of columns written in each chunk may lead
 to longer read times.}
 
-\item{block.processing}{Boolean indicating whether data should be treated as
-blocks (only if data is provided as HDF5 file). \code{FALSE} by default.
-Note that using this functionality is suitable for cases where is not
-possible to load the data into RAM and therefore execution times will be
-longer.}
+\item{sc.block.processing}{Boolean indicating whether data should be treated
+as blocks (only if data are provided as HDF5 file). \code{FALSE} by
+default. Note that using this functionality is suitable for cases where is
+not possible to load the data into RAM and therefore execution times will
+be longer.}
+
+\item{verbose}{Show informative messages during the execution (\code{TRUE} by
+default).}
+
+\item{project}{Name of the project for \code{\linkS4class{SpatialDDLS}}
+object.}
 }
 \value{
 A \code{\linkS4class{SpatialDDLS}} object with the single-cell
@@ -91,29 +105,42 @@ RNA-seq data provided loaded into the \code{single.cell.real} slot as a
 \code{\linkS4class{SingleCellExperiment}} object.
 }
 \description{
-Create a \code{\linkS4class{SpatialDDLS}} object from single-cell RNA-seq
-data from files (formats allowed: tsv, tsv.gz, mtx (sparse matrix) and hdf5)
-or a \code{\linkS4class{SingleCellExperiment}} object. The data will be
-stored in \code{single.cell.real} slot. The data provided should consist of
-three pieces of information: \itemize{ \item Single-cell counts: genes as
-rows and cells as columns. \item Cells metadata: annotations (columns) for
-each cell (rows). \item Genes metadata: annotations (columns) for each gene
-(rows). } If the data is provided from files, \code{single.cell.real}
-argument must be a vector of three elements ordered so that the first file
-corresponds to the count matrix, the second to the cells metadata and the
-last to the genes metadata. On the other hand, if the data is provided as a
-\code{\linkS4class{SingleCellExperiment}} oject, it must contain single-cell
-counts in the \code{assay} slot, cells metadata in the \code{colData} slot
-and genes metadata in the \code{rowData}. The data must be provided without
-any transformation (e.g. log-transformation) and raw counts are preferred.
+Create a \code{\linkS4class{SpatialDDLS}} object. At least, single-cell
+RNA-seq data must be provided, but the function also accepts spatial
+transcriptomics data contained in \code{\linkS4class{SpatialExperiment}}
+objects. We recommend to start with both pieces of data so as to calculate
+the intersection of genes shared between both experiments.
 }
 \details{
+\strong{Single-cell RNA-seq data}
+
+from single-cell RNA-seq data from files (formats allowed: tsv, tsv.gz, mtx
+(sparse matrix) and hdf5) or a \code{\linkS4class{SingleCellExperiment}}
+object. The data will be stored in \code{single.cell.real} slot. The data
+provided must consist of three pieces of information: \itemize{ \item
+Single-cell counts: genes as rows and cells as columns. \item Cells metadata:
+annotations (columns) for each cell (rows). \item Genes metadata: annotations
+(columns) for each gene (rows). } If data are provided from files,
+\code{single.cell.real} argument must be a vector of three elements ordered
+so that the first file corresponds to the count matrix, the second to the
+cells metadata and the last to the genes metadata. On the other hand, if data
+are provided as a \code{\linkS4class{SingleCellExperiment}} object, it must
+contain single-cell counts in the \code{assay} slot, cells metadata in the
+\code{colData} slot and genes metadata in the \code{rowData}. The data must
+be provided without any transformation (e.g. log-transformation) and raw
+counts are preferred.
+
 This data can be used to simulate new single-cell profiles using the
 ZINB-WaVE framework with the \code{\link{estimateZinbwaveParams}} function.
 In this way, it is possible to increase the signal of cell types that are
 underrepresented in the original dataset. If this step is not necessary,
 these profiles will be used directly to simulate pseudo-bulk RNA-seq samples
 with known cell composition.
+
+\strong{Spatial transcriptomics data}
+
+It must be a \code{\listS4class{SpatialExperiment}} object (or a list of them
+if more than one slide is going to be deconvoluted) containing ....
 }
 \examples{
 set.seed(123) # reproducibility

@@ -8,7 +8,7 @@
 showProbPlot(object, type.data, set, type.plot = "boxplot")
 }
 \arguments{
-\item{object}{\code{\linkS4class{DigitalDLSorter}} object with
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with
 \code{prob.cell.types} slot with \code{plot} slot.}
 
 \item{type.data}{Subset of data to show: \code{train} or \code{test}.}

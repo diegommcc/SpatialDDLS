@@ -16,7 +16,8 @@ method(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{PropCellTypes}} object.}
 
-\item{value}{Vector with names of cells present in the object.}
+\item{value}{Vector containing the method by which cell type proportions were
+generated.}
 }
 \description{
 Get and set \code{method} slot in a

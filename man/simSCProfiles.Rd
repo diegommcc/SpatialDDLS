@@ -45,7 +45,7 @@ types will be simulated.}
 
 \item{file.backend}{Valid file path to store the simulated single-cell
 expression profiles as an HDF5 file (\code{NULL} by default). If provided,
-the data is stored in HDF5 files used as back-end by using the
+the data are stored in HDF5 files used as back-end by using the
 \pkg{DelayedArray}, \pkg{HDF5Array} and \pkg{rhdf5} packages instead of
 loading all data into RAM memory. This is suitable for situations where you
 have large amounts of data that cannot be loaded into memory. Note that

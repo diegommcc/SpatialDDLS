@@ -7,11 +7,11 @@
 \title{The Class ZinbParametersModel}
 \description{
 The ZinbParametersModel class is a wrapper class of the
-\code{\linkS4class{ZinbModel}} class from zinbwave package.
+\code{\linkS4class{ZinbModel}} class from the \pkg{zinbwave} package.
 }
 \details{
-This is a wrapper class of the \code{\linkS4class{ZinbModel}} class. It
-consists of only one slot (\code{zinbwave.mode}) that contains the
+Wrapper class of the \code{\linkS4class{ZinbModel}} class. It
+consists of the \code{zinbwave.mode} slot which contains the
 \code{\linkS4class{ZinbModel}} object.
 }
 \section{Slots}{

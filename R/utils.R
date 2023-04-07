@@ -606,7 +606,7 @@ barPlotCellTypes <- function(
         stop("simplify argument must be one of the following options: ",
              "'simpli.set' or 'simpli.majority'")
       } else if (!any(simplify == names(deconv.spots(data)[[index.st]]))) {
-        stop(paste(simplify, "data is not present in DeconvDLModel object"))
+        stop(paste(simplify, "data are not present in DeconvDLModel object"))
       }
       res <- deconv.spots(data)[[index.st]][[simplify]]
     }

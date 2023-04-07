@@ -30,26 +30,21 @@ default.colors <- function() {
 #' Calculate evaluation metrics of test mixed spot transcriptional profiles. By
 #' default, absolute error (\code{AbsErr}), proportional absolute error
 #' (\code{ppAbsErr}), squared error (\code{SqrErr}) and proportional squared
-#' error (\code{ppSqrErr}) are calculated for each test spot. In addition,
-#' each of these metrics is aggregated using their mean values according to
-#' three criteria: each cell type (\code{CellType}), probability bins in ranges
-#' of 0.1 (\code{pBin}) and number of different cell types present in the sample
-#' \code{nCellTypes}. Finally, the process is repeated only considering bulk
-#' samples (filtering out single-cell profiles from the evaluation). The
-#' evaluation metrics will be available in the \code{test.deconv.metrics} slot
-#' of the \code{\linkS4class{SpatialDDLSDNN}} object (\code{trained.model} slot
-#' of the \code{\linkS4class{SpatialDDLS}} object).
+#' error (\code{ppSqrErr}) are calculated for each test mixed profile. In
+#' addition, each of these metrics is aggregated according to three criteria:
+#' cell type (\code{CellType}), probability bins in ranges of 0.1 (\code{pBin}),
+#' and number of different cell types present in the spot \code{nCellTypes}.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a trained model in
-#'   the \code{trained.model} slot and the actual cell proportions of
-#'   pseudo-bulk samples in \code{prob.cell.matrix} slot.
+#'   the \code{trained.model} slot and the actual cell proportions of test mixed
+#'   spot profiles in \code{prob.cell.types} slot.
 #' @param metrics Metrics used to evaluate the model performance. Mean absolute
 #'   error (\code{"MAE"}) and mean squared error (\code{"MSE"}) by default.
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with the
-#'   \code{trained.model} slot containing a \code{\linkS4class{SpatialDDLSDNN}}
-#'   object with the \code{test.deconv.metrics} slot. The last contains the
-#'   metrics calculated.
+#'   \code{trained.model} slot containing a \code{\linkS4class{DeconvDLModel}}
+#'   object with \code{test.deconv.metrics} slot containing the calculated
+#'   metrics.
 #'
 #' @export
 #'
@@ -119,15 +114,14 @@ calculateEvalMetrics <- function(
   } else if (is.null(prob.cell.types(object)) ||
              !"test" %in% names(prob.cell.types(object))) {
     stop("The provided object does not contain actual cell proportions in ", 
-         "'prob.cell.types' slot")
+         "'prob.cell.types' slot for test data")
   } 
   # validation metrics
   valid.met <- list(MAE = "MAE", MSE = "MSE")
   use.met <- valid.met[names(valid.met) %in% metrics]
-  if (length(use.met) == 0) stop("The provided metrics are not valid. Only 'MAE' and/or 'MSE' are accepted")
+  if (length(use.met) == 0) 
+    stop("The provided metrics are not valid. Only 'MAE' and/or 'MSE' are accepted")
   
-  # TODO: why this is run instead of taking predictions from the object??
-  # extract information
   testProbsDeconv <- .targetForDNN(
     object, combine = "both", type.data = "test", 
     downsampling = NULL, fly = TRUE, shuffle = FALSE
@@ -253,8 +247,10 @@ se <- function(x) sqrt(var(x)/length(x))
   err
 ) {
   # pBinNMix <- list(pBinNMix = paste(mat$pBin, mat$nMix, sep = "_"))
-  by.stats <- list(Sample = "Sample", CellType = "CellType",
-                   pBin = "pBin", nCellTypes = "nCellTypes") # , pBinNMix = pBinNMix
+  by.stats <- list(
+    Sample = "Sample", CellType = "CellType",
+    pBin = "pBin", nCellTypes = "nCellTypes"
+  ) # , pBinNMix = pBinNMix
   list.stats <- lapply(
     X = by.stats, FUN = function(x) {
       .statsBlock(x = mat, err = err, by = x)
@@ -312,45 +308,42 @@ se <- function(x) sqrt(var(x)/length(x))
 ########################## Distribution error plots ############################
 ################################################################################
 
-#' Generate box plots or violin plots to show how the errors are distributed
+#' Generate box or violin plots displaying error distribution
 #'
-#' Generate violin plots or box plots to show how the errors are distributed by
-#' proportion bins of 0.1. Errors can be displayed all mixed or split by cell
-#' type (\code{CellType}) or number of cell types present in the samples
-#' (\code{nCellTypes}). See the \code{facet.by} argument and examples for more
-#' details.
+#' Generate box or violin plots to show how errors are distributed. Errors can
+#' be displayed all mixed or split by cell type (\code{CellType}) or number of
+#' cell types present in the spots (\code{nCellTypes}). See the \code{facet.by}
+#' argument and examples for more details.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
-#'   \code{test.deconv.metrics} slot of a
-#'   \code{\linkS4class{SpatialDDLSDNN}} object.
-#' @param error The error to be represented. Available errors are absolute error
+#'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+#'   object.
+#' @param error Error to be represented. Available errors are: absolute error
 #'   (\code{'AbsErr'}), proportional absolute error (\code{'ppAbsErr'}), squared
-#'   error (\code{'SqrErr'}) and proportional squared error (\code{'ppSqrErr'}).
-#' @param colors Vector of colors to be used. Only vectors with a number of
-#'   colors equal to or greater than the levels of \code{color.by} will be
-#'   accepted. By default, a custom color list is used.
+#'   error (\code{'SqrErr'}), and proportional squared error
+#'   (\code{'ppSqrErr'}).
+#' @param colors Vector of colors to be used.
 #' @param x.by Variable used for the X-axis. When \code{facet.by} is not
 #'   \code{NULL}, the best choice is \code{pBin} (probability bins). The options
 #'   are \code{nCellTypes} (number of different cell types), \code{CellType}
-#'   (cell type) and \code{pBin}.
-#' @param facet.by Variable used to display data in different panels. If
-#'   \code{NULL}, the plot is not split into different panels. Options are
+#'   (cell type), and \code{pBin}.
+#' @param facet.by Display data in different panels. Options are
 #'   \code{nCellTypes} (number of different cell types) and \code{CellType}
-#'   (cell type).
+#'   (cell type) (\code{NULL} by default).
 #' @param color.by Variable used to color the data. Options are
 #'   \code{nCellTypes} and \code{CellType}.
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only errors associated with pseudo-bulk samples are displayed
-#'   (\code{TRUE} by default).
+#'   out and only errors associated with mixed spots are displayed (\code{TRUE}
+#'   by default).
 #' @param error.label Boolean indicating whether to display the average error as
 #'   a plot annotation (\code{FALSE} by default).
 #' @param pos.x.label X-axis position of error annotations.
 #' @param pos.y.label Y-axis position of error annotations.
 #' @param size.point Size of points (0.1 by default).
 #' @param alpha.point Alpha of points (0.1 by default).
-#' @param type Type of plot: \code{'boxplot'} or \code{'violinplot'}. The latter
-#'   by default.
+#' @param type Type of plot: \code{'boxplot'} or \code{'violinplot'} (the latter
+#'   by default).
 #' @param ylimit Upper limit in Y-axis if it is required (\code{NULL} by
 #'   default).
 #' @param nrow Number of rows if \code{facet.by} is not \code{NULL}.
@@ -360,7 +353,7 @@ se <- function(x) sqrt(var(x)/length(x))
 #' @param ... Additional arguments for the \link[ggplot2]{facet_wrap} function
 #'   from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
 #'
-#' @return A ggplot object with the representation of the desired errors.
+#' @return A ggplot object.
 #'
 #' @export
 #'
@@ -478,12 +471,12 @@ distErrorPlot <- function(
   } 
   amd <- trained.model(object)@test.deconv.metrics[[1]]
   if (filter.sc) {
-    amd <- amd %>% filter(.data[["Prob"]] > 0 & .data[["Prob"]] < 1)
+    amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
   }
   if (missing(colors)) colors <- default.colors()
   if (!is.null(color.by)) {
     if (length(colors) < length(unique(amd[[color.by]]))) 
-      stop("The number of provided colors is not enough")
+      stop("Number of provided colors not enough")
   } 
   if (is.null(title))
     title.plot <- paste(error, "by", x.by)
@@ -553,7 +546,6 @@ distErrorPlot <- function(
   return(plot)
 }
 
-# code from yardstick package (MIT license)
 .cccCalculation <- function(
   truth, 
   estimate
@@ -595,36 +587,30 @@ distErrorPlot <- function(
 ################################################################################
 
 #' Generate correlation plots between predicted and expected cell type
-#' proportions from test data
+#' proportions of test data
 #'
 #' Generate correlation plot between predicted and expected cell type
-#' proportions from test data. Correlation plots can be displayed all mixed or
-#' split by cell type (\code{CellType}) or number of cell types present in the
-#' samples (\code{nCellTypes}). See the \code{facet.by} argument and examples
-#' for more information. Moreover, a user-selected correlation value is
-#' displayed as an annotation on the plots. See the \code{corr} argument for
-#' details.
+#' proportions of test data. Correlation plots can be displayed all mixed or
+#' split by cell type (\code{CellType}) or number of different cell types
+#' present in the spots (\code{nCellTypes}).
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
-#'   \code{test.deconv.metrics} slot of a
-#'   \code{\linkS4class{SpatialDDLSDNN}} object.
-#' @param colors Vector of colors to be used. Only vectors with a number of
-#'   colors equal to or greater than the levels of \code{color.by} will be
-#'   accepted. By default, a custom color list is used.
-#' @param facet.by Variable used to display data in different panels. If
-#'   \code{NULL}, the plot is not split into different panels. Options are
-#'   \code{nCellTypes} (by number of different cell types) and \code{CellType}
-#'   (by cell type).
+#'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+#'   object.
+#' @param colors Vector of colors to be used.
+#' @param facet.by Display data in different panels. Options are
+#'   \code{nCellTypes} (number of different cell types) and \code{CellType}
+#'   (cell type) (\code{NULL} by default).
 #' @param color.by Variable used to color data. Options are \code{nCellTypes}
 #'   and \code{CellType}.
 #' @param corr Correlation value displayed as an annotation on the plot.
 #'   Available metrics are Pearson's correlation coefficient (\code{'pearson'})
-#'   and concordance correlation coefficient (\code{'ccc'}). The argument can be
+#'   and concordance correlation coefficient (\code{'ccc'}). It can be
 #'   \code{'pearson'}, \code{'ccc'} or \code{'both'} (by default).
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only errors associated with pseudo-bulk samples are displayed
-#'   (\code{TRUE} by default).
+#'   out and only errors associated with mixed spots are displayed (\code{TRUE}
+#'   by default).
 #' @param pos.x.label X-axis position of correlation annotations (0.95 by
 #'   default).
 #' @param pos.y.label Y-axis position of correlation annotations (0.1 by
@@ -640,8 +626,7 @@ distErrorPlot <- function(
 #' @param ... Additional arguments for the \link[ggplot2]{facet_wrap} function
 #'   from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
 #'
-#' @return A ggplot object with the correlation plots between expected and
-#'   actual proportions.
+#' @return A ggplot object.
 #'
 #' @export
 #'
@@ -740,14 +725,15 @@ corrExpPredPlot <- function(
     stop("The provided object does not have evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
   } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
-    stop("Evaluation metrics are not correct, use 'calculateEvalMetrics' function")
+    stop("Evaluation metrics are not present, use 'calculateEvalMetrics' function")
   } else if (!is.null(color.by)) {
     if (!color.by %in% c("nCellTypes", "CellType"))
       stop("'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL")
   }
   amd <- trained.model(object)@test.deconv.metrics[[1]]
   if (filter.sc) {
-    amd <- amd %>% filter(.data[["Prob"]] > 0 & .data[["Prob"]] < 1)
+    # TODO: here, preffix should be used rather than Spot_
+    amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
   }
   if (missing(colors)) colors <- default.colors()
   
@@ -865,20 +851,19 @@ corrExpPredPlot <- function(
 ################################################################################
 
 #' Generate Bland-Altman agreement plots between predicted and expected cell
-#' type proportions from test data results
+#' type proportions of test data 
 #'
 #' Generate Bland-Altman agreement plots between predicted and expected cell
-#' type proportions from test data results. The Bland-Altman agreement plots can
+#' type proportions from test data. The Bland-Altman agreement plots can
 #' be displayed all mixed or split by cell type (\code{CellType}) or the number
 #' of cell types present in samples (\code{nCellTypes}). See the \code{facet.by}
 #' argument and examples for more information.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
-#'   \code{trained.model} slot containing metrics in \code{test.deconv.metrics}
-#'   slot.
-#' @param colors Vector of colors to be used. Only vectors with a number of
-#'   colors equal to or greater than the levels of \code{color.by} will be
-#'   accepted. By default a custom color list is used.
+#'   \code{trained.model} slot containing metrics in the
+#'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+#'   object.
+#' @param colors Vector of colors to be used. 
 #' @param color.by Variable used to color data. Options are \code{nCellTypes}
 #'   and \code{CellType}.
 #' @param facet.by Variable used to display the data in different panels. If
@@ -888,9 +873,9 @@ corrExpPredPlot <- function(
 #' @param log.2 Whether to display the Bland-Altman agreement plot in log2 space
 #'   (\code{FALSE} by default).
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only correlations of results associated with bulk samples are
+#'   out and only correlations of results associated with mixed spot profiles are
 #'   displayed (\code{TRUE} by default).
-#' @param density Boolean indicating whether density lines must be displayed
+#' @param density Boolean indicating whether density lines should be displayed
 #'   (\code{TRUE} by default).
 #' @param color.density Color of density lines if the \code{density} argument is
 #'   \code{TRUE}.
@@ -903,8 +888,7 @@ corrExpPredPlot <- function(
 #' @param ... Additional argument for the \code{facet_wrap} function from
 #'   \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
 #'
-#' @return A ggplot object with Bland-Altman agreement plots between expected
-#'   and actual proportions.
+#' @return A ggplot object.
 #'
 #' @export
 #'
@@ -1008,7 +992,7 @@ blandAltmanLehPlot <- function(
   }
   amd <- trained.model(object)@test.deconv.metrics[[1]]
   if (filter.sc) {
-    amd <- amd %>% filter(.data[["Prob"]] > 0 & .data[["Prob"]] < 1)
+    amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
   }
 
   if (log.2) {
@@ -1080,23 +1064,25 @@ blandAltmanLehPlot <- function(
 #' Generate bar error plots
 #'
 #' Generate bar error plots by cell type (\code{CellType}) or by number of
-#' different cell types (\code{nCellTypes}) on test pseudo-bulk samples.
+#' different cell types (\code{nCellTypes}) on test mixed spot profiles.
 #'
-#' @param object \code{SpatialDDLS} object with \code{trained.model} slot
-#'   containing metrics in \code{test.deconv.metrics} slot.
+#' @param object \code{\linkS4class{SpatialDDLS}} object with
+#'   \code{trained.model} slot containing metrics in the
+#'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+#'   object.
 #' @param error \code{'MAE'} or \code{'MSE'}.
 #' @param by Variable used to display errors. Available options are:
 #'   \code{'nCellTypes'}, \code{'CellType'}.
 #' @param dispersion Standard error (\code{'se'}) or standard deviation
-#'   (\code{'sd'}). The former is the default.
+#'   (\code{'sd'}). The former by default.
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only correlation of results associated with bulk samples are
+#'   out and only correlation of results associated with mixed spot profiles are
 #'   displayed (\code{TRUE} by default).
 #' @param angle Angle of ticks.
 #' @param title Title of the plot.
 #' @param theme \pkg{ggplot2} theme.
 #'
-#' @return A ggplot object with the mean and dispersion of the errors
+#' @return A ggplot object.
 #'
 #' @export
 #'
@@ -1182,7 +1168,7 @@ barErrorPlot <- function(
     stop("The provided object does not have evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
   } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
-    stop("Evaluation metrics are not well built, use 'calculateEvalMetrics' function")
+    stop("Evaluation metrics are not properly built, use 'calculateEvalMetrics' function")
   } else if (!by %in% c("nCellTypes", "CellType")) {
     stop("'by' provided is not valid. The available options are: 'nCellTypes', 'CellType'")
   } else if (!error %in% c("MAE", "MSE")) {

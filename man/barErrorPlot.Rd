@@ -16,8 +16,10 @@ barErrorPlot(
 )
 }
 \arguments{
-\item{object}{\code{SpatialDDLS} object with \code{trained.model} slot
-containing metrics in \code{test.deconv.metrics} slot.}
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with
+\code{trained.model} slot containing metrics in the
+\code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+object.}
 
 \item{error}{\code{'MAE'} or \code{'MSE'}.}
 
@@ -25,10 +27,10 @@ containing metrics in \code{test.deconv.metrics} slot.}
 \code{'nCellTypes'}, \code{'CellType'}.}
 
 \item{dispersion}{Standard error (\code{'se'}) or standard deviation
-(\code{'sd'}). The former is the default.}
+(\code{'sd'}). The former by default.}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only correlation of results associated with bulk samples are
+out and only correlation of results associated with mixed spot profiles are
 displayed (\code{TRUE} by default).}
 
 \item{title}{Title of the plot.}
@@ -38,11 +40,11 @@ displayed (\code{TRUE} by default).}
 \item{theme}{\pkg{ggplot2} theme.}
 }
 \value{
-A ggplot object with the mean and dispersion of the errors
+A ggplot object.
 }
 \description{
 Generate bar error plots by cell type (\code{CellType}) or by number of
-different cell types (\code{nCellTypes}) on test pseudo-bulk samples.
+different cell types (\code{nCellTypes}) on test mixed spot profiles.
 }
 \examples{
 \dontrun{

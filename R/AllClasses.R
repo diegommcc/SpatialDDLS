@@ -2,7 +2,7 @@
 #' @importFrom utils packageVersion
 #' @import SingleCellExperiment SummarizedExperiment
 #' @importClassesFrom Matrix dgCMatrix
-#' @importFrom keras keras_model_sequential layer_dense layer_batch_normalization layer_activation layer_dropout get_output_shape_at compile optimizer_adam fit_generator evaluate_generator predict_generator model_from_json set_weights model_to_json get_weights load_model_hdf5 save_model_hdf5
+#' @importFrom keras keras_model_sequential layer_dense layer_batch_normalization layer_activation layer_dropout get_output_shape_at compile optimizer_adam fit_generator evaluate_generator predict_generator fit evaluate predict model_from_json set_weights model_to_json get_weights load_model_hdf5 save_model_hdf5
 NULL
 
 setOldClass(Classes = 'package_version')
@@ -295,6 +295,8 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 ################################################################################
 ########################### SpatialDDLS class ##############################
 ################################################################################
+
+## TODO: create a function to check if spatial.experiments contains SpatialExperiment obejcts
 
 #' The SpatialDDLS Class
 #'

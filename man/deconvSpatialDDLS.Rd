@@ -2,78 +2,75 @@
 % Please edit documentation in R/dnnModel.R
 \name{deconvSpatialDDLS}
 \alias{deconvSpatialDDLS}
-\title{Deconvolute bulk RNA-Seq samples using a pre-trained SpatialDDLS model}
+\title{Deconvolute spatial transcriptomics mixed spots}
 \usage{
 deconvSpatialDDLS(
-  data,
-  model = NULL,
-  batch.size = 128,
+  object,
+  index.st,
+  batch.size = 64,
   normalize = TRUE,
   scaling = "standarize",
   simplify.set = NULL,
   simplify.majority = NULL,
+  use.generator = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{data}{Matrix or data frame with bulk RNA-Seq samples with genes as rows
-in SYMBOL notation and samples as columns.}
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with
+\code{trained.model} and \code{spatial.experiments} slots.}
 
-\item{model}{Pre-trained DNN model to use to deconvolute \code{data}. Up to
-now, the available models are intended to deconvolute samples from breast
-cancer (\code{breast.chung.generic} and \code{breast.chung.specific}) and
-colorectal cancer (\code{colorectal.li}). These pre-trained models are
-stored in the \pkg{SpatialDDLSdata} package, so it must be installed
-together with \pkg{SpatialDDLS} to use this function.}
+\item{index.st}{Name or index of the dataset/slide stored in the
+\code{SpatialDDLS} object (\code{spatial.experiments} slot) to be
+deconvolute. If missing, all datasets will be deconvoluted.}
 
-\item{batch.size}{Number of samples loaded into RAM each time during the
-deconvolution process. If not specified, \code{batch.size} will be set to
-128.}
+\item{batch.size}{Number of samples per gradient update. If not specified,
+\code{batch.size} will default to 128.}
 
-\item{normalize}{Normalize data before deconvolution (\code{TRUE} by default).}
+\item{normalize}{Normalize data before deconvolution (\code{TRUE} by
+default).}
 
 \item{scaling}{How to scale data before training. It may be:
 \code{"standarize"} (values are centered around the mean with a unit
 standard deviation) or \code{"rescale"} (values are shifted and rescaled so
-that they end up ranging between 0 and 1). If \code{normalize = FALSE}, data
-is not scaled.}
+that they end up ranging between 0 and 1). If \code{normalize = FALSE},
+data are not scaled.}
 
-\item{simplify.set}{List specifying which cell types should be compressed into
-a new label whose name will be the list name item. See examples and
-vignettes for details.}
+\item{simplify.set}{List specifying which cell types should be compressed
+into a new label whose name will be the list item. See examples for
+details. If provided, results are stored in a list with \code{'raw'} and
+\code{'simpli.set'} elements.}
 
-\item{simplify.majority}{List specifying which cell types should be compressed
-into the cell type with the highest proportion in each sample. Unlike
-\code{simplify.set}, this argument allows to maintain the complexity of the
-results while compressing the information, as no new labels are created.}
+\item{simplify.majority}{List specifying which cell types should be
+compressed into the cell type with the highest proportion in each spot.
+Unlike \code{simplify.set}, no new labels are created. If provided, results
+are stored in a list with \code{'raw'} and \code{'simpli.majority'}
+elements.}
 
-\item{verbose}{Show informative messages during execution.}
+\item{use.generator}{Boolean indicating whether to use generators for
+prediction (\code{FALSE} by default).}
+
+\item{verbose}{Show informative messages during the execution.}
 }
 \value{
-A data frame with samples (\eqn{i}) as rows and cell types (\eqn{j})
-as columns. Each entry represents the predicted proportion of cell type
-\eqn{j} in sample \eqn{i}.
+\code{\linkS4class{SpatialDDLS}} object with \code{deconv.spots}
+slot. The output is a data frame with spot (\eqn{i}) as rows and cell types
+(\eqn{j}) as columns. Each entry represents the proportion of \eqn{j} cell
+type in \eqn{i} spot If \code{simplify.set} and/or
+\code{simpplify.majority} are provided, the \code{deconv.spots} slot will
+contain a list with raw and simplified results.
 }
 \description{
-Deconvolute bulk gene expression samples (bulk RNA-Seq) to enumerate and
-quantify the proportion of cell types present in a bulk sample using Deep
-Neural Network models. This function is intended for users who want to use
-pre-trained models integrated in the package. So far, the available models
-allow to deconvolute the immune infiltration of breast cancer (using data from
-Chung et al., 2017) and the immune infiltration of colorectal cancer (using
-data from Li et al., 2017) samples. For the former, two models are available
-at two different levels of specificity: specific cell types
-(\code{breast.chung.specific}) and generic cell types
-(\code{breast.chung.generic}). See \code{breast.chung.generic},
-\code{breast.chung.specific}, and \code{colorectal.li} documentation from the
-\pkg{SpatialDDLSdata} package for more details.
+Deconvolute spatial transcriptomics mixed spots using the trained model
+contained in the \code{\linkS4class{SpatialDDLS}} object.
 }
 \details{
-This function is intended for users who want to use \pkg{SpatialDDLS} to
-deconvolute their bulk RNA-Seq samples using pre-trained models. For users who
-want to build their own models from other scRNA-Seq datasets, see the
-\code{\link{loadSCProfiles}} and \code{\link{deconvSpatialDDLSObj}}
-functions.
+This function requires a \code{SpatialDDLS} object with a trained Deep Neural
+Network model (\code{\link{trained.model}} slot, see
+\code{?\link{trainDeconvModel}}) and the spatial transcriptomics datasets to
+be deconvoluted in the \code{spatial.experiments} slot. See
+\code{?\link{createSpatialDDLSobject}} or \code{?\link{loadSTProfiles}} for
+more details.
 }
 \examples{
 \dontrun{
@@ -126,39 +123,24 @@ countsBulk <- matrix(
   nrow = 40, ncol = 15,
   dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
 )
-# this is only an example. See vignettes to see how to use pre-trained models
-# from the SpatialDDLSmodels data package
-results1 <- deconvSpatialDDLS(
-  data = countsBulk,
-  model = trained.model(DDLS),
-  normalize = TRUE
+seBulk <- SummarizedExperiment(assay = list(counts = countsBulk))
+DDLS <- loadDeconvData(
+  object = DDLS,
+  data = seBulk,
+  index.st = "Example"
 )
 # simplify arguments
 simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
                  CellGroup2 = c("CellType3", "CellType5"))
-# in this case the names of the list will be the new labels
-results2 <- deconvSpatialDDLS(
-  countsBulk,
-  model = trained.model(DDLS),
-  normalize = TRUE,
-  simplify.set = simplify
-)
-# in this case the cell type with the highest proportion will be the new label
-results3 <- deconvSpatialDDLS(
-  countsBulk,
-  model = trained.model(DDLS),
-  normalize = TRUE,
+DDLS <- deconvSpatialDDLS(
+  object = DDLS,
+  index.st = "Example",
+  simplify.set = simplify,
   simplify.majority = simplify
 )
 }
-
-}
-\references{
-Chung, W., Eum, H. H., Lee, H. O., Lee, K. M., Lee, H. B., Kim, K.
-T., et al. (2017). Single-cell RNA-seq enables comprehensive tumour and
-immune cell profiling in primary breast cancer. Nat. Commun. 8 (1), 15081.
-doi: \doi{10.1038/ncomms15081}.
+  
 }
 \seealso{
-\code{\link{deconvSpatialDDLSObj}}
+\code{\link{trainDeconvModel}} \code{\linkS4class{SpatialDDLS}}
 }

@@ -16,7 +16,7 @@ set.list(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{PropCellTypes}} object.}
 
-\item{value}{List of cells sorted according to the cell type to which they
+\item{value}{List of cells ordered according to the cell type to which they
 belong.}
 }
 \description{

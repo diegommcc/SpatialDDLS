@@ -3,7 +3,7 @@
 \name{corrExpPredPlot}
 \alias{corrExpPredPlot}
 \title{Generate correlation plots between predicted and expected cell type
-proportions from test data}
+proportions of test data}
 \usage{
 corrExpPredPlot(
   object,
@@ -27,29 +27,26 @@ corrExpPredPlot(
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with
 \code{trained.model} slot containing metrics in the
-\code{test.deconv.metrics} slot of a
-\code{\linkS4class{SpatialDDLSDNN}} object.}
+\code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+object.}
 
-\item{colors}{Vector of colors to be used. Only vectors with a number of
-colors equal to or greater than the levels of \code{color.by} will be
-accepted. By default, a custom color list is used.}
+\item{colors}{Vector of colors to be used.}
 
-\item{facet.by}{Variable used to display data in different panels. If
-\code{NULL}, the plot is not split into different panels. Options are
-\code{nCellTypes} (by number of different cell types) and \code{CellType}
-(by cell type).}
+\item{facet.by}{Display data in different panels. Options are
+\code{nCellTypes} (number of different cell types) and \code{CellType}
+(cell type) (\code{NULL} by default).}
 
 \item{color.by}{Variable used to color data. Options are \code{nCellTypes}
 and \code{CellType}.}
 
 \item{corr}{Correlation value displayed as an annotation on the plot.
 Available metrics are Pearson's correlation coefficient (\code{'pearson'})
-and concordance correlation coefficient (\code{'ccc'}). The argument can be
+and concordance correlation coefficient (\code{'ccc'}). It can be
 \code{'pearson'}, \code{'ccc'} or \code{'both'} (by default).}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only errors associated with pseudo-bulk samples are displayed
-(\code{TRUE} by default).}
+out and only errors associated with mixed spots are displayed (\code{TRUE}
+by default).}
 
 \item{pos.x.label}{X-axis position of correlation annotations (0.95 by
 default).}
@@ -76,17 +73,13 @@ default).}
 from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
 }
 \value{
-A ggplot object with the correlation plots between expected and
-actual proportions.
+A ggplot object.
 }
 \description{
 Generate correlation plot between predicted and expected cell type
-proportions from test data. Correlation plots can be displayed all mixed or
-split by cell type (\code{CellType}) or number of cell types present in the
-samples (\code{nCellTypes}). See the \code{facet.by} argument and examples
-for more information. Moreover, a user-selected correlation value is
-displayed as an annotation on the plots. See the \code{corr} argument for
-details.
+proportions of test data. Correlation plots can be displayed all mixed or
+split by cell type (\code{CellType}) or number of different cell types
+present in the spots (\code{nCellTypes}).
 }
 \examples{
 \dontrun{

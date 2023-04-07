@@ -278,7 +278,7 @@ NULL
       ))
     } else if (disc != 0) {
       if (verbose) {
-        message("=== Intersection between count matrix and genes metadata:")
+        message("    - Intersection between count matrix and genes metadata:")
         message("    ", disc, " genes have been discarded from genes metadata",
                 "\n") 
       }
@@ -357,7 +357,7 @@ NULL
   dup.genes <- duplicated(rownames(counts))
   if (any(dup.genes)) {
     if (verbose) {
-      message("=== Aggregating ", sum(dup.genes), " duplicated genes") 
+      message("      - Aggregating ", sum(dup.genes), " duplicated genes\n") 
     }
     ## this part will be changed
     counts <- rowsum(as.matrix(counts), rownames(counts))
@@ -369,7 +369,7 @@ NULL
   row.zero <- Matrix::rowSums(counts) > 0
   if (!all(row.zero)) {
     if (verbose) {
-      message(paste("=== Removing", sum(!row.zero),
+      message(paste("      - Removing", sum(!row.zero),
                     "genes without expression in any cell")) 
     }
     counts <- counts[row.zero, ]
@@ -395,9 +395,9 @@ NULL
                "does not have entries"))
   }
   if (verbose) {
-    message("=== Filtering features by 'min.counts' and 'min.cells':")
-    message(paste("    - Selected features:",  dim(counts)[1]))
-    message(paste("    - Discarded features:", dim.bef[1] - dim(counts)[1]))  
+    message("      - Filtering features by 'min.counts' and 'min.cells':")
+    message(paste("         - Selected features:",  dim(counts)[1]))
+    message(paste("         - Discarded features:", dim.bef[1] - dim(counts)[1]))  
   }
   genes.metadata <- genes.metadata[genes.metadata[, gene.ID.column] %in%
                                      rownames(counts), , drop = FALSE]
@@ -423,7 +423,7 @@ NULL
   dup.genes <- duplicated(rownames(counts))
   if (any(dup.genes)) {
     if (verbose) {
-      message("=== Aggregating ", sum(dup.genes), " duplicated genes") 
+      message("    - Aggregating ", sum(dup.genes), " duplicated genes\n") 
     }
     counts.r <- DelayedArray::rowsum(x = counts, group = factor(rownames(counts)))
     genes.metadata <- genes.metadata[match(
@@ -434,7 +434,7 @@ NULL
   row.zero <- DelayedArray::rowSums(counts) > 0
   if (!all(row.zero)) {
     if (verbose) {
-      message(paste("\n=== Removing", sum(!row.zero),
+      message(paste("    - Removing", sum(!row.zero),
                     "genes without expression in any cell\n"))  
     }
     counts <- counts[row.zero, ]
@@ -459,9 +459,9 @@ NULL
                "does not have entries"))
   }
   if (verbose) {
-    message("\n=== Filtering features by min.counts and min.cells:")
-    message(paste("    - Selected features:",  sum(remove.genes)))
-    message(paste("    - Discarded features:", sum(!remove.genes))) 
+    message("\n    - Filtering features by min.counts and min.cells:")
+    message(paste("       - Selected features:",  sum(remove.genes)))
+    message(paste("       - Discarded features:", sum(!remove.genes))) 
   }
   if (is.null(rownames(counts))) {
     genes.metadata <- genes.metadata[remove.genes, , drop = FALSE]
@@ -508,6 +508,9 @@ NULL
     name.dataset.backend <- hdf5Params[[1]]
     compression.level <- hdf5Params[[2]]
   }
+  if (verbose) {
+    message("=== Processing single-cell data\n")
+  }
   if (is(single.cell, "SingleCellExperiment")) {
     # extract data (no filtering)
     list.data <- .extractDataFromSE(
@@ -549,7 +552,7 @@ NULL
     if (!class(list.data[[1]]) %in% c("HDF5Matrix", "HDF5Array", 
                                       "DelayedArray", "DelayedMatrix")) {
       if (verbose) {
-        message("=== Provided data is not stored as HDF5 file and ", 
+        message("=== Provided data are not stored as HDF5 file and ", 
                 "'block.processing' has been set to TRUE, so data will be ", 
                 "written in HDF5 file for block processing")
       }
@@ -568,9 +571,6 @@ NULL
     } else if (is(list.data[[1]], "dgTMatrix")) {
       list.data[[1]] <- as(list.data[[1]], "dgCMatrix") 
     }
-  }
-  if (verbose) {
-    message("=== Processing SC data")
   }
   list.data <- .processData(
     counts = list.data[[1]],
@@ -609,11 +609,11 @@ NULL
   # extract cells.metadata
   cells.metadata <- SummarizedExperiment::colData(SEobject)
   if (any(dim(cells.metadata) == 0)) {
-    stop("No data provided in colData slot. Cells metadata is needed. ",
+    stop("No data provided in colData slot. Cells metadata are needed. ",
          "Please, see ?loadSCProfiles")
   }
   if (!missing(cell.ID.column) && new.data) {
-    # check if given IDs exist in cells.metadata. In cells.metadata is not
+    # check if given IDs exist in cells.metadata. In cells.metadata are not
     # necessary because the data are provided from an SCE object
     .checkColumn(
       metadata = cells.metadata,
@@ -638,13 +638,13 @@ NULL
   genes.metadata <- SummarizedExperiment::rowData(SEobject)
   if (!missing(gene.ID.column) && new.data) {
     if (any(dim(genes.metadata) == 0)) {
-      stop("No data provided in rowData slot. Genes metadata is needed. ",
+      stop("No data provided in rowData slot. Genes metadata are needed. ",
            "Please, see ?loadSCProfiles")
       # if (class(gene.ID.column) == "numeric") gene.ID.column <- "gene_names"
       # genes.metadata <- S4Vectors::DataFrame(gene.ID.column = rownames(counts))
     }
-    # check if given IDs exist in genes.metadata. In cells.metadata is not
-    # necessary because the data is provided from a SCE object
+    # check if given IDs exist in genes.metadata. In cells.metadata are not
+    # necessary because the data are provided from a SCE object
     .checkColumn(
       metadata = genes.metadata,
       ID.column = gene.ID.column,
@@ -665,15 +665,17 @@ NULL
   verbose = TRUE
 ) {
   if (is(list.st.objects, "SpatialExperiment")) {
-    message("=== Only 1 SpatialExperiment object provided")
     list.st.objects <- list(list.st.objects)
     n.slides <- 1
   } else if (!is(list.st.objects, "list")) {
     stop(
       "`st.data` argument must be a SpatialExperiment object ", 
-      "or list of SpatialExperiment objects"
+      "or a list of SpatialExperiment objects"
     )
   }
+  if (verbose) 
+    message(paste0("=== ", length(list.st.objects), " SpatialExperiment objects provided\n"))
+  
   ## check if there are names in the provided list
   if (!is.null(names(list.st.objects))) {
     if (length(unique(names(list.st.objects))) != length(names(list.st.objects))) {
@@ -699,7 +701,7 @@ NULL
         min.counts = min.counts,
         verbose = TRUE
       )
-      genes <- rowData(obj)[[gene.ID.column]]
+      genes <- rowData(obj.mod)[[gene.ID.column]]
       return(list(obj.mod, genes))
     }
   )
@@ -731,6 +733,7 @@ NULL
     all.genes <- sapply(X = list.st.objects, FUN = function(x) x[[2]])
     num.genes <- table(unlist(all.genes))
     inter.genes <- names(num.genes[num.genes >= n.slides])
+
     return(
       lapply(
         list.st.objects, function(x) {
@@ -810,7 +813,7 @@ NULL
     list.data[[1]] <- as(list.data[[1]], "dgCMatrix") 
   }
   if (verbose) {
-    message("===== Processing ST data")
+    message("   === Processing spatial transcriptomics data")
   }
   ## filtering genes
   list.data <- .processData(
@@ -831,6 +834,10 @@ NULL
   # # TODO: error
   # rowData(st.object) <- list.data[[3]]
   # message(class(list.data[[1]]))
+  
+  ## just for a better visualization
+  if (verbose) message("")
+  
   return(
     SpatialExperiment::SpatialExperiment(
       assays = list.data[[1]],
@@ -845,24 +852,31 @@ NULL
 ######################### Create a SpatialDDLS object ##########################
 ################################################################################
 
-#' Create a \code{\linkS4class{SpatialDDLS}} object from single-cell RNA-seq
-#' data and spatial transcriptomics data
+#' Create a \code{\linkS4class{SpatialDDLS}} object
 #'
-#' Create a \code{\linkS4class{SpatialDDLS}} object from single-cell RNA-seq
-#' data from files (formats allowed: tsv, tsv.gz, mtx (sparse matrix) and hdf5)
-#' or a \code{\linkS4class{SingleCellExperiment}} object. The data will be
-#' stored in \code{single.cell.real} slot. The data provided should consist of
-#' three pieces of information: \itemize{ \item Single-cell counts: genes as
-#' rows and cells as columns. \item Cells metadata: annotations (columns) for
-#' each cell (rows). \item Genes metadata: annotations (columns) for each gene
-#' (rows). } If the data is provided from files, \code{single.cell.real}
-#' argument must be a vector of three elements ordered so that the first file
-#' corresponds to the count matrix, the second to the cells metadata and the
-#' last to the genes metadata. On the other hand, if the data is provided as a
-#' \code{\linkS4class{SingleCellExperiment}} oject, it must contain single-cell
-#' counts in the \code{assay} slot, cells metadata in the \code{colData} slot
-#' and genes metadata in the \code{rowData}. The data must be provided without
-#' any transformation (e.g. log-transformation) and raw counts are preferred.
+#' Create a \code{\linkS4class{SpatialDDLS}} object. At least, single-cell
+#' RNA-seq data must be provided, but the function also accepts spatial
+#' transcriptomics data contained in \code{\linkS4class{SpatialExperiment}}
+#' objects. We recommend to start with both pieces of data so as to calculate
+#' the intersection of genes shared between both experiments.
+#'
+#' \strong{Single-cell RNA-seq data}
+#'
+#' from single-cell RNA-seq data from files (formats allowed: tsv, tsv.gz, mtx
+#' (sparse matrix) and hdf5) or a \code{\linkS4class{SingleCellExperiment}}
+#' object. The data will be stored in \code{single.cell.real} slot. The data
+#' provided must consist of three pieces of information: \itemize{ \item
+#' Single-cell counts: genes as rows and cells as columns. \item Cells metadata:
+#' annotations (columns) for each cell (rows). \item Genes metadata: annotations
+#' (columns) for each gene (rows). } If data are provided from files,
+#' \code{single.cell.real} argument must be a vector of three elements ordered
+#' so that the first file corresponds to the count matrix, the second to the
+#' cells metadata and the last to the genes metadata. On the other hand, if data
+#' are provided as a \code{\linkS4class{SingleCellExperiment}} object, it must
+#' contain single-cell counts in the \code{assay} slot, cells metadata in the
+#' \code{colData} slot and genes metadata in the \code{rowData}. The data must
+#' be provided without any transformation (e.g. log-transformation) and raw
+#' counts are preferred.
 #'
 #' This data can be used to simulate new single-cell profiles using the
 #' ZINB-WaVE framework with the \code{\link{estimateZinbwaveParams}} function.
@@ -871,46 +885,62 @@ NULL
 #' these profiles will be used directly to simulate pseudo-bulk RNA-seq samples
 #' with known cell composition.
 #'
-#' @param single.cell.data If data is provided from files,
-#'   \code{single.cell.real} must be a vector of three elements: single-cell
-#'   counts, cells metadata and genes metadata. If data is provided from a
-#'   \code{\linkS4class{SingleCellExperiment}} object, single-cell counts must
-#'   be present in the \code{assay} slot, cells metadata in the \code{colData}
-#'   slot and genes metadata in the \code{rowData} slot.
-#' @param cell.ID.column Name or number of the column in the cells metadata
+#' \strong{Spatial transcriptomics data}
+#'
+#' It must be a \code{\listS4class{SpatialExperiment}} object (or a list of them
+#' if more than one slide is going to be deconvoluted) containing ....
+#'
+#' @param sc.data Single-cell RNA-seq profiles to be used as reference. If data
+#'   are provided from files, \code{single.cell.real} must be a vector of three
+#'   elements: single-cell counts, cells metadata and genes metadata. If data
+#'   are provided from a \code{\linkS4class{SingleCellExperiment}} object,
+#'   single-cell counts must be present in the \code{assay} slot, cells metadata
+#'   in the \code{colData} slot, and genes metadata in the \code{rowData} slot.
+#' @param sc.cell.ID.column Name or number of the column in the cells metadata
 #'   corresponding to cell names in expression matrix.
-#' @param gene.ID.column Name or number of the column in the genes metadata
+#' @param sc.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes.
-#' @param name.dataset.h5 Name of the data set if HDF5 file is provided.
-#' @param min.counts Minimum gene counts to filter (0 by default).
-#' @param min.cells Minimum of cells with more than \code{min.counts} (0 by
+#' @param st.data Spatial transcriptomics datasets to be deconvoluted. It can be
+#'   a single \code{\linkS4class{SpatialExperiment}} object or a list of them.
+#' @param st.cell.ID.column Name or number of the column in the cells metadata
+#'   corresponding to cell names in expression matrix.
+#' @param st.gene.ID.column Name or number of the column in the genes metadata
+#'   corresponding to the names used for features/genes.
+#' @param sc.min.counts Minimum gene counts to filter (0 by default).
+#' @param sc.min.cells Minimum of cells with more than \code{min.counts} (0 by
 #'   default).
-#' @param file.backend Valid file path where to store the loaded data as HDF5
-#'   file. If provided, data is stored in HDF5 files as back-end using
+#' @param st.min.counts Minimum gene counts to filter (0 by default).
+#' @param st.min.cells Minimum of cells with more than \code{min.counts} (0 by
+#'   default).
+#' @param st.n.slides
+#' @param shared.genes
+#' @param sc.name.dataset.h5 Name of the data set if HDF5 file is provided.
+#' @param sc.file.backend Valid file path where to store the loaded data as HDF5
+#'   file. If provided, data are stored in HDF5 files as back-end using
 #'   \pkg{DelayedArray} and \pkg{HDF5Array} packages instead of being loaded
 #'   into RAM. This is suitable for situations where you have large amounts of
 #'   data that cannot be stored in memory. Note that operations on these data
 #'   will be performed by blocks (i.e subsets of determined size), which may
 #'   result in longer execution times. \code{NULL} by default.
-#' @param name.dataset.backend Name of the dataset of the HDF5 file to be used.
-#'   Note that it cannot exist. If \code{NULL} (by default), a random dataset
-#'   name will be used.
-#' @param compression.level The compression level used if \code{file.backend} is
-#'   provided. It is an integer value between 0 (no compression) and 9 (highest
-#'   and slowest compression). See
+#' @param sc.name.dataset.backend Name of the dataset of the HDF5 file to be
+#'   used. Note that it cannot exist. If \code{NULL} (by default), a random
+#'   dataset name will be used.
+#' @param sc.compression.level The compression level used if \code{file.backend}
+#'   is provided. It is an integer value between 0 (no compression) and 9
+#'   (highest and slowest compression). See
 #'   \code{?\link[HDF5Array]{getHDF5DumpCompressionLevel}} from the
 #'   \pkg{HDF5Array} package for more information.
-#' @param chunk.dims Specifies dimensions that HDF5 chunk will have. If
+#' @param sc.chunk.dims Specifies dimensions that HDF5 chunk will have. If
 #'   \code{NULL}, the default value is a vector of two items: the number of
 #'   genes considered by \code{\linkS4class{SpatialDDLS}} object during the
 #'   simulation, and only one sample in order to increase read times in the
 #'   following steps. A larger number of columns written in each chunk may lead
 #'   to longer read times.
-#' @param block.processing Boolean indicating whether data should be treated as
-#'   blocks (only if data is provided as HDF5 file). \code{FALSE} by default.
-#'   Note that using this functionality is suitable for cases where is not
-#'   possible to load the data into RAM and therefore execution times will be
-#'   longer.
+#' @param sc.block.processing Boolean indicating whether data should be treated
+#'   as blocks (only if data are provided as HDF5 file). \code{FALSE} by
+#'   default. Note that using this functionality is suitable for cases where is
+#'   not possible to load the data into RAM and therefore execution times will
+#'   be longer.
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
 #' @param project Name of the project for \code{\linkS4class{SpatialDDLS}}
@@ -965,8 +995,7 @@ createSpatialDDLSobject <- function(
     st.min.cells = 0,
     st.n.slides = 3,
     shared.genes = TRUE,
-    #TODO: functions for HDF5 files: keep them??
-    sc.name.dataset.h5 = NULL, ## if HDF5 provided
+    sc.name.dataset.h5 = NULL, 
     sc.file.backend = NULL,
     sc.name.dataset.backend = NULL,
     sc.compression.level = NULL,
@@ -985,10 +1014,10 @@ createSpatialDDLSobject <- function(
       min.counts = st.min.counts,
       n.slides = st.n.slides,
       verbose = verbose
-    ) #  %>% lapply(X = ., function(x) x[[1]])
+    ) # %>% lapply(X = ., function(x) x[[1]])
   } else {
     spatial.experiments <- NULL
-    if (verbose) message(">>> Spatial transcriptomics data not provided")
+    if (verbose) message("=== Spatial transcriptomics data not provided")
   }
   ## single-cell profiles
   single.cell.real <- .loadSCData(
@@ -1005,10 +1034,7 @@ createSpatialDDLSobject <- function(
     block.processing = sc.block.processing,
     verbose = verbose
   )
-  
-  # TODO: include messages with stats: number of genes lost, etc.
   ## intersection between datasets
-  
   if (!missing(st.data)) {
     if (shared.genes) {
       inter.genes <- intersect(
@@ -1016,8 +1042,15 @@ createSpatialDDLSobject <- function(
       )
       if (verbose) {
         message(
-          "=== Number of shared genes between SC and ST datasets: ", 
-          length(inter.genes)
+          "\n=== Number of shared genes between single-cell and spatial transcriptomics datasets: ", 
+          length(inter.genes) 
+        )
+        message(
+          "    - Original number of genes of single-cell data: ", nrow(single.cell.real) 
+        )
+        message(
+          "    - Original number of genes of spatial transcriptomics data: ", 
+          nrow(spatial.experiments[[1]]) 
         )
       }
       single.cell.real <- single.cell.real[inter.genes, ]
@@ -1053,10 +1086,10 @@ createSpatialDDLSobject <- function(
 #' three pieces of information: \itemize{ \item Single-cell counts: genes as
 #' rows and cells as columns. \item Cells metadata: annotations (columns) for
 #' each cell (rows). \item Genes metadata: annotations (columns) for each gene
-#' (rows). } If the data is provided from files, \code{single.cell.real}
+#' (rows). } If the data are provided from files, \code{single.cell.real}
 #' argument must be a vector of three elements ordered so that the first file
 #' corresponds to the count matrix, the second to the cells metadata and the
-#' last to the genes metadata. On the other hand, if the data is provided as a
+#' last to the genes metadata. On the other hand, if the data are provided as a
 #' \code{\linkS4class{SingleCellExperiment}} oject, it must contain single-cell
 #' counts in the \code{assay} slot, cells metadata in the \code{colData} slot
 #' and genes metadata in the \code{rowData}. The data must be provided without
@@ -1069,59 +1102,31 @@ createSpatialDDLSobject <- function(
 #' these profiles will be used directly to simulate pseudo-bulk RNA-seq samples
 #' with known cell composition.
 #'
-#' @param single.cell.data If data is provided from files,
+#' @param object If data are provided from files,
 #'   \code{single.cell.real} must be a vector of three elements: single-cell
-#'   counts, cells metadata and genes metadata. If data is provided from a
+#'   counts, cells metadata and genes metadata. If data are provided from a
 #'   \code{\linkS4class{SingleCellExperiment}} object, single-cell counts must
 #'   be present in the \code{assay} slot, cells metadata in the \code{colData}
 #'   slot and genes metadata in the \code{rowData} slot.
-#' @param cell.ID.column Name or number of the column in the cells metadata
+#' @param st.data
+#' @param st.cell.ID.column Name or number of the column in the cells metadata
 #'   corresponding to cell names in expression matrix.
-#' @param gene.ID.column Name or number of the column in the genes metadata
+#' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes.
-#' @param name.dataset.h5 Name of the data set if HDF5 file is provided.
-#' @param min.counts Minimum gene counts to filter (0 by default).
-#' @param min.cells Minimum of cells with more than \code{min.counts} (0 by
+#' @param st.min.counts Minimum gene counts to filter (0 by default).
+#' @param st.min.cells Minimum of cells with more than \code{min.counts} (0 by
 #'   default).
-#' @param file.backend Valid file path where to store the loaded data as HDF5
-#'   file. If provided, data is stored in HDF5 files as back-end using
-#'   \pkg{DelayedArray} and \pkg{HDF5Array} packages instead of being loaded
-#'   into RAM. This is suitable for situations where you have large amounts of
-#'   data that cannot be stored in memory. Note that operations on these data
-#'   will be performed by blocks (i.e subsets of determined size), which may
-#'   result in longer execution times. \code{NULL} by default.
-#' @param name.dataset.backend Name of the dataset of the HDF5 file to be used.
-#'   Note that it cannot exist. If \code{NULL} (by default), a random dataset
-#'   name will be used.
-#' @param compression.level The compression level used if \code{file.backend} is
-#'   provided. It is an integer value between 0 (no compression) and 9 (highest
-#'   and slowest compression). See
-#'   \code{?\link[HDF5Array]{getHDF5DumpCompressionLevel}} from the
-#'   \pkg{HDF5Array} package for more information.
-#' @param chunk.dims Specifies dimensions that HDF5 chunk will have. If
-#'   \code{NULL}, the default value is a vector of two items: the number of
-#'   genes considered by \code{\linkS4class{SpatialDDLS}} object during the
-#'   simulation, and only one sample in order to increase read times in the
-#'   following steps. A larger number of columns written in each chunk may lead
-#'   to longer read times.
-#' @param block.processing Boolean indicating whether data should be treated as
-#'   blocks (only if data is provided as HDF5 file). \code{FALSE} by default.
-#'   Note that using this functionality is suitable for cases where is not
-#'   possible to load the data into RAM and therefore execution times will be
-#'   longer.
+#' @param st.n.slides
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
-#' @param project Name of the project for \code{\linkS4class{SpatialDDLS}}
-#'   object.
 #'
-#' @return A \code{\linkS4class{SpatialDDLS}} object with the single-cell
-#'   RNA-seq data provided loaded into the \code{single.cell.real} slot as a
-#'   \code{\linkS4class{SingleCellExperiment}} object.
+#' @return A \code{\linkS4class{SpatialDDLS}} object with the provided spatial 
+#' trainscriptomics data loaded in the \code{spatial.experiments} slot.
 #'
 #' @export
 #'
-#' @seealso \code{\link{estimateZinbwaveParams}}
-#'   \code{\link{generateBulkCellMatrix}}
+#' @seealso \code{\link{createSpatialDDLSobject}}
+#'   \code{\link{trainDeconvModel}}
 #'
 #' @examples
 #' set.seed(123) # reproducibility

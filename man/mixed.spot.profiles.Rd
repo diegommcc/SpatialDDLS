@@ -16,12 +16,12 @@ mixed.spot.profiles(object, type.data = "both") <- value
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object.}
 
-\item{type.data}{Element of the list. Can be \code{'train'}, \code{'test'} or
-\code{'both'} (the last by default).}
+\item{type.data}{Type of data to return. It can be \code{'train'},
+\code{'test'} or \code{'both'} (the last by default).}
 
-\item{value}{List with two elements, train and test, each one being
-a \code{\linkS4class{SummarizedExperiment}} object with simulated bulk
-RNA-Seq samples.}
+\item{value}{List with two elements, train and test, each one being a
+\code{\linkS4class{SummarizedExperiment}} object containing simulated mixed
+spot transcriptional profiles.}
 }
 \description{
 Get and set \code{mixed.spot.profiles} slot in a

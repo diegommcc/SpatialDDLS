@@ -2,38 +2,32 @@
 % Please edit documentation in R/evalMetrics.R
 \name{calculateEvalMetrics}
 \alias{calculateEvalMetrics}
-\title{Calculate evaluation metrics for bulk RNA-Seq samples from test data}
+\title{Calculate evaluation metrics of test mixed spot transcriptional profiles}
 \usage{
 calculateEvalMetrics(object, metrics = c("MAE", "MSE"))
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object with a trained
-model in the \code{trained.model} slot and the actual cell proportions of
-pseudo-bulk samples in \code{prob.cell.matrix} slot.}
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with a trained model in
+the \code{trained.model} slot and the actual cell proportions of test mixed
+spot profiles in \code{prob.cell.types} slot.}
 
 \item{metrics}{Metrics used to evaluate the model performance. Mean absolute
 error (\code{"MAE"}) and mean squared error (\code{"MSE"}) by default.}
 }
 \value{
 A \code{\linkS4class{SpatialDDLS}} object with the
-\code{trained.model} slot containing a
-\code{\linkS4class{SpatialDDLSDNN}} object with the
-\code{test.deconv.metrics} slot. The last contains the metrics calculated.
+\code{trained.model} slot containing a \code{\linkS4class{DeconvDLModel}}
+object with \code{test.deconv.metrics} slot containing the calculated
+metrics.
 }
 \description{
-Calculate evaluation metrics for bulk RNA-seq samples from test data to
-understand model performance. By default, absolute error (\code{AbsErr}),
-proportional absolute error (\code{ppAbsErr}), squared error (\code{SqrErr})
-and proportional squared error (\code{ppSqrErr}) are calculated for each test
-sample. In addition, each of these metrics is aggregated using their mean
-values according to three criteria: each cell type (\code{CellType}),
-probability bins in ranges of 0.1 (\code{pBin}) and number of different cell
-types present in the sample \code{nCellTypes}. Finally, the process is
-repeated only considering bulk samples (filtering out single-cell profiles
-from the evaluation). The evaluation metrics will be available in the
-\code{test.deconv.metrics} slot of the
-\code{\linkS4class{SpatialDDLSDNN}} object (\code{trained.model} slot of
-the \code{\linkS4class{SpatialDDLS}} object).
+Calculate evaluation metrics of test mixed spot transcriptional profiles. By
+default, absolute error (\code{AbsErr}), proportional absolute error
+(\code{ppAbsErr}), squared error (\code{SqrErr}) and proportional squared
+error (\code{ppSqrErr}) are calculated for each test mixed profile. In
+addition, each of these metrics is aggregated according to three criteria:
+cell type (\code{CellType}), probability bins in ranges of 0.1 (\code{pBin}),
+and number of different cell types present in the spot \code{nCellTypes}.
 }
 \examples{
 \dontrun{

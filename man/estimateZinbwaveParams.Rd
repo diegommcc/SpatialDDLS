@@ -2,7 +2,7 @@
 % Please edit documentation in R/simSingleCell.R
 \name{estimateZinbwaveParams}
 \alias{estimateZinbwaveParams}
-\title{Estimate the parameters of the ZINB-WaVE model to simulate new single-cell
+\title{Estimate parameters of the ZINB-WaVE model to simulate new single-cell
 RNA-Seq expression profiles}
 \usage{
 estimateZinbwaveParams(

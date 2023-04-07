@@ -6,79 +6,69 @@
 \alias{SpatialDDLS}
 \title{The SpatialDDLS Class}
 \description{
-The SpatialDDLS object is the core of \code{digitalDLSorteR}. This object
-stores different intermediate data resulting from the creation of new
-context-specific deconvolution models from single-cell data. It is only used
-in the case of building new deconvolution models. To deconvolute bulk samples
-using pre-trained models, see \code{\link{deconvDigitalDLSorter}} function
-and the package \pkg{digitalDLSorteRdata}.
+The SpatialDDLS object is the core of the \pkg{SpatialDDLS} package. This
+object stores different intermediate data needed for the construction of new
+deconvolution models, the spatial transcriptomics profiles to be
+deconvoluted, and predicted cell type proportions.
 }
 \details{
-This object uses other classes to store the different types of data produced
-during the process: \itemize{ \item \code{\linkS4class{SingleCellExperiment}}
-class for single-cell RNA-Seq data, using sparse matrix from the \pkg{Matrix}
-package (\code{\linkS4class{dgCMatrix}} class) or \code{HDF5Array} class in
-the case of using HDF5 files as back-end (see below for more information).
-\item \code{\linkS4class{ZinbModel}} class with estimated parameters for the
-simulation of new single-cell profiles. \item
-\code{\linkS4class{SummarizedExperiment}} class for large bulk RNA-Seq data
-storage. \item \code{\linkS4class{PropCellTypes}} class for the compositional
-cell matrices constructed during the process. See
+This object uses other classes to store the different types of data generated
+during the workflow: \itemize{ \item
+\code{\linkS4class{SingleCellExperiment}} class for single-cell RNA-Seq data
+storage, using sparse matrix from the \pkg{Matrix} package
+(\code{\linkS4class{dgCMatrix}} class) or \code{HDF5Array} class in case of
+using HDF5 files as back-end (see below for more information). \item
+\code{\linkS4class{SpatialExperiment}} class for spatial transcriptomics data
+storage. \item \code{\linkS4class{ZinbModel}} class with estimated parameters
+for the simulation of new single-cell profiles. \item
+\code{\linkS4class{SummarizedExperiment}} class for simulated mixed spot
+transcriptional profiles storage. \item \code{\linkS4class{PropCellTypes}}
+class for compositional cell type matrices. See
 \code{?\linkS4class{PropCellTypes}} for details. \item
 \code{\linkS4class{DeconvDLModel}} class to store the information related to
-Deep Neural Network models. This step is performed using \code{keras}. See
-\code{?\linkS4class{DeconvDLModel}} for details. }
-
-\pkg{digitalDLSorteR} can be used in two ways: to build new deconvolution
-models from single-cell RNA-Seq data or to deconvolute bulk RNA-Seq samples
-using pre-trained models available at \pkg{digitalDLSorteRdata} package. If
-you want to build new models, see \code{\link{loadSCProfiles}} function. On
-the other hand, if you want to use pre-trained models, see
-\code{\link{deconvDigitalDLSorter}} function.
+Deep Neural Network models. See \code{?\linkS4class{DeconvDLModel}} for
+details. }
 
 In order to provide a way to work with large amounts of data on
 RAM-constrained machines, we provide the possibility to use HDF5 files as
-back-end to store count matrices of both real/simulated single-cell and bulk
-RNA-Seq profiles. For this, the package uses the \code{HDF5Array} and
-\code{DelayedArray} classes from the homonymous packages.
-
-Once the Deep Neural Network model has been trained trained, it is possible
-to save it as RDS or HDF5 files. Please see
-\code{\linkS4class{DeconvDLModel}} for more details.
+back-end to store count matrices of both real and simulated single-cell
+profiles by using the \code{HDF5Array} and \code{DelayedArray} classes from
+the homonymous packages.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{single.cell.real}}{Real single-cell data stored in a
-\code{SingleCellExperiment} object. The count matrix is stored as
+\code{SingleCellExperiment} object. The count matrix is stored either as
 \code{\linkS4class{dgCMatrix}} or \code{HDF5Array} objects.}
 
 \item{\code{spatial.experiments}}{List of \code{\linkS4class{SpatialExperiment}}
-objects with data to be deconvoluted.}
+objects to be deconvoluted.}
 
 \item{\code{zinb.params}}{\code{\linkS4class{ZinbModel}} object with estimated
 parameters for the simulation of new single-cell expression profiles.}
 
-\item{\code{single.cell.simul}}{Simulated single-cell expression profiles from the
+\item{\code{single.cell.simul}}{Simulated single-cell expression profiles using the
 ZINB-WaVE model.}
 
 \item{\code{prob.cell.types}}{\code{\linkS4class{PropCellTypes}} class with cell
-composition matrices built for the simulation of pseudo-bulk RNA-Seq
+composition matrices built for the simulation of mixed spot transcriptional
 profiles with known cell composition.}
 
-\item{\code{mixed.spot.profiles}}{A list of simulated train and test bulk RNA-Seq
-samples. Each entry is a \code{\linkS4class{SummarizedExperiment}} object.
-The count matrices can be stored as \code{HDF5Array} files using HDF5 files
-as back-end in case of RAM limitations.}
+\item{\code{mixed.spot.profiles}}{List of simulated train and test mixed pot
+transcriptional profiles. Each entry is a
+\code{\linkS4class{SummarizedExperiment}} object. The count matrices can be
+stored as \code{HDF5Array} files using HDF5 files as back-end in case of
+RAM limitations.}
 
-\item{\code{trained.model}}{\code{\linkS4class{DeconvDLModel}} object with all the
+\item{\code{trained.model}}{\code{\linkS4class{DeconvDLModel}} object with
 information related to the trained model. See
 \code{?\linkS4class{DeconvDLModel}} for more details.}
 
-\item{\code{deconv.spots}}{Slot containing the deconvolution results of applying
-the deconvolution model to the data present in the
-\code{\link{deconv.data}} slot. It is a list in which the names corresponds
-to the data from which they come.}
+\item{\code{deconv.spots}}{Deconvolution results. It consists of a list in which
+every element corresponds to the results of the
+\code{\linkS4class{SpatialExperiment}} objects contained in the
+\code{spatial.experiments} slot.}
 
 \item{\code{project}}{Name of the project.}
 

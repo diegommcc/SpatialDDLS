@@ -15,17 +15,15 @@ NULL
 #'
 #' \strong{Keras/Tensorflow environment}
 #'
-#' All Deep Learning-related steps in the \pkg{SpatialDDLS} package are
-#' performed by using the \pkg{keras} package, an API in R for \pkg{keras} in
-#' Python available on CRAN.
+#' All Deep Learning-related steps are performed by using the \pkg{keras}
+#' package, an API in R for \pkg{keras} in Python available on CRAN.
 #'
 #' \strong{Simulation of mixed spot transcriptional profiles 'on the fly'}
 #'
-#' \code{trainDeconvModel} allows to avoid storing simulated mixed spot profiles
-#' by using the \code{on.the.fly} argument. This functionality aims to avoid the
-#' long execution times and memory usage of the \code{simMixedSpotProfiles}
-#' function: simulated profiles are built in each batch during
-#' training/evaluation.
+#' \code{trainDeconvModel} can avoid storing simulated mixed spot profiles by
+#' using the \code{on.the.fly} argument. This functionality aims to reduce the
+#' the \code{simMixedSpotProfiles} function's memory usage: simulated profiles
+#' are built in each batch during training/evaluation.
 #'
 #' \strong{Neural network architecture}
 #'
@@ -35,21 +33,19 @@ NULL
 #' pre-built model through the \code{custom.model} argument (a
 #' \code{keras.engine.sequential.Sequential} object) where it is necessary that
 #' the number of input neurons is equal to the number of considered
-#' features/genes and the number of output neurons is equal to the number of
+#' features/genes, and the number of output neurons is equal to the number of
 #' considered cell types.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
-#'   \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.matrix}
-#'   and \code{mixed.spot.profiles} slots.
-#' @param type.data.train Type of profiles to be used for training. It can be
+#'   \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.types},
+#'   and \code{mixed.spot.profiles} slots (the last if \code{on.the.fly =
+#'   TRUE}).
+#' @param type.data.train Type of profiles used for training. It can be
 #'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 #'   default).
-#' @param type.data.test Type of profiles to be used for evaluation. It can be
+#' @param type.data.test Type of profiles used for evaluation. It can be
 #'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'both'} by
 #'   default).
-#' @param sc.downsampling It is only used if \code{type.data.train} is equal to
-#'   \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
-#'   single-cell profiles used for training (\code{NULL} by default).
 #' @param batch.size Number of samples per gradient update (64 by default).
 #' @param num.epochs Number of epochs to train the model (10 by default).
 #' @param num.hidden.layers Number of hidden layers of the neural network (2 by
@@ -85,15 +81,23 @@ NULL
 #'   network architecture will be ignored.
 #' @param shuffle Boolean indicating whether data will be shuffled (\code{TRUE}
 #'   by default).
+#' @param sc.downsampling It is only used if \code{type.data.train} is equal to
+#'   \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
+#'   single-cell profiles from a specific cell type  used for training to avoid
+#'   unbalanced data (\code{NULL} by default).
+#' @param use.generator Boolean indicating whether to use generators during
+#'   training and test. Generators are automatically used when \code{on.the.fly
+#'   = TRUE} or HDF5 files are used, but it can be activated by the user on
+#'   demand (\code{FALSE} by default).
 #' @param on.the.fly Boolean indicating whether data will be generated 'on the
 #'   fly' during training (\code{FALSE} by default).
 #' @param agg.function Function used to build mixed spot transcriptional
-#'   profiles. It may be: \itemize{ \item \code{"MeanCPM"}: single-cell profiles
-#'   (raw counts) are transformed into CPMs and cross-cell averages are
-#'   calculated. Then, \code{log2(CPM + 1)} is calculated. \item
-#'   \code{"AddCPM"}: single-cell profiles (raw counts) are transformed into
-#'   CPMs and are added up across cells. Then, log-CPMs are calculated. \item
-#'   \code{"AddRawCount"}: single-cell profiles (raw counts) are added up across
+#'   profiles. It may be: \itemize{ \item \code{"AddRawCount"} (by default):
+#'   single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
+#'   are calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts)
+#'   are transformed into CPMs and cross-cell averages are calculated. Then,
+#'   \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
+#'   profiles (raw counts) are transformed into CPMs and are added up across
 #'   cells. Then, log-CPMs are calculated.}
 #' @param threads Number of threads used during simulation of mixed spots
 #'   transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).
@@ -159,16 +163,11 @@ NULL
 #'   num.epochs = 5
 #' )
 #' }
-#'
-#' @references Torroja, C. and Sánchez-Cabo, F. (2019). SpatialDDLS: A Deep
-#'   Learning algorithm to quantify immune cell populations based on scRNA-Seq
-#'   data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
 #'   
 trainDeconvModel <- function(
   object,
   type.data.train = "mixed",
   type.data.test = "mixed",
-  sc.downsampling = NULL,
   batch.size = 64,
   num.epochs = 10,
   num.hidden.layers = 2,
@@ -181,6 +180,8 @@ trainDeconvModel <- function(
   scaling = "standarize",
   custom.model = NULL,
   shuffle = FALSE,
+  sc.downsampling = NULL,
+  use.generator = FALSE,
   on.the.fly = FALSE,
   agg.function = "MeanCPM",
   threads = 1,
@@ -264,7 +265,7 @@ trainDeconvModel <- function(
             " will be overwritten\n",
             call. = FALSE, immediate. = TRUE)
   }
-  # plots in RStudio during training --> does not work without RStudio
+  # plots in RStudio during training: does not work without RStudio
   if (view.metrics.plot) view.plot <- "auto"
   else view.plot <- 0
   if (verbose) verbose.model <- 1
@@ -355,7 +356,7 @@ trainDeconvModel <- function(
     model <- custom.model
   }
   if (verbose) summary(model)
-  # allow set optimizer?
+  # shall I allow to set a custom optimizer?
   model %>% compile(
     loss = loss,
     optimizer = optimizer_adam(),
@@ -376,75 +377,140 @@ trainDeconvModel <- function(
   }
   if (verbose) 
     message(paste("\n=== Training DNN with", n.train, "samples:\n"))
-  gen.train <- .trainGenerator(
-    object = object, 
-    funGen = .dataForDNN,
-    prob.matrix = prob.matrix.train,
-    type.data = "train",
-    fun.aggregation = .agg.fun,
-    scaling = scaling.fun,
-    batch.size = batch.size,
-    combine = type.data.train,
-    shuffle = shuffle,
-    pattern = pattern,
-    min.index = NULL,
-    max.index = NULL,
-    threads = threads,
-    verbose = verbose
-  )
-  history <- model %>% fit_generator(
-    generator = gen.train,
-    steps_per_epoch = ceiling(n.train / batch.size),
-    epochs = num.epochs,
-    verbose = verbose.model,
-    view_metrics = view.plot
-  )
-  if (verbose)
-    message(paste0("\n=== Evaluating DNN in test data (", n.test, " samples)"))
-
-  # evaluation of the model: set by default, no options?
-  gen.test <- .predictGenerator(
-    object,
-    funGen = .dataForDNN,
-    target = TRUE,
-    prob.matrix = prob.matrix.test,
-    fun.aggregation = .agg.fun,
-    scaling = scaling.fun,
-    batch.size = batch.size,
-    pattern = pattern,
-    threads = threads,
-    verbose = verbose
-  )
-  test.eval <- model %>% evaluate_generator(
-    generator = gen.test,
-    steps = ceiling(n.test / batch.size)
-  )
-  # prediction of test samples
-  if (verbose) {
-    message(paste0("   - ", names(test.eval), ": ", lapply(test.eval, round, 4),
-                   collapse = "\n"))
-    message(paste("\n=== Generating prediction results using test data\n"))
-  }
-  gen.predict <- .predictGenerator(
-    object,
-    funGen = .dataForDNN,
-    target = FALSE,
-    prob.matrix = prob.matrix.test,
-    fun.aggregation = .agg.fun,
-    scaling = scaling.fun,
-    batch.size = batch.size,
-    pattern = pattern,
-    threads = threads,
-    verbose = verbose
-  )
-  predict.results <- model %>% predict_generator(
-    generator = gen.predict,
-    steps = ceiling(n.test / batch.size),
-    verbose = verbose.model
-  )
-  rownames(predict.results) <- rownames(prob.matrix.test)
-  colnames(predict.results) <- colnames(prob.matrix.test)
   
+  ## TODO: from here on, I could change the use of generators by other alternative. 
+  # the idea is the same 
+  if (type.data.train == "mixed") {
+    checkingClass <- is(
+      assay(mixed.spot.profiles(object, type.data = "train")), "HDF5Array"
+    )  
+  } else if (type.data.train == "single-cell") {
+    checkingClass <- is(assay(single.cell.real(object)), "HDF5Array")  
+  } else {
+    checkingClass <- all(
+      is(assay(mixed.spot.profiles(object, type.data = "train")), "HDF5Array"), 
+      is(assay(single.cell.real(object)), "HDF5Array")
+    )
+  }
+  
+  if (use.generator | isTRUE(on.the.fly) | checkingClass) {
+    gen.train <- .trainGenerator(
+      object = object, 
+      funGen = .dataForDNN,
+      prob.matrix = prob.matrix.train,
+      type.data = "train",
+      fun.aggregation = .agg.fun,
+      scaling = scaling.fun,
+      batch.size = batch.size,
+      combine = type.data.train,
+      shuffle = shuffle,
+      pattern = pattern,
+      min.index = NULL,
+      max.index = NULL,
+      threads = threads,
+      verbose = verbose
+    )
+    history <- model %>% fit_generator(
+      generator = gen.train,
+      steps_per_epoch = ceiling(n.train / batch.size),
+      epochs = num.epochs,
+      verbose = verbose.model,
+      view_metrics = view.plot
+    )
+    if (verbose)
+      message(paste0("\n=== Evaluating DNN in test data (", n.test, " samples)"))
+    
+    # evaluation of the model: set by default, no options?
+    gen.test <- .predictGenerator(
+      object,
+      funGen = .dataForDNN,
+      target = TRUE,
+      prob.matrix = prob.matrix.test,
+      fun.aggregation = .agg.fun,
+      scaling = scaling.fun,
+      batch.size = batch.size,
+      pattern = pattern,
+      threads = threads,
+      verbose = verbose
+    )
+    test.eval <- model %>% evaluate_generator(
+      generator = gen.test,
+      steps = ceiling(n.test / batch.size)
+    )
+    # prediction of test samples
+    if (verbose) {
+      message(paste0("   - ", names(test.eval), ": ", lapply(test.eval, round, 4),
+                     collapse = "\n"))
+      message(paste("\n=== Generating prediction results using test data\n"))
+    }
+    gen.predict <- .predictGenerator(
+      object,
+      funGen = .dataForDNN,
+      target = FALSE,
+      prob.matrix = prob.matrix.test,
+      fun.aggregation = .agg.fun,
+      scaling = scaling.fun,
+      batch.size = batch.size,
+      pattern = pattern,
+      threads = threads,
+      verbose = verbose
+    )
+    predict.results <- model %>% predict_generator(
+      generator = gen.predict,
+      steps = ceiling(n.test / batch.size),
+      verbose = verbose.model
+    )
+    rownames(predict.results) <- rownames(prob.matrix.test)
+    colnames(predict.results) <- colnames(prob.matrix.test)  
+  } else { # no generators, everything is loaded into memory directly
+    dataTrain <- .dataForDNN.file(
+      object = object,
+      sel.data = prob.matrix.train,
+      pattern = pattern,
+      type.data = "train",
+      fun.aggregation = .agg.fun,
+      scaling = scaling.fun,
+      threads = threads
+    )
+    history <- model %>% fit(
+      dataTrain,
+      prob.matrix.train,
+      epochs = num.epochs,
+      batch_size = batch.size,
+      verbose = verbose.model,
+      view_metrics = view.plot
+    )
+    if (verbose)
+      message(paste0("\n=== Evaluating DNN in test data (", n.test, " samples)"))
+    
+    # evaluation of the model
+    dataTest <- .dataForDNN.file(
+      object = object,
+      sel.data = prob.matrix.test,
+      pattern = pattern,
+      type.data = "test",
+      fun.aggregation = .agg.fun,
+      scaling = scaling.fun,
+      threads = threads
+    )
+    test.eval <- model %>% evaluate(
+      dataTest,
+      prob.matrix.test
+    )
+    # prediction of test samples
+    if (verbose) {
+      message(paste0("   - ", names(test.eval), ": ", lapply(test.eval, round, 4),
+                     collapse = "\n"))
+      message(paste("\n=== Generating prediction results using test data\n"))
+    }
+    predict.results <- model %>% predict(
+      dataTest,
+      verbose = verbose.model
+    )
+    rownames(predict.results) <- rownames(prob.matrix.test)
+    colnames(predict.results) <- colnames(prob.matrix.test)  
+  }
+  ## creating DeconvDL
   network.object <- new(
     Class = "DeconvDLModel",
     model = model,
@@ -456,6 +522,7 @@ trainDeconvModel <- function(
   )
   trained.model(object) <- network.object
   if (verbose) message("DONE")
+  
   return(object)
 }
 
@@ -614,7 +681,6 @@ trainDeconvModel <- function(
       .cpmCalculate(x = cell.samples[, rownames(sel.data), drop = FALSE] + 1)
     )
   }
-  
   return(scaling(t(counts)))
 }
 
@@ -950,25 +1016,26 @@ trainDeconvModel <- function(
 
 
 ################################################################################
-###################### Deconvolution of spatial slides #########################
+############### Deconvolution of spatial transcriptomics data ##################
 ################################################################################
 
-#' Deconvolute bulk gene expression samples (bulk RNA-Seq)
+#' Deconvolute spatial transcriptomics mixed spots
 #'
-#' Deconvolute bulk gene expression samples (bulk RNA-Seq). This function
-#' requires a \code{SpatialDDLS} object with a trained Deep Neural Network
-#' model (\code{\link{trained.model}} slot) and the new bulk RNA-Seq samples to
-#' be deconvoluted in the \code{deconv.data} slot. See
-#' \code{?\link{loadDeconvData}} for more details.
+#' Deconvolute spatial transcriptomics mixed spots using the trained model
+#' contained in the \code{\linkS4class{SpatialDDLS}} object.
 #'
-#' This function is intended for users who have built a devonvolution model
-#' using their own single-cell RNA-Seq data. If you want to use a pre-trained
-#' model to deconvolute your samples, see \code{?\link{deconvSpatialDDLS}}.
+#' This function requires a \code{SpatialDDLS} object with a trained Deep Neural
+#' Network model (\code{\link{trained.model}} slot, see
+#' \code{?\link{trainDeconvModel}}) and the spatial transcriptomics datasets to
+#' be deconvoluted in the \code{spatial.experiments} slot. See
+#' \code{?\link{createSpatialDDLSobject}} or \code{?\link{loadSTProfiles}} for
+#' more details.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
-#'   \code{trained.data} and \code{deconv.data} slots.
-#' @param name.data Name of the data stored in the \code{SpatialDDLS}
-#'   object. If not provided, the first data set will be used.
+#'   \code{trained.model} and \code{spatial.experiments} slots.
+#' @param index.st Name or index of the dataset/slide stored in the
+#'   \code{SpatialDDLS} object (\code{spatial.experiments} slot) to be
+#'   deconvolute. If missing, all datasets will be deconvoluted.
 #' @param batch.size Number of samples per gradient update. If not specified,
 #'   \code{batch.size} will default to 128.
 #' @param normalize Normalize data before deconvolution (\code{TRUE} by
@@ -977,31 +1044,30 @@ trainDeconvModel <- function(
 #'   \code{"standarize"} (values are centered around the mean with a unit
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1). If \code{normalize = FALSE},
-#'   data is not scaled.
+#'   data are not scaled.
 #' @param simplify.set List specifying which cell types should be compressed
 #'   into a new label whose name will be the list item. See examples for
-#'   details. If provided, results are stored in a list with 'raw' and
-#'   'simpli.set' results.
+#'   details. If provided, results are stored in a list with \code{'raw'} and
+#'   \code{'simpli.set'} elements.
 #' @param simplify.majority List specifying which cell types should be
-#'   compressed into the cell type with the highest proportion in each sample.
-#'   Unlike \code{simplify.set}, it allows to maintain the complexity of the
-#'   results while compressing the information, as no new labels are created. If
-#'   provided, the results are stored in a list with 'raw' and 'simpli.majority'
-#'   results.
+#'   compressed into the cell type with the highest proportion in each spot.
+#'   Unlike \code{simplify.set}, no new labels are created. If provided, results
+#'   are stored in a list with \code{'raw'} and \code{'simpli.majority'}
+#'   elements.
+#' @param use.generator Boolean indicating whether to use generators for
+#'   prediction (\code{FALSE} by default).
 #' @param verbose Show informative messages during the execution.
 #'
-#' @return \code{\linkS4class{SpatialDDLS}} object with
-#'   \code{deconv.results} slot. The resulting information is a data frame with
-#'   samples (\eqn{i}) as rows and cell types (\eqn{j}) as columns. Each entry
-#'   represents the proportion of \eqn{j} cell type in \eqn{i} sample. If
-#'   \code{simplify.set} or/and \code{simpplify.majority} are provided, the
-#'   \code{deconv.results} slot will contain a list with raw and simplified
-#'   results.
+#' @return \code{\linkS4class{SpatialDDLS}} object with \code{deconv.spots}
+#'   slot. The output is a data frame with spot (\eqn{i}) as rows and cell types
+#'   (\eqn{j}) as columns. Each entry represents the proportion of \eqn{j} cell
+#'   type in \eqn{i} spot If \code{simplify.set} and/or
+#'   \code{simpplify.majority} are provided, the \code{deconv.spots} slot will
+#'   contain a list with raw and simplified results.
 #'
 #' @export
 #'
-#' @seealso \code{\link{trainDeconvModel}}
-#'   \code{\linkS4class{SpatialDDLS}}
+#' @seealso \code{\link{trainDeconvModel}} \code{\linkS4class{SpatialDDLS}}
 #'
 #' @examples
 #' \dontrun{
@@ -1058,21 +1124,18 @@ trainDeconvModel <- function(
 #' DDLS <- loadDeconvData(
 #'   object = DDLS,
 #'   data = seBulk,
-#'   name.data = "Example"
+#'   index.st = "Example"
 #' )
 #' # simplify arguments
 #' simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
 #'                  CellGroup2 = c("CellType3", "CellType5"))
 #' DDLS <- deconvSpatialDDLS(
 #'   object = DDLS,
-#'   name.data = "Example",
+#'   index.st = "Example",
 #'   simplify.set = simplify,
 #'   simplify.majority = simplify
 #' )
 #' }
-#' @references Torroja, C. and Sánchez-Cabo, F. (2019). SpatialDDLS: A Deep
-#'   Learning algorithm to quantify immune cell populations based on scRNA-Seq
-#'   data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
 #'   
 deconvSpatialDDLS <- function(
   object,
@@ -1082,6 +1145,7 @@ deconvSpatialDDLS <- function(
   scaling = "standarize",
   simplify.set = NULL,
   simplify.majority = NULL,
+  use.generator = FALSE,
   verbose = TRUE
 ) {
   # check if python dependencies are covered
@@ -1089,7 +1153,7 @@ deconvSpatialDDLS <- function(
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object))) {
-    stop("There is not trained model in SpatialDDLS object")
+    stop("There is no trained model in SpatialDDLS object")
   } else if (is.null(spatial.experiments(object))) {
     stop("No spatial transcriptomics data provided. See ?createSpatialDDLSobject or ?loadSTProfiles")
   }
@@ -1108,16 +1172,19 @@ deconvSpatialDDLS <- function(
     trained.model(object) <- model.comp
   }
   if (missing(index.st)) {
-    message(
-      "   No 'index.st' provided. Deconvoluting all ST ", 
-      "contained in the `spatial.experiments` slot\n"
-    )
+    if (verbose) {
+      message(
+        "   No 'index.st' provided. Deconvoluting all ST ", 
+        "contained in the `spatial.experiments` slot\n"
+      ) 
+    }
     index.st <- seq_along(spatial.experiments(object))
   } else {
     if (is.character(index.st) & !is.null(names(spatial.experiments(object)))) {
-      ## check if all index.st 
+      ## check if all index.st are present in the slot
       stopifnot(
-        "`index.st` contains elements not present in spatial.experiments slot " = index.st %in% names(spatial.experiments(objects))
+        "`index.st` contains elements not present in spatial.experiments slot " = index.st %in% 
+          names(spatial.experiments(objects))
       )
     }
   }
@@ -1136,6 +1203,7 @@ deconvSpatialDDLS <- function(
         batch.size = batch.size,
         normalize = normalize,
         scaling = scaling.fun,
+        use.generator = use.generator,
         verbose = verbose
       )
       if (!is.null(simplify.set) || !is.null(simplify.majority)) {
@@ -1180,6 +1248,7 @@ deconvSpatialDDLS <- function(
   batch.size,
   normalize,
   scaling,
+  use.generator,
   verbose
 ) {
   if (is.null(rownames(deconv.counts))) {
@@ -1190,7 +1259,8 @@ deconvSpatialDDLS <- function(
   # filtering features missing in training data
   filter.features <- rownames(deconv.counts) %in% features(model)
   deconv.counts <- deconv.counts[filter.features, ]
-  # set features missing in deconv.data
+  # TODO: remove messages when there are 0 missed genes
+  # set features missing in spatial.experiments
   fill.features <- !features(model) %in% rownames(deconv.counts)
   if (any(fill.features)) {
     m.new <- matrix(0L, nrow = sum(fill.features), ncol = ncol(deconv.counts))
@@ -1211,11 +1281,6 @@ deconvSpatialDDLS <- function(
     deconv.counts <- scaling(t(deconv.counts))
   }
   # deconv.counts <- t(deconv.counts)
-  deconv.generator <- .predictDeconvDataGenerator(
-    data = deconv.counts,
-    model = model,
-    batch.size = batch.size
-  )
   if (verbose) {
     verbose.model <- 1
     message("=== Predicting cell types present in the provided samples\n")
@@ -1223,11 +1288,23 @@ deconvSpatialDDLS <- function(
     verbose.model <- 0
   }
   dnn.model <- model(model)
-  results <- dnn.model %>% predict_generator(
-    generator = deconv.generator,
-    steps = ceiling(nrow(deconv.counts) / batch.size),
-    verbose = verbose.model
-  )
+  if (use.generator) {
+    deconv.generator <- .predictDeconvDataGenerator(
+      data = deconv.counts,
+      model = model,
+      batch.size = batch.size
+    )
+    results <- dnn.model %>% predict_generator(
+      generator = deconv.generator,
+      steps = ceiling(nrow(deconv.counts) / batch.size),
+      verbose = verbose.model
+    )  
+  } else {
+    results <- dnn.model %>% predict(
+      deconv.counts,
+      verbose = verbose.model
+    )  
+  }
   if (!is.null(rownames(deconv.counts))) {
     rownames.deconv <- rownames(deconv.counts)
   } else {

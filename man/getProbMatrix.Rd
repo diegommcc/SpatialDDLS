@@ -7,7 +7,7 @@
 getProbMatrix(object, type.data)
 }
 \arguments{
-\item{object}{\code{\linkS4class{DigitalDLSorter}} object with
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with
 \code{prob.cell.types} slot.}
 
 \item{type.data}{Subset of data to e shown: \code{train} or \code{test}.}

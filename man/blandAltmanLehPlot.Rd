@@ -3,7 +3,7 @@
 \name{blandAltmanLehPlot}
 \alias{blandAltmanLehPlot}
 \title{Generate Bland-Altman agreement plots between predicted and expected cell
-type proportions from test data results}
+type proportions of test data}
 \usage{
 blandAltmanLehPlot(
   object,
@@ -25,12 +25,11 @@ blandAltmanLehPlot(
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with
-\code{trained.model} slot containing metrics in \code{test.deconv.metrics}
-slot.}
+\code{trained.model} slot containing metrics in the
+\code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
+object.}
 
-\item{colors}{Vector of colors to be used. Only vectors with a number of
-colors equal to or greater than the levels of \code{color.by} will be
-accepted. By default a custom color list is used.}
+\item{colors}{Vector of colors to be used.}
 
 \item{color.by}{Variable used to color data. Options are \code{nCellTypes}
 and \code{CellType}.}
@@ -44,10 +43,10 @@ and \code{CellType}.}
 (\code{FALSE} by default).}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only correlations of results associated with bulk samples are
+out and only correlations of results associated with mixed spot profiles are
 displayed (\code{TRUE} by default).}
 
-\item{density}{Boolean indicating whether density lines must be displayed
+\item{density}{Boolean indicating whether density lines should be displayed
 (\code{TRUE} by default).}
 
 \item{color.density}{Color of density lines if the \code{density} argument is
@@ -69,12 +68,11 @@ displayed (\code{TRUE} by default).}
 \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
 }
 \value{
-A ggplot object with Bland-Altman agreement plots between expected
-and actual proportions.
+A ggplot object.
 }
 \description{
 Generate Bland-Altman agreement plots between predicted and expected cell
-type proportions from test data results. The Bland-Altman agreement plots can
+type proportions from test data. The Bland-Altman agreement plots can
 be displayed all mixed or split by cell type (\code{CellType}) or the number
 of cell types present in samples (\code{nCellTypes}). See the \code{facet.by}
 argument and examples for more information.

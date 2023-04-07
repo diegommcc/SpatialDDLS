@@ -9,17 +9,19 @@
 \title{Get and set \code{deconv.spots} slot in a
 \code{\linkS4class{SpatialDDLS}} object}
 \usage{
-deconv.spots(object, name.data = NULL)
+deconv.spots(object, index.st = NULL)
 
-deconv.spots(object, name.data = NULL) <- value
+deconv.spots(object, index.st = NULL) <- value
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object.}
 
-\item{name.data}{Name of the data. If \code{NULL} (by default), all
-results contained in the \code{deconv.spots} slot are returned.}
+\item{index.st}{Name or index of the results (same as for the
+\code{spatial.experiments} slot). If \code{NULL} (by default), all results
+are returned.}
 
-\item{value}{List whose names are the reference of the stored results.}
+\item{value}{List with deconvolution results of the data stored in the
+\code{spatial.experiments} slot.}
 }
 \description{
 Get and set \code{deconv.spots} slot in a

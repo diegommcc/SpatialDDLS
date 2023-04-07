@@ -2,11 +2,12 @@
 % Please edit documentation in R/dnnModel.R
 \name{trainDeconvModel}
 \alias{trainDeconvModel}
-\title{Train deconvolution model}
+\title{Train deconvolution model for spatial transcriptomics data}
 \usage{
 trainDeconvModel(
   object,
-  combine = "both",
+  type.data.train = "mixed",
+  type.data.test = "mixed",
   batch.size = 64,
   num.epochs = 10,
   num.hidden.layers = 2,
@@ -18,8 +19,10 @@ trainDeconvModel(
   scaling = "standarize",
   custom.model = NULL,
   shuffle = FALSE,
+  sc.downsampling = NULL,
+  use.generator = FALSE,
   on.the.fly = FALSE,
-  pseudobulk.function = "MeanCPM",
+  agg.function = "MeanCPM",
   threads = 1,
   view.metrics.plot = TRUE,
   verbose = TRUE
@@ -27,15 +30,19 @@ trainDeconvModel(
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with
-\code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.matrix}
-and \code{mixed.spot.profiles} slots.}
+\code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.types},
+and \code{mixed.spot.profiles} slots (the last if \code{on.the.fly =
+  TRUE}).}
 
-\item{combine}{Type of profiles to be used for training. Can be
-\code{'both'}, \code{'single-cell'} or \code{'bulk'} (\code{'both'} by
-default). For test data, both types of profiles will be used.}
+\item{type.data.train}{Type of profiles used for training. It can be
+\code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
+default).}
 
-\item{batch.size}{Number of samples per gradient update. If not specified,
-\code{batch.size} will default to 64.}
+\item{type.data.test}{Type of profiles used for evaluation. It can be
+\code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'both'} by
+default).}
+
+\item{batch.size}{Number of samples per gradient update (64 by default).}
 
 \item{num.epochs}{Number of epochs to train the model (10 by default).}
 
@@ -47,14 +54,13 @@ argument.}
 (\code{c(200, 200)} by default). The length of this vector must be equal to
 \code{num.hidden.layers} argument.}
 
-\item{activation.fun}{Activation function to use (\code{'relu'} by default).
-See the
+\item{activation.fun}{Activation function (\code{'relu'} by default). See the
 \href{https://tensorflow.rstudio.com/reference/keras/activation_relu.html}{keras
 documentation} to know available activation functions.}
 
 \item{dropout.rate}{Float between 0 and 1 indicating the fraction of the
-input neurons to drop in layer dropouts (0.25 by default). By default,
-\pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.}
+input neurons to be dropped in layer dropouts (0.25 by default). By
+default, \pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.}
 
 \item{loss}{Character indicating loss function selected for model training
 (\code{'kullback_leibler_divergence'} by default). See the
@@ -72,7 +78,7 @@ documentation} to know available performance metrics.}
 standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 that they end up ranging between 0 and 1).}
 
-\item{custom.model}{Allows to use a custom neural network. It must be a
+\item{custom.model}{It allows to use a custom neural network. It must be a
 \code{keras.engine.sequential.Sequential} object in which the number of
 input neurons is equal to the number of considered features/genes, and the
 number of output neurons is equal to the number of cell types considered
@@ -80,23 +86,32 @@ number of output neurons is equal to the number of cell types considered
 network architecture will be ignored.}
 
 \item{shuffle}{Boolean indicating whether data will be shuffled (\code{TRUE}
-by default). Note that if \code{mixed.spot.profiles} is not \code{NULL}, the data
-already has been shuffled and \code{shuffle} will be ignored.}
+by default).}
+
+\item{sc.downsampling}{It is only used if \code{type.data.train} is equal to
+\code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
+single-cell profiles from a specific cell type  used for training to avoid
+unbalanced data (\code{NULL} by default).}
+
+\item{use.generator}{Boolean indicating whether to use generators during
+training and test. Generators are automatically used when \code{on.the.fly
+  = TRUE} or HDF5 files are used, but it can be activated by the user on
+demand (\code{FALSE} by default).}
 
 \item{on.the.fly}{Boolean indicating whether data will be generated 'on the
 fly' during training (\code{FALSE} by default).}
 
-\item{pseudobulk.function}{Function used to build pseudo-bulk samples. It may
-be: \itemize{ \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-transformed into CPMs and cross-cell averages are calculated. Then,
+\item{agg.function}{Function used to build mixed spot transcriptional
+profiles. It may be: \itemize{ \item \code{"AddRawCount"} (by default):
+single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
+are calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts)
+are transformed into CPMs and cross-cell averages are calculated. Then,
 \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
 profiles (raw counts) are transformed into CPMs and are added up across
-cells. Then, log-CPMs are calculated. \item \code{"AddRawCount"}:
-single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
-are calculated.}}
+cells. Then, log-CPMs are calculated.}}
 
-\item{threads}{Number of threads used during simulation of pseudo-bulk
-samples if \code{on.the.fly = TRUE} (1 by default).}
+\item{threads}{Number of threads used during simulation of mixed spots
+transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).}
 
 \item{view.metrics.plot}{Boolean indicating whether to show plots of loss and
 metrics progression during training (\code{TRUE} by default). \pkg{keras}
@@ -107,50 +122,39 @@ working in RStudio.}
 training and model architecture information (\code{TRUE} by default).}
 }
 \value{
-A \code{\linkS4class{SpatialDDLS}} object with
-\code{trained.model} slot containing a
-\code{\linkS4class{DeconvDLModel}} object. For more information about
-the structure of this class, see \code{?\linkS4class{DeconvDLModel}}.
+A \code{\linkS4class{SpatialDDLS}} object with \code{trained.model}
+slot containing a \code{\linkS4class{DeconvDLModel}} object. For more
+information about the structure of this class, see
+\code{?\linkS4class{DeconvDLModel}}.
 }
 \description{
 Train a Deep Neural Network model using the training data from
-\code{\linkS4class{SpatialDDLS}} object. In addition, the trained model
-is evaluated with test data and prediction results are otained to determine
-its performance (see \code{?\link{calculateEvalMetrics}}). Training and
-evaluation can be performed using simulated profiles stored in the
-\code{\linkS4class{SpatialDDLS}} object or 'on the fly' by simulating the
-pseudo-bulk profiles at the same time as the training/evaluation is performed
-(see Details).
+\code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
+evaluated using test data and prediction results are obtained to determine
+its performance (see \code{?\link{calculateEvalMetrics}}).
 }
 \details{
 \strong{Keras/Tensorflow environment}
 
-All Deep Learning related steps in the \pkg{SpatialDDLS} package are
-performed by using the \pkg{keras} package, an API in R for \pkg{keras} in
-Python available on CRAN. We recommend using the installation guide available
-at \url{https://tensorflow.rstudio.com/} in order to set a more customized
-configuration.
+All Deep Learning-related steps are performed by using the \pkg{keras}
+package, an API in R for \pkg{keras} in Python available on CRAN.
 
-\strong{Simulation of bulk RNA-Seq profiles 'on the fly'}
+\strong{Simulation of mixed spot transcriptional profiles 'on the fly'}
 
-\code{trainDeconvModel} allows to avoid storing bulk RNA-Seq
-profiles by using \code{on.the.fly} argument. This functionality aims to
-avoid exexcution times and memory usage of the \code{simBulkProfiles}
-function, as the simulated pseudo-bulk profiles are built in each batch
-during training/evaluation.
+\code{trainDeconvModel} can avoid storing simulated mixed spot profiles by
+using the \code{on.the.fly} argument. This functionality aims to reduce the
+the \code{simMixedSpotProfiles} function's memory usage: simulated profiles
+are built in each batch during training/evaluation.
 
 \strong{Neural network architecture}
 
-By default, \code{\link{trainDeconvModel}} implements the
-architecture selected in Torroja and Sánchez-Cabo, 2019. However, as the
-default architecture may not produce good results depending on the dataset,
-it is possible to change its parameters by using the corresponding argument:
-number of hidden layers, number of neurons for each hidden layer, dropout
-rate, activation function and loss function. For more customized models, it
-is possible to provide a pre-built model in the \code{custom.model} argument
-(a \code{keras.engine.sequential.Sequential} object) where it is necessary
-that the number of input neurons is equal to the number of considered
-features/genes and the number of output neurons is equal to the number of
+It is possible to change the DNN's architecture: number of hidden layers,
+number of neurons for each hidden layer, dropout rate, activation function,
+and loss function. For more customized models, it is possible to provide a
+pre-built model through the \code{custom.model} argument (a
+\code{keras.engine.sequential.Sequential} object) where it is necessary that
+the number of input neurons is equal to the number of considered
+features/genes, and the number of output neurons is equal to the number of
 considered cell types.
 }
 \examples{
@@ -199,14 +203,8 @@ DDLS <- trainDeconvModel(
   num.epochs = 5
 )
 }
-
-}
-\references{
-Torroja, C. and Sánchez-Cabo, F. (2019). SpatialDDLS: A Deep
-Learning algorithm to quantify immune cell populations based on scRNA-Seq
-data. Frontiers in Genetics 10, 978. doi: \doi{10.3389/fgene.2019.00978}
+  
 }
 \seealso{
-\code{\link{plotTrainingHistory}}
-\code{\link{deconvSpatialDDLS}} \code{\link{deconvSpatialDDLSObj}}
+\code{\link{plotTrainingHistory}} \code{\link{deconvSpatialDDLS}}
 }
