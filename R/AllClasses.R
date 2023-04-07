@@ -6,7 +6,8 @@
 NULL
 
 setOldClass(Classes = 'package_version')
-setClass("keras_training_history") # TODO: error with setOldClass, check what is going on
+# TODO: error with setOldClass, check what is going on
+setClass("keras_training_history") 
 setOldClass(Classes = "keras.engine.sequential.Sequential")
 
 setClassUnion(name = "MatrixOrNULL", members = c("matrix", "NULL"))
@@ -26,11 +27,10 @@ setClassUnion(name = "KerasTrainOrNULL",
 
 #' The Class ZinbParametersModel
 #'
-#' The ZinbParametersModel class is a wrapper class of the
+#' The ZinbParametersModel class is a wrapper class for the
 #' \code{\linkS4class{ZinbModel}} class from the \pkg{zinbwave} package.
 #'
-#' Wrapper class of the \code{\linkS4class{ZinbModel}} class. It
-#' consists of the \code{zinbwave.mode} slot which contains the
+#' This wrapper class contains the \code{zinbwave.model} slot, which holds a valid
 #' \code{\linkS4class{ZinbModel}} object.
 #'
 #' @slot zinbwave.model A valid \code{\linkS4class{ZinbModel}} object.
@@ -92,25 +92,25 @@ setClassUnion(
 #' The PropCellTypes Class
 #'
 #' The PropCellTypes class is a data storage class which contains information
-#' related to the cell type composition matrices used to simulate mixed spot
+#' related to the cell type composition matrices used to simulate mixed
 #' transcriptional profiles. This matrix is stored in the \code{prob.matrix}
 #' slot while the rest contains additional information generated during the
 #' process and required in subsequent steps.
 #'
-#' See \code{?\link{genMixSpotProp}} function for information about how cell
+#' See \code{?\link{genMixedCellProp}} function for information about how cell
 #' type composition matrices are generated. Plots about the cell type proportion
 #' distributions can be accessed using the \code{\link{showProbPlot}} function
 #' (see \code{?\link{showProbPlot}} for more details).
 #'
-#' @slot prob.matrix Matrix of cell type proportions generated to simulate mixed
-#'   spot transcriptional profiles.
-#' @slot cell.names Matrix containing name of cells to be used to generate the
-#'   simulated mixed spot transcriptional profiles.
+#' @slot prob.matrix Matrix of cell type proportions to simulate mixed
+#'   transcriptional profiles.
+#' @slot cell.names Matrix containing the name of cells to be used to generate the
+#'   simulated mixed transcriptional profiles.
 #' @slot set.list List of cells ordered according to the cell type they belong
 #'   to.
 #' @slot set Vector containing cell names present in the object.
 #' @slot method Vector containing the method by which cell type proportions were
-#'   generated
+#'   generated.
 #' @slot plots Plots showing the distribution of the cell type proportions. See
 #'   \code{?\link{showProbPlot}} for more details.
 #' @slot type.data Character indicating the type of data contained: train or
@@ -182,38 +182,38 @@ setMethod(
 )
 
 ################################################################################
-######################### DeconvDLModel class #############################
+############################ DeconvDLModel class ###############################
 ################################################################################
 
 #' The DeconvDLModel Class
 #'
-#' The DeconvDLModel object stores all the information related to Deep Neural
-#' Network models. It consistis of the trained model, the training history and
+#' The \code{\linkS4class{DeconvDLModel}} object stores all the information related to deep neural
+#' network models. It consists of the trained model, the training history, and
 #' the predictions on test data. After running
 #' \code{\link{calculateEvalMetrics}}, it is possible to find the performance
 #' evaluation of the model on test data (see \code{?\link{calculateEvalMetrics}}
 #' for details).
 #'
 #' The steps related to Deep Learning are carried out using the \pkg{keras} and
-#' \pkg{tensorflow} packages which use the R6 classes system. If you want to
-#' save the DeconvDLModel object as an RDS file, \code{SpatialDDLS} provides a
+#' \pkg{tensorflow} packages, which use the R6 classes system. If you want to
+#' save the \code{\linkS4class{DeconvDLModel}} object as an RDS file, \pkg{SpatialDDLS} provides a
 #' \code{saveRDS} generic function that transforms the R6 object containing the
 #' trained model into a native valid R object. Specifically, the model is
 #' converted into a list with the architecture of the network and the weights
 #' learned during training. That is the minimum information needed to use the
 #' model as predictor. If you want to keep the optimizer state, see
 #' \code{?\link{saveTrainedModelAsH5}}. If you want to store either the
-#' DeconvDLModel or the SpatialDDLS objects on disk as RDA files, see
+#' \code{\linkS4class{DeconvDLModel}} or the \code{\linkS4class{SpatialDDLS}} objects on disk as RDA files, see
 #' \code{?\link{preparingToSave}}.
 #'
-#' @slot model Trained Deep Neural Network. This slot can contain an R6
+#' @slot model Trained deep neural network. This slot can contain an R6
 #'   \code{keras.engine.sequential.Sequential} object or a list with two
 #'   elements: the architecture of the model and the resulting weights after
 #'   training.
 #' @slot training.history List with the evolution of the selected metrics during
 #'   training.
 #' @slot test.metrics Performance of the model on test data.
-#' @slot test.pred Deconvolution results on test data.
+#' @slot test.pred Predicted cell type proportions on test data.
 #' @slot cell.types Vector with cell types considered by the model.
 #' @slot features Vector with features (genes) considered by the model. These
 #'   features will be used for subsequent predictions.
@@ -296,16 +296,16 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 ########################### SpatialDDLS class ##############################
 ################################################################################
 
-## TODO: create a function to check if spatial.experiments contains SpatialExperiment obejcts
+## TODO: create a function to check if spatial.experiments contains SpatialExperiment objects
 
 #' The SpatialDDLS Class
 #'
 #' The SpatialDDLS object is the core of the \pkg{SpatialDDLS} package. This
 #' object stores different intermediate data needed for the construction of new
 #' deconvolution models, the spatial transcriptomics profiles to be
-#' deconvoluted, and predicted cell type proportions.
+#' deconvoluted, and the predicted cell type proportions.
 #'
-#' This object uses other classes to store the different types of data generated
+#' This object uses other classes to store different types of data generated
 #' during the workflow: \itemize{ \item
 #' \code{\linkS4class{SingleCellExperiment}} class for single-cell RNA-Seq data
 #' storage, using sparse matrix from the \pkg{Matrix} package
@@ -314,12 +314,12 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' \code{\linkS4class{SpatialExperiment}} class for spatial transcriptomics data
 #' storage. \item \code{\linkS4class{ZinbModel}} class with estimated parameters
 #' for the simulation of new single-cell profiles. \item
-#' \code{\linkS4class{SummarizedExperiment}} class for simulated mixed spot
+#' \code{\linkS4class{SummarizedExperiment}} class for simulated mixed
 #' transcriptional profiles storage. \item \code{\linkS4class{PropCellTypes}}
 #' class for compositional cell type matrices. See
 #' \code{?\linkS4class{PropCellTypes}} for details. \item
 #' \code{\linkS4class{DeconvDLModel}} class to store the information related to
-#' Deep Neural Network models. See \code{?\linkS4class{DeconvDLModel}} for
+#' deep neural network models. See \code{?\linkS4class{DeconvDLModel}} for
 #' details. }
 #'
 #' In order to provide a way to work with large amounts of data on
@@ -338,19 +338,19 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' @slot single.cell.simul Simulated single-cell expression profiles using the
 #'   ZINB-WaVE model.
 #' @slot prob.cell.types \code{\linkS4class{PropCellTypes}} class with cell
-#'   composition matrices built for the simulation of mixed spot transcriptional
+#'   composition matrices built for the simulation of mixed transcriptional
 #'   profiles with known cell composition.
-#' @slot mixed.spot.profiles List of simulated train and test mixed pot
+#' @slot mixed.profiles List of simulated train and test mixed
 #'   transcriptional profiles. Each entry is a
-#'   \code{\linkS4class{SummarizedExperiment}} object. The count matrices can be
-#'   stored as \code{HDF5Array} files using HDF5 files as back-end in case of
+#'   \code{\linkS4class{SummarizedExperiment}} object. Count matrices can be
+#'   stored as \code{HDF5Array} objects using HDF5 files as back-end in case of
 #'   RAM limitations.
 #' @slot trained.model \code{\linkS4class{DeconvDLModel}} object with
 #'   information related to the trained model. See
 #'   \code{?\linkS4class{DeconvDLModel}} for more details.
-#' @slot deconv.spots Deconvolution results. It consists of a list in which
-#'   every element corresponds to the results of the
-#'   \code{\linkS4class{SpatialExperiment}} objects contained in the
+#' @slot deconv.spots Deconvolution results. It consists of a list where
+#'   each element corresponds to the results for each
+#'   \code{\linkS4class{SpatialExperiment}} object contained in the
 #'   \code{spatial.experiments} slot.
 #' @slot project Name of the project.
 #' @slot version Version of \pkg{SpatialDDLS} this object was built under.
@@ -366,7 +366,7 @@ SpatialDDLS <- setClass(
     zinb.params = "ZinbParametersModelOrNULL",
     single.cell.simul = "SingleCellExperimentOrNULL",
     prob.cell.types = "ListOrNULL",
-    mixed.spot.profiles = "ListOrNULL",
+    mixed.profiles = "ListOrNULL",
     trained.model = "DeconvDLModelOrNULL",
     deconv.spots = "ListOrNULL",
     project = "character",
@@ -384,7 +384,7 @@ setMethod(
     zinb.params = NULL,
     single.cell.simul = NULL,
     prob.cell.types = NULL,
-    mixed.spot.profiles = NULL, 
+    mixed.profiles = NULL, 
     trained.model = NULL,
     deconv.spots = NULL,
     project = "SpatialDDLSProject",
@@ -395,7 +395,7 @@ setMethod(
     .Object@zinb.params <- zinb.params
     .Object@single.cell.simul <- single.cell.simul
     .Object@prob.cell.types <- prob.cell.types
-    .Object@mixed.spot.profiles <- mixed.spot.profiles
+    .Object@mixed.profiles <- mixed.profiles
     .Object@trained.model <- trained.model
     .Object@deconv.spots <- deconv.spots
     .Object@project <- project
@@ -466,7 +466,7 @@ setMethod(
 .allSlotsNull <- function(object) {
   list.slots <- list(
     "single.cell.real", "spatial.experiments", "zinb.params", 
-    "single.cell.simul", "prob.cell.types", "mixed.spot.profiles", 
+    "single.cell.simul", "prob.cell.types", "mixed.profiles", 
     "trained.model", "deconv.spots"
   )
   res <- all(
@@ -521,13 +521,13 @@ setMethod(
         }
       })
     }
-    if (!is.null(object@mixed.spot.profiles)) {
+    if (!is.null(object@mixed.profiles)) {
       cat("Simulated mixed spots:\n")
       lapply(
         X = c("train", "test"), FUN = function(x) {
-          if (x %in% names(object@mixed.spot.profiles)) {
+          if (x %in% names(object@mixed.profiles)) {
             cat(paste(" ", x, "spots:\n"))
-            .bulkShow(object@mixed.spot.profiles[[x]])
+            .bulkShow(object@mixed.profiles[[x]])
           }
         }
       )

@@ -8,26 +8,21 @@ NULL
 
 #' Train deconvolution model for spatial transcriptomics data
 #'
-#' Train a Deep Neural Network model using the training data from
+#' Train a deep neural network model using training data from the
 #' \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
-#' evaluated using test data and prediction results are obtained to determine
+#' evaluated using test data, and prediction results are obtained to determine
 #' its performance (see \code{?\link{calculateEvalMetrics}}).
 #'
-#' \strong{Keras/Tensorflow environment}
-#'
-#' All Deep Learning-related steps are performed by using the \pkg{keras}
-#' package, an API in R for \pkg{keras} in Python available on CRAN.
-#'
-#' \strong{Simulation of mixed spot transcriptional profiles 'on the fly'}
+#' \strong{Simulation of mixed transcriptional profiles 'on the fly'}
 #'
 #' \code{trainDeconvModel} can avoid storing simulated mixed spot profiles by
-#' using the \code{on.the.fly} argument. This functionality aims to reduce the
-#' the \code{simMixedSpotProfiles} function's memory usage: simulated profiles
+#' using the \code{on.the.fly} argument. This functionality aims at reducing the
+#' the \code{simMixedProfiles} function's memory usage: simulated profiles
 #' are built in each batch during training/evaluation.
 #'
 #' \strong{Neural network architecture}
 #'
-#' It is possible to change the DNN's architecture: number of hidden layers,
+#' It is possible to change the model's architecture: number of hidden layers,
 #' number of neurons for each hidden layer, dropout rate, activation function,
 #' and loss function. For more customized models, it is possible to provide a
 #' pre-built model through the \code{custom.model} argument (a
@@ -38,13 +33,13 @@ NULL
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.types},
-#'   and \code{mixed.spot.profiles} slots (the last if \code{on.the.fly =
-#'   TRUE}).
+#'   and \code{mixed.profiles} slots (the last only if \code{on.the.fly =
+#'   FALSE}).
 #' @param type.data.train Type of profiles used for training. It can be
 #'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 #'   default).
 #' @param type.data.test Type of profiles used for evaluation. It can be
-#'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'both'} by
+#'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 #'   default).
 #' @param batch.size Number of samples per gradient update (64 by default).
 #' @param num.epochs Number of epochs to train the model (10 by default).
@@ -71,7 +66,7 @@ NULL
 #'    documentation} to know available performance metrics.
 #' @param scaling How to scale data before training. It may be:
 #'   \code{"standarize"} (values are centered around the mean with a unit
-#'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
+#'   standard deviation, by default) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1).
 #' @param custom.model It allows to use a custom neural network. It must be a
 #'   \code{keras.engine.sequential.Sequential} object in which the number of
@@ -84,14 +79,14 @@ NULL
 #' @param sc.downsampling It is only used if \code{type.data.train} is equal to
 #'   \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
 #'   single-cell profiles from a specific cell type  used for training to avoid
-#'   unbalanced data (\code{NULL} by default).
+#'   an unbalanced representation of cell types (\code{NULL} by default).
 #' @param use.generator Boolean indicating whether to use generators during
 #'   training and test. Generators are automatically used when \code{on.the.fly
 #'   = TRUE} or HDF5 files are used, but it can be activated by the user on
 #'   demand (\code{FALSE} by default).
-#' @param on.the.fly Boolean indicating whether data will be generated 'on the
+#' @param on.the.fly Boolean indicating whether simulated data will be generated 'on the
 #'   fly' during training (\code{FALSE} by default).
-#' @param agg.function Function used to build mixed spot transcriptional
+#' @param agg.function Function used to build mixed transcriptional
 #'   profiles. It may be: \itemize{ \item \code{"AddRawCount"} (by default):
 #'   single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
 #'   are calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts)
@@ -99,11 +94,11 @@ NULL
 #'   \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
 #'   profiles (raw counts) are transformed into CPMs and are added up across
 #'   cells. Then, log-CPMs are calculated.}
-#' @param threads Number of threads used during simulation of mixed spots
+#' @param threads Number of threads used during simulation of mixed
 #'   transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).
 #' @param view.metrics.plot Boolean indicating whether to show plots of loss and
-#'   metrics progression during training (\code{TRUE} by default). \pkg{keras}
-#'   for R allows to see the progression of the model during training if you are
+#'   evaluation metrics during training (\code{TRUE} by default). \pkg{keras}
+#'   for R allows to see model progression during training if you are
 #'   working in RStudio.
 #' @param verbose Boolean indicating whether to display model progression during
 #'   training and model architecture information (\code{TRUE} by default).
@@ -119,7 +114,7 @@ NULL
 #'
 #' @examples
 #' \dontrun{
-#' set.seed(123) # reproducibility
+#' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
 #'     counts = matrix(
@@ -136,28 +131,22 @@ NULL
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(2)),
-#'   from = c(1, 30),
-#'   to = c(15, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 30,
+#'   num.sim.spots = 30,
 #'   verbose = TRUE
 #' )
-#' # training of DDLS model
+#' # training of SDDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDeconvModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 12,
 #'   num.epochs = 5
@@ -188,7 +177,6 @@ trainDeconvModel <- function(
   view.metrics.plot = TRUE,
   verbose = TRUE
 ) {
-  # check if python dependencies are covered
   .checkPythonDependencies(alert = "error")
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of SpatialDDLS class")
@@ -228,14 +216,14 @@ trainDeconvModel <- function(
       text.message <- ifelse(type == 1, "train" , "test")
       if (
         (vec.type.data[type] == "both" && 
-         is.null(mixed.spot.profiles(object, type.data = text.message)) ||
+         is.null(mixed.profiles(object, type.data = text.message)) ||
          vec.type.data[type] == "both" && 
          (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))))
       ) {
-        stop("If `type.data", text.message, "` = both' is selected, 'mixed.spot.profiles' and at least ",
+        stop("If `type.data", text.message, "` = both' is selected, 'mixed.profiles' and at least ",
              "one single cell slot must be provided")
-      } else if (vec.type.data[type] == "mixed" && is.null(mixed.spot.profiles(object, type.data = text.message))) {
-        stop("If `type.data", text.message, "` = mixed is selected, 'mixed.spot.profiles' must be provided")
+      } else if (vec.type.data[type] == "mixed" && is.null(mixed.profiles(object, type.data = text.message))) {
+        stop("If `type.data", text.message, "` = mixed is selected, 'mixed.profiles' must be provided")
       } 
       
     }  
@@ -265,7 +253,7 @@ trainDeconvModel <- function(
             " will be overwritten\n",
             call. = FALSE, immediate. = TRUE)
   }
-  # plots in RStudio during training: does not work without RStudio
+  # plots in RStudio during training
   if (view.metrics.plot) view.plot <- "auto"
   else view.plot <- 0
   if (verbose) verbose.model <- 1
@@ -294,8 +282,8 @@ trainDeconvModel <- function(
   } 
   if (n.test < batch.size) {
     stop(
-      paste0("The number of samples used for test (", n.test, ") is too ", 
-             "small compared with 'batch.size' (", batch.size, "). Please, ", 
+      paste0("The number of samples used for training (", n.train, ") is too ",
+             "small compared with 'batch.size' (", batch.size, "). Please, ",
              "increase the number of samples or consider reducing 'batch.size'")
     )
   }
@@ -306,7 +294,6 @@ trainDeconvModel <- function(
     }
     # check if any argument not provided
     model <- keras_model_sequential(name = "SpatialDDLS")
-    # arbitrary number of hidden layers and neurons
     for (i in seq(num.hidden.layers)) {
       if (i == 1) {
         model <- model %>% layer_dense(
@@ -334,7 +321,6 @@ trainDeconvModel <- function(
       name = paste0("BatchNormalization", i + 1)
     ) %>% layer_activation(activation = "softmax", name = "ActivationSoftmax")
   } else {
-    # consider more situations where the function fails
     if (!is(custom.model, "keras.engine.sequential.Sequential")) {
       stop("'custom.model' must be a keras.engine.sequential.Sequential object")
     } else if (keras::get_input_shape_at(custom.model$layers[[1]], 1)[[2]] !=
@@ -362,7 +348,6 @@ trainDeconvModel <- function(
     optimizer = optimizer_adam(),
     metrics = metrics
   )
-  # pattern to set simulated and real cells
   if (!is.null(single.cell.simul(object))) {
     suffix.names <- unique(colData(single.cell.simul(object))$suffix)
   } else {
@@ -378,17 +363,15 @@ trainDeconvModel <- function(
   if (verbose) 
     message(paste("\n=== Training DNN with", n.train, "samples:\n"))
   
-  ## TODO: from here on, I could change the use of generators by other alternative. 
-  # the idea is the same 
   if (type.data.train == "mixed") {
     checkingClass <- is(
-      assay(mixed.spot.profiles(object, type.data = "train")), "HDF5Array"
+      assay(mixed.profiles(object, type.data = "train")), "HDF5Array"
     )  
   } else if (type.data.train == "single-cell") {
     checkingClass <- is(assay(single.cell.real(object)), "HDF5Array")  
   } else {
     checkingClass <- all(
-      is(assay(mixed.spot.profiles(object, type.data = "train")), "HDF5Array"), 
+      is(assay(mixed.profiles(object, type.data = "train")), "HDF5Array"), 
       is(assay(single.cell.real(object)), "HDF5Array")
     )
   }
@@ -462,7 +445,7 @@ trainDeconvModel <- function(
     )
     rownames(predict.results) <- rownames(prob.matrix.test)
     colnames(predict.results) <- colnames(prob.matrix.test)  
-  } else { # no generators, everything is loaded into memory directly
+  } else { # no generators, everything is loaded into memory
     dataTrain <- .dataForDNN.file(
       object = object,
       sel.data = prob.matrix.train,
@@ -510,7 +493,7 @@ trainDeconvModel <- function(
     rownames(predict.results) <- rownames(prob.matrix.test)
     colnames(predict.results) <- colnames(prob.matrix.test)  
   }
-  ## creating DeconvDL
+  ## creating DeconvDLModel
   network.object <- new(
     Class = "DeconvDLModel",
     model = model,
@@ -640,7 +623,7 @@ trainDeconvModel <- function(
   bulk.data <- grepl(pattern = "Spot_", rownames(sel.data))
   if (any(bulk.data)) {
     bulk.samples <-  as.matrix(
-      assay(mixed.spot.profiles(object, type.data))[, rownames(sel.data)[bulk.data],
+      assay(mixed.profiles(object, type.data))[, rownames(sel.data)[bulk.data],
                                            drop = FALSE]
     )
   } 
@@ -833,7 +816,7 @@ trainDeconvModel <- function(
     } else {
       tpsm <- tpsm[sample(nrow(tpsm)), ]
       probs.matrix <- prob.cell.types(object, type.data)@prob.matrix[
-        colnames(mixed.spot.profiles(object, type.data)), ] / 100
+        colnames(mixed.profiles(object, type.data)), ] / 100
       if (nrow(tpsm) > nrow(probs.matrix)) {
         probs.matrix <- .mergePropsSort(m.small = probs.matrix, m.big = tpsm)
       } else if (nrow(tpsm) <= nrow(probs.matrix)) {
@@ -846,7 +829,7 @@ trainDeconvModel <- function(
       probs.matrix <- prob.cell.types(object, type.data) %>% prob.matrix() / 100
     } else {
       probs.matrix <- prob.cell.types(object, type.data)@prob.matrix[
-        colnames(mixed.spot.profiles(object, type.data)), ] / 100
+        colnames(mixed.profiles(object, type.data)), ] / 100
     }
   } else if (combine == "single-cell") {
     if (verbose) message("    Using only single-cell samples\n")
@@ -1019,14 +1002,13 @@ trainDeconvModel <- function(
 ############### Deconvolution of spatial transcriptomics data ##################
 ################################################################################
 
-#' Deconvolute spatial transcriptomics mixed spots
+#' Deconvolute spatial transcriptomics data
 #'
-#' Deconvolute spatial transcriptomics mixed spots using the trained model
+#' Deconvolute spatial transcriptomics data using the trained model
 #' contained in the \code{\linkS4class{SpatialDDLS}} object.
 #'
-#' This function requires a \code{SpatialDDLS} object with a trained Deep Neural
-#' Network model (\code{\link{trained.model}} slot, see
-#' \code{?\link{trainDeconvModel}}) and the spatial transcriptomics datasets to
+#' This function requires a \code{\linkS4class{SpatialDDLS}} object with a trained deep neural
+#' network model (\code{\link{trained.model}} slot, and the spatial transcriptomics datasets to
 #' be deconvoluted in the \code{spatial.experiments} slot. See
 #' \code{?\link{createSpatialDDLSobject}} or \code{?\link{loadSTProfiles}} for
 #' more details.
@@ -1036,8 +1018,6 @@ trainDeconvModel <- function(
 #' @param index.st Name or index of the dataset/slide stored in the
 #'   \code{SpatialDDLS} object (\code{spatial.experiments} slot) to be
 #'   deconvolute. If missing, all datasets will be deconvoluted.
-#' @param batch.size Number of samples per gradient update. If not specified,
-#'   \code{batch.size} will default to 128.
 #' @param normalize Normalize data before deconvolution (\code{TRUE} by
 #'   default).
 #' @param scaling How to scale data before training. It may be:
@@ -1045,8 +1025,8 @@ trainDeconvModel <- function(
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 #'   data are not scaled.
-#' @param simplify.set List specifying which cell types should be compressed
-#'   into a new label whose name will be the list item. See examples for
+#' @param simplify.set List specifying which cell types should be compressed into a new label 
+#' with the name of the list item. See examples for
 #'   details. If provided, results are stored in a list with \code{'raw'} and
 #'   \code{'simpli.set'} elements.
 #' @param simplify.majority List specifying which cell types should be
@@ -1056,13 +1036,14 @@ trainDeconvModel <- function(
 #'   elements.
 #' @param use.generator Boolean indicating whether to use generators for
 #'   prediction (\code{FALSE} by default).
+#' @param batch.size Number of samples per batch. Only when \code{use.generator = TRUE}.
 #' @param verbose Show informative messages during the execution.
 #'
-#' @return \code{\linkS4class{SpatialDDLS}} object with \code{deconv.spots}
+#' @return \code{\linkS4class{SpatialDDLS}} object with a \code{deconv.spots}
 #'   slot. The output is a data frame with spot (\eqn{i}) as rows and cell types
-#'   (\eqn{j}) as columns. Each entry represents the proportion of \eqn{j} cell
-#'   type in \eqn{i} spot If \code{simplify.set} and/or
-#'   \code{simpplify.majority} are provided, the \code{deconv.spots} slot will
+#'   (\eqn{j}) as columns. Each entry represents the predicted proportion of \eqn{j} cell
+#'   type in \eqn{i} spot. If \code{simplify.set} and/or
+#'   \code{simplify.majority} are provided, the \code{deconv.spots} slot will
 #'   contain a list with raw and simplified results.
 #'
 #' @export
@@ -1088,49 +1069,43 @@ trainDeconvModel <- function(
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
+#'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
-#' # training of DDLS model
+#' # training of SDDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainDeconvModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
-#' # simulating bulk RNA-Seq data
-#' countsBulk <- matrix(
+#' # simulating mixed profiles
+#' counts <- matrix(
 #'   stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)),
 #'   nrow = 40, ncol = 15,
-#'   dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
+#'   dimnames = list(paste0("Gene", seq(40)), paste0("Mixed", seq(15)))
 #' )
-#' seBulk <- SummarizedExperiment(assay = list(counts = countsBulk))
-#' DDLS <- loadDeconvData(
-#'   object = DDLS,
-#'   data = seBulk,
+#' se <- SummarizedExperiment(assay = list(counts = counts))
+#' SDDLS <- loadSTProfiles(
+#'   object = SDDLS,
+#'   data = se,
 #'   index.st = "Example"
 #' )
 #' # simplify arguments
 #' simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
 #'                  CellGroup2 = c("CellType3", "CellType5"))
-#' DDLS <- deconvSpatialDDLS(
-#'   object = DDLS,
+#' SDDLS <- deconvSpatialDDLS(
+#'   object = SDDLS,
 #'   index.st = "Example",
 #'   simplify.set = simplify,
 #'   simplify.majority = simplify
@@ -1140,12 +1115,12 @@ trainDeconvModel <- function(
 deconvSpatialDDLS <- function(
   object,
   index.st,
-  batch.size = 64,
   normalize = TRUE,
   scaling = "standarize",
   simplify.set = NULL,
   simplify.majority = NULL,
   use.generator = FALSE,
+  batch.size = 64,
   verbose = TRUE
 ) {
   # check if python dependencies are covered
@@ -1174,7 +1149,7 @@ deconvSpatialDDLS <- function(
   if (missing(index.st)) {
     if (verbose) {
       message(
-        "   No 'index.st' provided. Deconvoluting all ST ", 
+        "   No 'index.st' provided. Deconvoluting all SpatialExperiment objects ", 
         "contained in the `spatial.experiments` slot\n"
       ) 
     }
@@ -1211,7 +1186,7 @@ deconvSpatialDDLS <- function(
         if (!is.null(simplify.set)) {
           if (!is(simplify.set, "list")) {
             stop("'simplify.set' must be a list in which each element is a ", 
-                 "cell type considered by the model that will be aggregated")
+                 "cell type considered by the model")
           }
           results.set <- .simplifySetGeneral(
             results = results,
@@ -1255,7 +1230,7 @@ deconvSpatialDDLS <- function(
     stop("The given matrix does not have column names. You must provide a matrix",
          " with feature names in the same notation used in training data")
   }
-  # this can do it more elegant and probably more efficient
+  # this can do it more elegantly and efficiently
   # filtering features missing in training data
   filter.features <- rownames(deconv.counts) %in% features(model)
   deconv.counts <- deconv.counts[filter.features, ]
@@ -1269,21 +1244,32 @@ deconvSpatialDDLS <- function(
     deconv.counts <- deconv.counts[features(model), ]  
   }
   if (verbose) {
-    message(paste("=== Filtering", sum(!filter.features),
-                  "features in data that are not present in trained model\n"))
-    message(paste("=== Setting", sum(fill.features),
-                  "features that are not present in trained model to zero\n"))
+    if (sum(!filter.features) != 0) {
+      message(
+        paste(
+          "=== Filtering out", sum(!filter.features),
+          "features in data that are not present in trained model\n"
+        )
+      )  
+    }
+    if (sum(fill.features) == 0) {
+      message(
+        paste(
+          "=== Setting", sum(fill.features), 
+          "features that are not present in trained model to zero\n"
+        )
+      ) 
+    }
   }
   if (normalize) {
     if (verbose) message("=== Normalizing and scaling data\n")
     deconv.counts <- log2(.cpmCalculate(x = deconv.counts + 1))
-    # here is the problem
+    # TODO: here is the problem, check if just in case
     deconv.counts <- scaling(t(deconv.counts))
   }
-  # deconv.counts <- t(deconv.counts)
   if (verbose) {
     verbose.model <- 1
-    message("=== Predicting cell types present in the provided samples\n")
+    message("=== Predicting cell type proportions\n")
   } else {
     verbose.model <- 0
   }

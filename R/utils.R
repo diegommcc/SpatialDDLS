@@ -491,7 +491,7 @@ listToDDLSDNN <- function(listTo) {
 listToDDLS <- function(listTo) {
   if (any(!names(listTo) %in% c(
     "single.cell.real", "zinb.params", "single.cell.simul", 
-    "prob.cell.types", "mixed.spot.profiles", "trained.model", "deconv.data", 
+    "prob.cell.types", "mixed.profiles", "trained.model", "deconv.data", 
     "deconv.results", "project", "version"
   ))) {
     stop("The list provided is not valid to create a SpatialDDLS object")
@@ -531,7 +531,7 @@ listToDDLS <- function(listTo) {
       zinb.params = listTo$zinb.params,
       single.cell.simul = listTo$single.cell.simul,
       prob.cell.types = prob.cell.types,
-      mixed.spot.profiles = listTo$mixed.spot.profiles,
+      mixed.profiles = listTo$mixed.profiles,
       trained.model = trained.model,
       deconv.data = listTo$deconv.data,
       deconv.results = listTo$deconv.results,

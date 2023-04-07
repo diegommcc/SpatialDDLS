@@ -25,26 +25,22 @@ default.colors <- function() {
 ######################## Calculate evaluation metrics ##########################
 ################################################################################
 
-#' Calculate evaluation metrics of test mixed spot transcriptional profiles
+#' Calculate evaluation metrics of test mixed transcriptional profiles
 #'
-#' Calculate evaluation metrics of test mixed spot transcriptional profiles. By
+#' Calculate evaluation metrics of test mixed transcriptional profiles. By
 #' default, absolute error (\code{AbsErr}), proportional absolute error
-#' (\code{ppAbsErr}), squared error (\code{SqrErr}) and proportional squared
+#' (\code{ppAbsErr}), squared error (\code{SqrErr}), and proportional squared
 #' error (\code{ppSqrErr}) are calculated for each test mixed profile. In
 #' addition, each of these metrics is aggregated according to three criteria:
 #' cell type (\code{CellType}), probability bins in ranges of 0.1 (\code{pBin}),
-#' and number of different cell types present in the spot \code{nCellTypes}.
+#' and number of different cell types present in the spot (\code{nCellTypes}).
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a trained model in
-#'   the \code{trained.model} slot and the actual cell proportions of test mixed
-#'   spot profiles in \code{prob.cell.types} slot.
-#' @param metrics Metrics used to evaluate the model performance. Mean absolute
-#'   error (\code{"MAE"}) and mean squared error (\code{"MSE"}) by default.
+#'   \code{trained.model} slot and the actual cell proportions of test mixed
+#'   profiles in \code{prob.cell.types} slot.
 #'
-#' @return A \code{\linkS4class{SpatialDDLS}} object with the
-#'   \code{trained.model} slot containing a \code{\linkS4class{DeconvDLModel}}
-#'   object with \code{test.deconv.metrics} slot containing the calculated
-#'   metrics.
+#' @return A \code{\linkS4class{SpatialDDLS}} object with is a \code{\linkS4class{DeconvDLModel}} object. 
+#' The calculated metrics are stored in the \code{test.deconv.metrics} slot of the \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export
 #'
@@ -70,42 +66,31 @@ default.colors <- function() {
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
+#'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainSpatialDDLSModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
 #' # evaluation using test data
-#' DDLS <- calculateEvalMetrics(
-#'   object = DDLS
-#' )
+#' SDDLS <- calculateEvalMetrics(object = SDDLS)
 #' }
 #' 
-calculateEvalMetrics <- function(
-  object,
-  metrics = c("MAE", "MSE")
-) {
+calculateEvalMetrics <- function(object) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of SpatialDDLS class")
   } else if (is.null(trained.model(object)) ||
@@ -117,11 +102,7 @@ calculateEvalMetrics <- function(
          "'prob.cell.types' slot for test data")
   } 
   # validation metrics
-  valid.met <- list(MAE = "MAE", MSE = "MSE")
-  use.met <- valid.met[names(valid.met) %in% metrics]
-  if (length(use.met) == 0) 
-    stop("The provided metrics are not valid. Only 'MAE' and/or 'MSE' are accepted")
-  
+  use.met <- list(MAE = "MAE", MSE = "MSE")
   testProbsDeconv <- .targetForDNN(
     object, combine = "both", type.data = "test", 
     downsampling = NULL, fly = TRUE, shuffle = FALSE
@@ -303,15 +284,14 @@ se <- function(x) sqrt(var(x)/length(x))
   return(info)
 }
 
-
 ################################################################################
 ########################## Distribution error plots ############################
 ################################################################################
 
-#' Generate box or violin plots displaying error distribution
+#' Generate box or violin plots showing error distribution
 #'
 #' Generate box or violin plots to show how errors are distributed. Errors can
-#' be displayed all mixed or split by cell type (\code{CellType}) or number of
+#' be shown all mixed or split by cell type (\code{CellType}) or number of
 #' cell types present in the spots (\code{nCellTypes}). See the \code{facet.by}
 #' argument and examples for more details.
 #'
@@ -325,18 +305,18 @@ se <- function(x) sqrt(var(x)/length(x))
 #'   (\code{'ppSqrErr'}).
 #' @param colors Vector of colors to be used.
 #' @param x.by Variable used for the X-axis. When \code{facet.by} is not
-#'   \code{NULL}, the best choice is \code{pBin} (probability bins). The options
-#'   are \code{nCellTypes} (number of different cell types), \code{CellType}
+#'   \code{NULL}, the best choice is \code{pBin} (probability bins). Options:
+#'   \code{nCellTypes} (number of different cell types), \code{CellType}
 #'   (cell type), and \code{pBin}.
-#' @param facet.by Display data in different panels. Options are
+#' @param facet.by Show data in different panels. Options are
 #'   \code{nCellTypes} (number of different cell types) and \code{CellType}
 #'   (cell type) (\code{NULL} by default).
-#' @param color.by Variable used to color the data. Options are
+#' @param color.by Variable used to color data. Options are
 #'   \code{nCellTypes} and \code{CellType}.
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only errors associated with mixed spots are displayed (\code{TRUE}
+#'   out and only mixed transcriptional profile errors are shown (\code{TRUE}
 #'   by default).
-#' @param error.label Boolean indicating whether to display the average error as
+#' @param error.label Boolean indicating whether to show the average error as
 #'   a plot annotation (\code{FALSE} by default).
 #' @param pos.x.label X-axis position of error annotations.
 #' @param pos.y.label Y-axis position of error annotations.
@@ -351,7 +331,7 @@ se <- function(x) sqrt(var(x)/length(x))
 #' @param title Title of the plot.
 #' @param theme \pkg{ggplot2} theme.
 #' @param ... Additional arguments for the \link[ggplot2]{facet_wrap} function
-#'   from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
+#'   of \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
 #'
 #' @return A ggplot object.
 #'
@@ -379,50 +359,41 @@ se <- function(x) sqrt(var(x)/length(x))
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
+#'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainSpatialDDLSModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
 #' # evaluation using test data
-#' DDLS <- calculateEvalMetrics(
-#'   object = DDLS
-#' )
+#' SDDLS <- calculateEvalMetrics(object = SDDLS)
 #' # representation, for more examples, see the vignettes
 #' distErrorPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   error = "AbsErr",
 #'   facet.by = "CellType",
 #'   color.by = "nCellTypes",
 #'   error.label = TRUE
 #' )
 #' distErrorPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   error = "AbsErr",
 #'   x.by = "CellType",
 #'   facet.by = NULL,
-#'   filter.sc = FALSE,
 #'   color.by = "CellType",
 #'   error.label = TRUE
 #' )
@@ -453,7 +424,7 @@ distErrorPlot <- function(
     stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(trained.model(object)) ||
              is.null(trained.model(object)@test.deconv.metrics)) {
-    stop("The provided object does not have evaluation metrics. Use ",
+    stop("The provided object does not contain evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
   } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
     stop("Evaluation metrics are incorrect. Please, use 'calculateEvalMetrics' function")
@@ -589,9 +560,9 @@ distErrorPlot <- function(
 #' Generate correlation plots between predicted and expected cell type
 #' proportions of test data
 #'
-#' Generate correlation plot between predicted and expected cell type
-#' proportions of test data. Correlation plots can be displayed all mixed or
-#' split by cell type (\code{CellType}) or number of different cell types
+#' Generate correlation plots between predicted and expected cell type
+#' proportions of test data. Correlation plots can be shown all mixed or
+#' split by cell type (\code{CellType}) or the number of different cell types
 #' present in the spots (\code{nCellTypes}).
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
@@ -599,17 +570,17 @@ distErrorPlot <- function(
 #'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
 #'   object.
 #' @param colors Vector of colors to be used.
-#' @param facet.by Display data in different panels. Options are
+#' @param facet.by Show data in different panels. Options are
 #'   \code{nCellTypes} (number of different cell types) and \code{CellType}
 #'   (cell type) (\code{NULL} by default).
 #' @param color.by Variable used to color data. Options are \code{nCellTypes}
 #'   and \code{CellType}.
-#' @param corr Correlation value displayed as an annotation on the plot.
+#' @param corr Correlation value shown as an annotation on the plot.
 #'   Available metrics are Pearson's correlation coefficient (\code{'pearson'})
 #'   and concordance correlation coefficient (\code{'ccc'}). It can be
 #'   \code{'pearson'}, \code{'ccc'} or \code{'both'} (by default).
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only errors associated with mixed spots are displayed (\code{TRUE}
+#'   out and only mixed transcriptional profile errors are shown (\code{TRUE}
 #'   by default).
 #' @param pos.x.label X-axis position of correlation annotations (0.95 by
 #'   default).
@@ -624,7 +595,7 @@ distErrorPlot <- function(
 #' @param title Title of the plot.
 #' @param theme \pkg{ggplot2} theme.
 #' @param ... Additional arguments for the \link[ggplot2]{facet_wrap} function
-#'   from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
+#'   of \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
 #'
 #' @return A ggplot object.
 #'
@@ -652,46 +623,38 @@ distErrorPlot <- function(
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
+#'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainSpatialDDLSModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
 #' # evaluation using test data
-#' DDLS <- calculateEvalMetrics(
-#'   object = DDLS
-#' )
+#' SDDLS <- calculateEvalMetrics(object = SDDLS)
 #' # correlations by cell type
 #' corrExpPredPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   facet.by = "CellType",
 #'   color.by = "CellType",
 #'   corr = "both"
 #' )
 #' # correlations of all samples mixed
 #' corrExpPredPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   facet.by = NULL,
 #'   color.by = "CellType",
 #'   corr = "ccc",
@@ -731,8 +694,8 @@ corrExpPredPlot <- function(
       stop("'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL")
   }
   amd <- trained.model(object)@test.deconv.metrics[[1]]
+  # TODO: here, prefix should be used rather than Spot_
   if (filter.sc) {
-    # TODO: here, preffix should be used rather than Spot_
     amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
   }
   if (missing(colors)) colors <- default.colors()
@@ -770,8 +733,10 @@ corrExpPredPlot <- function(
     SpatialDDLSTheme()
   if (!is.null(facet.by)) {
     if (!facet.by %in% c("nCellTypes", "CellType")) {
-      stop("'facet.by' provided is not valid. The available options are: 'nCellTypes', ",
-           "'CellType' or NULL")
+      stop(
+        "'facet.by' provided is not valid. The available options are: 'nCellTypes', ",
+        "'CellType' or NULL"
+      )
     }
     plot <- plot + facet_wrap(as.formula(paste("~", facet.by)),
                               nrow = nrow, ncol = ncol, ...)
@@ -855,8 +820,8 @@ corrExpPredPlot <- function(
 #'
 #' Generate Bland-Altman agreement plots between predicted and expected cell
 #' type proportions from test data. The Bland-Altman agreement plots can
-#' be displayed all mixed or split by cell type (\code{CellType}) or the number
-#' of cell types present in samples (\code{nCellTypes}). See the \code{facet.by}
+#' be shown all mixed or split by cell type (\code{CellType}) or the number
+#' of cell types present in spots (\code{nCellTypes}). See the \code{facet.by}
 #' argument and examples for more information.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
@@ -866,16 +831,16 @@ corrExpPredPlot <- function(
 #' @param colors Vector of colors to be used. 
 #' @param color.by Variable used to color data. Options are \code{nCellTypes}
 #'   and \code{CellType}.
-#' @param facet.by Variable used to display the data in different panels. If
+#' @param facet.by Variable used to show the data in different panels. If
 #'   \code{NULL}, the plot is not split into different panels. Options are
 #'   \code{nCellTypes} (by number of different cell types) and \code{CellType}
 #'   (by cell type).
-#' @param log.2 Whether to display the Bland-Altman agreement plot in log2 space
+#' @param log.2 Whether to show the Bland-Altman agreement plot in log2 space
 #'   (\code{FALSE} by default).
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
 #'   out and only correlations of results associated with mixed spot profiles are
-#'   displayed (\code{TRUE} by default).
-#' @param density Boolean indicating whether density lines should be displayed
+#'   shown (\code{TRUE} by default).
+#' @param density Boolean indicating whether density lines should be shown
 #'   (\code{TRUE} by default).
 #' @param color.density Color of density lines if the \code{density} argument is
 #'   \code{TRUE}.
@@ -885,7 +850,7 @@ corrExpPredPlot <- function(
 #' @param ncol Number of columns if \code{facet.by} is used.
 #' @param title Title of the plot.
 #' @param theme \pkg{ggplot2} theme.
-#' @param ... Additional argument for the \code{facet_wrap} function from
+#' @param ... Additional argument for the \code{facet_wrap} function of
 #'   \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.
 #'
 #' @return A ggplot object.
@@ -914,45 +879,37 @@ corrExpPredPlot <- function(
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
+#'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainSpatialDDLSModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
 #' # evaluation using test data
-#' DDLS <- calculateEvalMetrics(
-#'   object = DDLS
-#' )
+#' SDDLS <- calculateEvalMetrics(object = SDDLS)
 #' # Bland-Altman plot by cell type
 #' blandAltmanLehPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   facet.by = "CellType",
 #'   color.by = "CellType"
 #' )
 #' # Bland-Altman plot of all samples mixed
 #' blandAltmanLehPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   facet.by = NULL,
 #'   color.by = "CellType",
 #'   alpha.point = 0.3,
@@ -1064,20 +1021,20 @@ blandAltmanLehPlot <- function(
 #' Generate bar error plots
 #'
 #' Generate bar error plots by cell type (\code{CellType}) or by number of
-#' different cell types (\code{nCellTypes}) on test mixed spot profiles.
+#' different cell types (\code{nCellTypes}) on test mixed transcriptional profiles.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
 #'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
 #'   object.
 #' @param error \code{'MAE'} or \code{'MSE'}.
-#' @param by Variable used to display errors. Available options are:
+#' @param by Variable used to show errors. Available options are:
 #'   \code{'nCellTypes'}, \code{'CellType'}.
 #' @param dispersion Standard error (\code{'se'}) or standard deviation
 #'   (\code{'sd'}). The former by default.
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only correlation of results associated with mixed spot profiles are
-#'   displayed (\code{TRUE} by default).
+#'   out and only correlation of results associated with mixed transcriptional profiles are
+#'   shown (\code{TRUE} by default).
 #' @param angle Angle of ticks.
 #' @param title Title of the plot.
 #' @param theme \pkg{ggplot2} theme.
@@ -1108,44 +1065,36 @@ blandAltmanLehPlot <- function(
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
 #' )
-#' probMatrixValid <- data.frame(
-#'   Cell_Type = paste0("CellType", seq(6)),
-#'   from = c(1, 1, 1, 15, 15, 30),
-#'   to = c(15, 15, 30, 50, 50, 70)
-#' )
-#' DDLS <- generateBulkCellMatrix(
-#'   object = DDLS,
+#' SDDLS <- genMixedCellProp(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   prob.design = probMatrixValid,
-#'   num.bulk.samples = 50,
+#'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
 #' # training of DDLS model
 #' tensorflow::tf$compat$v1$disable_eager_execution()
-#' DDLS <- trainSpatialDDLSModel(
-#'   object = DDLS,
+#' SDDLS <- trainDeconvModel(
+#'   object = SDDLS,
 #'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
 #' # evaluation using test data
-#' DDLS <- calculateEvalMetrics(
-#'   object = DDLS
-#' )
+#' SDDLS <- calculateEvalMetrics(object = SDDLS)
 #' # bar error plots
 #' barErrorPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   error = "MSE",
 #'   by = "CellType"
 #' )
 #' barErrorPlot(
-#'   object = DDLS,
+#'   object = SDDLS,
 #'   error = "MAE",
 #'   by = "nCellTypes"
 #' )

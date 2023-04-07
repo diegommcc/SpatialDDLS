@@ -415,11 +415,6 @@ NULL
   if (verbose) {
     message("\n=== Processing data in HDF5 by blocks\n")
   }
-  ##############################################################################
-  ################################# ATTENTION ##################################
-  # duplicated genes means that there are duplicated rownames and this is not 
-  # allowed by R, so I think that it is not necessary to implement. Check if 
-  # hdf5 files allow duplicated rownames
   dup.genes <- duplicated(rownames(counts))
   if (any(dup.genes)) {
     if (verbose) {
@@ -624,7 +619,7 @@ NULL
   }
   # extract count matrix
   if (length(SummarizedExperiment::assays(SEobject)) == 0) {
-    stop("No count data in SingleCellExperiment object provided")
+    stop("No count data in SingleCellExperiment object")
   } else if (length(SummarizedExperiment::assays(SEobject)) > 1) {
     warning("There is more than one assay, only the first will be used. ", 
             "Remember it must be raw data and not log-transformed data")
@@ -673,9 +668,13 @@ NULL
       "or a list of SpatialExperiment objects"
     )
   }
-  if (verbose) 
-    message(paste0("=== ", length(list.st.objects), " SpatialExperiment objects provided\n"))
-  
+  if (verbose) {
+    message(
+      paste0(
+        "=== ", length(list.st.objects), " SpatialExperiment objects provided\n"
+      )
+    )
+  }
   ## check if there are names in the provided list
   if (!is.null(names(list.st.objects))) {
     if (length(unique(names(list.st.objects))) != length(names(list.st.objects))) {
@@ -854,11 +853,11 @@ NULL
 
 #' Create a \code{\linkS4class{SpatialDDLS}} object
 #'
-#' Create a \code{\linkS4class{SpatialDDLS}} object. At least, single-cell
-#' RNA-seq data must be provided, but the function also accepts spatial
-#' transcriptomics data contained in \code{\linkS4class{SpatialExperiment}}
-#' objects. We recommend to start with both pieces of data so as to calculate
-#' the intersection of genes shared between both experiments.
+#' Create a \code{\linkS4class{SpatialDDLS}} object by providing single-cell 
+#' RNA-seq data. Additionally, spatial transcriptomics data contained in 
+#' \code{\linkS4class{SpatialDDLS}} objects can also be provided. It is 
+#' recommended to provide both types of data to calculate the intersection of 
+#' genes shared between both experiments.
 #'
 #' \strong{Single-cell RNA-seq data}
 #'
@@ -902,7 +901,7 @@ NULL
 #'   corresponding to the names used for features/genes.
 #' @param st.data Spatial transcriptomics datasets to be deconvoluted. It can be
 #'   a single \code{\linkS4class{SpatialExperiment}} object or a list of them.
-#' @param st.cell.ID.column Name or number of the column in the cells metadata
+#' @param st.spot.ID.column Name or number of the column in the cells metadata
 #'   corresponding to cell names in expression matrix.
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes.
@@ -910,7 +909,7 @@ NULL
 #' @param sc.min.cells Minimum of cells with more than \code{min.counts} (0 by
 #'   default).
 #' @param st.min.counts Minimum gene counts to filter (0 by default).
-#' @param st.min.cells Minimum of cells with more than \code{min.counts} (0 by
+#' @param st.min.spots Minimum of cells with more than \code{min.counts} (0 by
 #'   default).
 #' @param st.n.slides
 #' @param shared.genes
@@ -956,7 +955,7 @@ NULL
 #'   \code{\link{generateBulkCellMatrix}}
 #'
 #' @examples
-#' set.seed(123) # reproducibility
+#' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
 #'     counts = matrix(
@@ -973,12 +972,26 @@ NULL
 #'     Gene_ID = paste0("Gene", seq(40))
 #'   )
 #' )
-#' DDLS <- createSpatialDDLSobject(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID",
-#'   min.cells = 0,
-#'   min.counts = 0,
+#' counts <- matrix(rpois(30, lambda = 5), ncol = 6)
+#' coordinates <- matrix(
+#'   c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), ncol = 2
+#' )
+#' ste <- SpatialExperiment::SpatialExperiment(
+#'   assays = list(counts = as.matrix(counts)),
+#'   rowData = data.frame(Gene_ID = paste0("Gene", 1:5)),
+#'   colData = data.frame(Cell_ID = paste0("Spot", 1:6)),
+#'   spatialCoords = coordinates
+#' )
+#'
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID",
+#'   sc.min.cells = 0,
+#'   sc.min.counts = 0,
+#'   st.data = sce,
+#'   st.spot.ID.column = "Cell_ID",
+#'   st.gene.ID.column = "Gene_ID",
 #'   project = "Simul_example"
 #' )
 #'   
@@ -987,12 +1000,12 @@ createSpatialDDLSobject <- function(
     sc.cell.ID.column,
     sc.gene.ID.column,
     st.data,
-    st.cell.ID.column,
+    st.spot.ID.column,
     st.gene.ID.column,
     sc.min.counts = 0,
     sc.min.cells = 0,
     st.min.counts = 0,
-    st.min.cells = 0,
+    st.min.spots = 0,
     st.n.slides = 3,
     shared.genes = TRUE,
     sc.name.dataset.h5 = NULL, 
@@ -1008,9 +1021,9 @@ createSpatialDDLSobject <- function(
   if (!missing(st.data)) {
     spatial.experiments <- .loadSTData(
       list.st.objects = st.data,
-      cell.ID.column = st.cell.ID.column,
+      cell.ID.column = st.spot.ID.column,
       gene.ID.column = st.gene.ID.column,
-      min.cells = st.min.cells,
+      min.cells = st.min.spots,
       min.counts = st.min.counts,
       n.slides = st.n.slides,
       verbose = verbose
@@ -1076,48 +1089,30 @@ createSpatialDDLSobject <- function(
 ############################### Load spatial data ##############################
 ################################################################################
 
-#' Create a \code{\linkS4class{SpatialDDLS}} object from single-cell RNA-seq
-#' data
+#' Loads spatial transcriptomics data into a SpatialDDLS object
 #'
-#' Create a \code{\linkS4class{SpatialDDLS}} object from single-cell RNA-seq
-#' data from files (formats allowed: tsv, tsv.gz, mtx (sparse matrix) and hdf5)
-#' or a \code{\linkS4class{SingleCellExperiment}} object. The data will be
-#' stored in \code{single.cell.real} slot. The data provided should consist of
-#' three pieces of information: \itemize{ \item Single-cell counts: genes as
-#' rows and cells as columns. \item Cells metadata: annotations (columns) for
-#' each cell (rows). \item Genes metadata: annotations (columns) for each gene
-#' (rows). } If the data are provided from files, \code{single.cell.real}
-#' argument must be a vector of three elements ordered so that the first file
-#' corresponds to the count matrix, the second to the cells metadata and the
-#' last to the genes metadata. On the other hand, if the data are provided as a
-#' \code{\linkS4class{SingleCellExperiment}} oject, it must contain single-cell
-#' counts in the \code{assay} slot, cells metadata in the \code{colData} slot
-#' and genes metadata in the \code{rowData}. The data must be provided without
-#' any transformation (e.g. log-transformation) and raw counts are preferred.
+#' This function loads a \code{\linkS4class{SpatialExperiment}} object 
+#' (or a list with several \code{\linkS4class{SpatialExperiment}} objects) into 
+#' a \code{\linkS4class{SpatialDDLS}} object. It is recommended to perform this step 
+#' when creating the \code{\linkS4class{SpatialDDLS}} object using the 
+#' \code{\link{createSpatialDDLSobject}} function in order to only keep genes shared between 
+#' the spatial transcriptomics data and the single-cell transcriptomics data used as reference. 
 #'
-#' This data can be used to simulate new single-cell profiles using the
-#' ZINB-WaVE framework with the \code{\link{estimateZinbwaveParams}} function.
-#' In this way, it is possible to increase the signal of cell types that are
-#' underrepresented in the original dataset. If this step is not necessary,
-#' these profiles will be used directly to simulate pseudo-bulk RNA-seq samples
-#' with known cell composition.
-#'
-#' @param object If data are provided from files,
-#'   \code{single.cell.real} must be a vector of three elements: single-cell
-#'   counts, cells metadata and genes metadata. If data are provided from a
-#'   \code{\linkS4class{SingleCellExperiment}} object, single-cell counts must
-#'   be present in the \code{assay} slot, cells metadata in the \code{colData}
-#'   slot and genes metadata in the \code{rowData} slot.
-#' @param st.data
-#' @param st.cell.ID.column Name or number of the column in the cells metadata
-#'   corresponding to cell names in expression matrix.
+#' @param object A \code{\linkS4class{SpatialExperiment}} object.
+#' @param st.data A \code{\linkS4class{SpatialExperiment}} object 
+#' (or a list with several \code{\linkS4class{SpatialExperiment}} objects) to be deconvoluted. 
+#' @param st.spot.ID.column Name or number of the column in the spot metadata
+#'   corresponding to spot names in the expression matrix.
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes.
 #' @param st.min.counts Minimum gene counts to filter (0 by default).
-#' @param st.min.cells Minimum of cells with more than \code{min.counts} (0 by
+#' @param st.min.spots Minimum of spots with more than \code{min.counts} (0 by
 #'   default).
-#' @param st.n.slides
-#' @param verbose Show informative messages during the execution (\code{TRUE} by
+#' @param st.n.slides Minimum number of slides (\code{\linkS4class{SpatialExperiment}} objects)
+#' in which a gene has to be expressed in order to keep it. This parameter is applicable only when multiple
+#' \code{\linkS4class{SpatialExperiment}} objects are provided. Genes not present in at least 
+#' \code{st.n.slides} will be discarded. If no filtering is desired, set \code{st.n.slides = 1}.
+#' @param verbose Show informative messages during execution (\code{TRUE} by
 #'   default).
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with the provided spatial 
@@ -1129,46 +1124,42 @@ createSpatialDDLSobject <- function(
 #'   \code{\link{trainDeconvModel}}
 #'
 #' @examples
-#' set.seed(123) # reproducibility
-#' sce <- SingleCellExperiment::SingleCellExperiment(
-#'   assays = list(
-#'     counts = matrix(
-#'       rpois(100, lambda = 5), nrow = 40, ncol = 30,
-#'       dimnames = list(paste0("Gene", seq(40)), paste0("RHC", seq(30)))
-#'     )
-#'   ),
-#'   colData = data.frame(
-#'     Cell_ID = paste0("RHC", seq(30)),
-#'     Cell_Type = sample(x = paste0("CellType", seq(4)), size = 30,
-#'                        replace = TRUE)
-#'   ),
-#'   rowData = data.frame(
-#'     Gene_ID = paste0("Gene", seq(40))
-#'   )
+#' \dontrun{
+#' ## simulating a SpatialExperiment object
+#' counts <- matrix(rpois(30, lambda = 5), ncol = 6)
+#' coordinates <- matrix(
+#'   c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), ncol = 2
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID",
-#'   min.cells = 0,
-#'   min.counts = 0,
-#'   project = "Simul_example"
+#' ste <- SpatialExperiment::SpatialExperiment(
+#'   assays = list(counts = as.matrix(counts)),
+#'   rowData = data.frame(Gene_ID = paste0("Gene", 1:5)),
+#'   colData = data.frame(Cell_ID = paste0("Spot", 1:6)),
+#'   spatialCoords = coordinates
 #' )
+#'
+#' ## previous SpatialDDLS object
+#' SDDLS <- loadSTProfiles(
+#'   object = SSLD,
+#'   st.data = ste,
+#'   st.spot.ID.column = "Cell_ID",
+#'   st.gene.ID.column = "Gene_ID",
+#' ) 
+#' }
+#' 
 #'   
 loadSTProfiles <- function(
     object,
     st.data,
-    st.cell.ID.column,
+    st.spot.ID.column,
     st.gene.ID.column,
     st.min.counts = 0,
-    st.min.cells = 0,
+    st.min.spots = 0,
     st.n.slides = 3,
     verbose = TRUE
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The object provided is not of SpatialDDLS class")
   } 
-  ## only load spatial data
   spatial.experiments <- .loadSTData(
     list.st.objects = st.data,
     cell.ID.column = cell.ID.column,
