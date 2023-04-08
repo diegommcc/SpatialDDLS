@@ -2,17 +2,17 @@
 % Please edit documentation in R/dnnModel.R
 \name{deconvSpatialDDLS}
 \alias{deconvSpatialDDLS}
-\title{Deconvolute spatial transcriptomics mixed spots}
+\title{Deconvolute spatial transcriptomics data}
 \usage{
 deconvSpatialDDLS(
   object,
   index.st,
-  batch.size = 64,
   normalize = TRUE,
   scaling = "standarize",
   simplify.set = NULL,
   simplify.majority = NULL,
   use.generator = FALSE,
+  batch.size = 64,
   verbose = TRUE
 )
 }
@@ -24,9 +24,6 @@ deconvSpatialDDLS(
 \code{SpatialDDLS} object (\code{spatial.experiments} slot) to be
 deconvolute. If missing, all datasets will be deconvoluted.}
 
-\item{batch.size}{Number of samples per gradient update. If not specified,
-\code{batch.size} will default to 128.}
-
 \item{normalize}{Normalize data before deconvolution (\code{TRUE} by
 default).}
 
@@ -37,8 +34,8 @@ that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 data are not scaled.}
 
 \item{simplify.set}{List specifying which cell types should be compressed
-into a new label whose name will be the list item. See examples for
-details. If provided, results are stored in a list with \code{'raw'} and
+into a new label with the name of the list item. See examples for details.
+If provided, results are stored in a list with \code{'raw'} and
 \code{'simpli.set'} elements.}
 
 \item{simplify.majority}{List specifying which cell types should be
@@ -50,27 +47,29 @@ elements.}
 \item{use.generator}{Boolean indicating whether to use generators for
 prediction (\code{FALSE} by default).}
 
+\item{batch.size}{Number of samples per batch. Only when \code{use.generator
+= TRUE}.}
+
 \item{verbose}{Show informative messages during the execution.}
 }
 \value{
-\code{\linkS4class{SpatialDDLS}} object with \code{deconv.spots}
+\code{\linkS4class{SpatialDDLS}} object with a \code{deconv.spots}
 slot. The output is a data frame with spot (\eqn{i}) as rows and cell types
-(\eqn{j}) as columns. Each entry represents the proportion of \eqn{j} cell
-type in \eqn{i} spot If \code{simplify.set} and/or
-\code{simpplify.majority} are provided, the \code{deconv.spots} slot will
+(\eqn{j}) as columns. Each entry represents the predicted proportion of
+\eqn{j} cell type in \eqn{i} spot. If \code{simplify.set} and/or
+\code{simplify.majority} are provided, the \code{deconv.spots} slot will
 contain a list with raw and simplified results.
 }
 \description{
-Deconvolute spatial transcriptomics mixed spots using the trained model
-contained in the \code{\linkS4class{SpatialDDLS}} object.
+Deconvolute spatial transcriptomics data using the trained model contained in
+the \code{\linkS4class{SpatialDDLS}} object.
 }
 \details{
-This function requires a \code{SpatialDDLS} object with a trained Deep Neural
-Network model (\code{\link{trained.model}} slot, see
-\code{?\link{trainDeconvModel}}) and the spatial transcriptomics datasets to
-be deconvoluted in the \code{spatial.experiments} slot. See
-\code{?\link{createSpatialDDLSobject}} or \code{?\link{loadSTProfiles}} for
-more details.
+This function requires a \code{\linkS4class{SpatialDDLS}} object with a
+trained deep neural network model (\code{\link{trained.model}} slot, and the
+spatial transcriptomics datasets to be deconvoluted in the
+\code{spatial.experiments} slot. See \code{?\link{createSpatialDDLSobject}}
+or \code{?\link{loadSTProfiles}} for more details.
 }
 \examples{
 \dontrun{
@@ -91,49 +90,43 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(6)),
-  from = c(1, 1, 1, 15, 15, 30),
-  to = c(15, 15, 30, 50, 50, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 50,
+  num.sim.spots = 50,
   verbose = TRUE
 )
-# training of DDLS model
+# training of SDDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainDeconvModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
-# simulating bulk RNA-Seq data
-countsBulk <- matrix(
+# simulating mixed profiles
+counts <- matrix(
   stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)),
   nrow = 40, ncol = 15,
-  dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
+  dimnames = list(paste0("Gene", seq(40)), paste0("Mixed", seq(15)))
 )
-seBulk <- SummarizedExperiment(assay = list(counts = countsBulk))
-DDLS <- loadDeconvData(
-  object = DDLS,
-  data = seBulk,
+se <- SummarizedExperiment(assay = list(counts = counts))
+SDDLS <- loadSTProfiles(
+  object = SDDLS,
+  data = se,
   index.st = "Example"
 )
 # simplify arguments
 simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
                  CellGroup2 = c("CellType3", "CellType5"))
-DDLS <- deconvSpatialDDLS(
-  object = DDLS,
+SDDLS <- deconvSpatialDDLS(
+  object = SDDLS,
   index.st = "Example",
   simplify.set = simplify,
   simplify.majority = simplify

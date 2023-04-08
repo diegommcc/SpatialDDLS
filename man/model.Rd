@@ -6,8 +6,8 @@
 \alias{model,DeconvDLModel-method}
 \alias{model<-}
 \alias{model<-,DeconvDLModel-method}
-\title{Get and set \code{model} slot in a
-\code{\linkS4class{DeconvDLModel}} object}
+\title{Get and set \code{model} slot in a \code{\linkS4class{DeconvDLModel}}
+object}
 \usage{
 model(object)
 
@@ -16,10 +16,10 @@ model(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{DeconvDLModel}} object.}
 
-\item{value}{\code{keras.engine.sequential.Sequential} object with a
-trained Deep Neural Network model.}
+\item{value}{\code{keras.engine.sequential.Sequential} object with a trained
+deep neural network model.}
 }
 \description{
-Get and set \code{model} slot in a
-\code{\linkS4class{DeconvDLModel}} object
+Get and set \code{model} slot in a \code{\linkS4class{DeconvDLModel}}
+object
 }

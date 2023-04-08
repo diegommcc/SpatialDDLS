@@ -17,7 +17,7 @@ training.history(object) <- value
 \item{object}{\code{\linkS4class{DeconvDLModel}} object.}
 
 \item{value}{\code{keras_training_history} object with the training history
-of the Deep Neural Network model}
+of the deep neural network model.}
 }
 \description{
 Get and set \code{training.history} slot in a

@@ -7,12 +7,12 @@
 installTFpython(conda = "auto", install.conda = FALSE, miniconda.path = NULL)
 }
 \arguments{
-\item{conda}{Path to a conda executable. Use \code{"auto"} (by default)
+\item{conda}{Path to a conda executable. Using \code{"auto"} (by default)
 allows \pkg{reticulate} to automatically find an appropriate conda binary.}
 
-\item{install.conda}{Boolean indicating if install miniconda automatically
-using \pkg{reticulate}. If \code{TRUE}, \code{conda} argument is ignored.
-\code{FALSE} by default.}
+\item{install.conda}{Boolean indicating if installing miniconda automatically
+by using \pkg{reticulate}. If \code{TRUE}, \code{conda} argument is
+ignored. \code{FALSE} by default.}
 
 \item{miniconda.path}{If \code{install.conda} is \code{TRUE}, you can set the
 path where miniconda will be installed. If \code{NULL}, conda will find
@@ -23,21 +23,16 @@ No return value, called for side effects: installation of conda
 environment with a Python interpreter and Tensorflow
 }
 \description{
-This is a helper function to install Python dependencies needed: a Python
-interpreter with TensorFlow Python library and its dependencies. It is
-performed using the \pkg{reticulate} package and the installer of the
-\pkg{tensorflow} R package. The available options are virtual or conda
-environments. The new environment is called SpatialDDLS-env. In any case,
-this installation can be manually done as it is explained in
-\url{https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html},
-but we recommend using this function.
-}
-\details{
-This function is intended to make easier the installation of the requirements
-needed to use \pkg{SpatialDDLS}. It will automatically install Miniconda
-(if wanted, see Parameters) and create an environment called
-'SpatialDDLS-env'. If you want to use other python/conda environment, see
-\code{?tensorflow::use_condaenv} and/or the vignettes.
+This function facilitates the installation of the required Python
+dependencies for the SpatialDDLS package. It requires a Python interpreter
+with the TensorFlow Python library and its dependencies. It utilizes the
+reticulate package and the installer of the tensorflow R package to perform
+the installation. Conda environments will be used with the new environment
+being named SpatialDDLS-env. This function is intended to simplify the
+installation process for SpatialDDLS by automatically installing Miniconda
+and creating a new environment named SpatialDDLS-env. For users who wish to
+use a different Python or conda environment, see the tensorflow::use_condaenv
+function and the package vignettes for more information.
 }
 \examples{
 \dontrun{

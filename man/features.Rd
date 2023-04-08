@@ -16,8 +16,8 @@ features(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{DeconvDLModel}} object.}
 
-\item{value}{Vector with features (genes) considered by the Deep Neural
-Network model.}
+\item{value}{Vector with features (genes) considered by the deep neural
+network model.}
 }
 \description{
 Get and set \code{features} slot in a

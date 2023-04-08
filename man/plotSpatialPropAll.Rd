@@ -8,10 +8,9 @@ spots}
 plotSpatialPropAll(
   object,
   index.st,
-  colors = NULL,
+  colors = "blues",
   set = "raw",
   size.point = 0.1,
-  alpha.point = 1,
   title = NULL,
   nrow = NULL,
   ncol = NULL,
@@ -20,38 +19,34 @@ plotSpatialPropAll(
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
-\item{colors}{Vector of colors to be used. Only vectors with a number of
-colors equal to or greater than the levels of \code{color.by} will be
-accepted. By default, a custom color list is used.}
+\item{index.st}{Index of the spatial transcriptomics data to be plotted. It
+can be either a position or a name if a named list was provided.}
+
+\item{colors}{Color scale to be used. It can be \code{"blues"} or
+\code{"spectral"} (the former by default).}
+
+\item{set}{If results were simplified (see \code{?\link{deconvSpatialDDLS}}
+for details), what results to plot (\code{raw} by default).}
 
 \item{size.point}{Size of points (0.1 by default).}
 
-\item{alpha.point}{Alpha of points (0.1 by default).}
-
-\item{title}{Boolean indicating whether single-cell profiles are filtered out
-and only errors associated with pseudo-bulk samples are displayed
-(\code{TRUE} by default).}
+\item{title}{Title of plot.}
 
 \item{nrow}{Number of rows in the split plot.}
 
-\item{ncol}{Nomber of columns in the split plot}
+\item{ncol}{Number of columns in the split plot.}
 
 \item{theme}{\pkg{ggplot2} theme.}
-
-\item{color.scale}{Variable used to display data in different panels. If
-\code{NULL}, the plot is not split into different panels. Options are
-\code{nCellTypes} (by number of different cell types) and \code{CellType}
-(by cell type).}
 }
 \value{
 A ggplot object.
 }
 \description{
 Color spots on the spatial coordinates plot according to their predicted cell
-type proportions. All cell types are represented altogether using the same
-scale of colors (from 0 to 1).
+type proportions. All cell types are represented together using the same
+color scale from 0 to 1.
 }
 \examples{
 \dontrun{

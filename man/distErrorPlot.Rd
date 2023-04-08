@@ -2,7 +2,7 @@
 % Please edit documentation in R/evalMetrics.R
 \name{distErrorPlot}
 \alias{distErrorPlot}
-\title{Generate box or violin plots displaying error distribution}
+\title{Generate box or violin plots showing error distribution}
 \usage{
 distErrorPlot(
   object,
@@ -40,23 +40,23 @@ error (\code{'SqrErr'}), and proportional squared error
 \item{colors}{Vector of colors to be used.}
 
 \item{x.by}{Variable used for the X-axis. When \code{facet.by} is not
-\code{NULL}, the best choice is \code{pBin} (probability bins). The options
-are \code{nCellTypes} (number of different cell types), \code{CellType}
-(cell type), and \code{pBin}.}
+\code{NULL}, the best choice is \code{pBin} (probability bins). Options:
+\code{nCellTypes} (number of different cell types), \code{CellType} (cell
+type), and \code{pBin}.}
 
-\item{facet.by}{Display data in different panels. Options are
-\code{nCellTypes} (number of different cell types) and \code{CellType}
-(cell type) (\code{NULL} by default).}
+\item{facet.by}{Show data in different panels. Options are \code{nCellTypes}
+(number of different cell types) and \code{CellType} (cell type)
+(\code{NULL} by default).}
 
-\item{color.by}{Variable used to color the data. Options are
-\code{nCellTypes} and \code{CellType}.}
+\item{color.by}{Variable used to color data. Options are \code{nCellTypes}
+and \code{CellType}.}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only errors associated with mixed spots are displayed (\code{TRUE}
-by default).}
+out and only mixed transcriptional profile errors are shown (\code{TRUE} by
+default).}
 
-\item{error.label}{Boolean indicating whether to display the average error as
-a plot annotation (\code{FALSE} by default).}
+\item{error.label}{Boolean indicating whether to show the average error as a
+plot annotation (\code{FALSE} by default).}
 
 \item{pos.x.label}{X-axis position of error annotations.}
 
@@ -81,15 +81,15 @@ default).}
 \item{theme}{\pkg{ggplot2} theme.}
 
 \item{...}{Additional arguments for the \link[ggplot2]{facet_wrap} function
-from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
+of \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
 }
 \value{
 A ggplot object.
 }
 \description{
 Generate box or violin plots to show how errors are distributed. Errors can
-be displayed all mixed or split by cell type (\code{CellType}) or number of
-cell types present in the spots (\code{nCellTypes}). See the \code{facet.by}
+be shown all mixed or split by cell type (\code{CellType}) or number of cell
+types present in the spots (\code{nCellTypes}). See the \code{facet.by}
 argument and examples for more details.
 }
 \examples{
@@ -111,50 +111,41 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(6)),
-  from = c(1, 1, 1, 15, 15, 30),
-  to = c(15, 15, 30, 50, 50, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 50,
+  num.sim.spots = 50,
   verbose = TRUE
 )
 # training of DDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainSpatialDDLSModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
 # evaluation using test data
-DDLS <- calculateEvalMetrics(
-  object = DDLS
-)
+SDDLS <- calculateEvalMetrics(object = SDDLS)
 # representation, for more examples, see the vignettes
 distErrorPlot(
-  object = DDLS,
+  object = SDDLS,
   error = "AbsErr",
   facet.by = "CellType",
   color.by = "nCellTypes",
   error.label = TRUE
 )
 distErrorPlot(
-  object = DDLS,
+  object = SDDLS,
   error = "AbsErr",
   x.by = "CellType",
   facet.by = NULL,
-  filter.sc = FALSE,
   color.by = "CellType",
   error.label = TRUE
 )

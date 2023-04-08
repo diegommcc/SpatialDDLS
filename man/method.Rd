@@ -6,8 +6,8 @@
 \alias{method,PropCellTypes-method}
 \alias{method<-}
 \alias{method<-,PropCellTypes-method}
-\title{Get and set \code{method} slot in a
-\code{\linkS4class{PropCellTypes}} object}
+\title{Get and set \code{method} slot in a \code{\linkS4class{PropCellTypes}}
+object}
 \usage{
 method(object)
 
@@ -20,6 +20,6 @@ method(object) <- value
 generated.}
 }
 \description{
-Get and set \code{method} slot in a
-\code{\linkS4class{PropCellTypes}} object
+Get and set \code{method} slot in a \code{\linkS4class{PropCellTypes}}
+object
 }

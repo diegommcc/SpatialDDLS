@@ -16,8 +16,7 @@ test.metrics(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{DeconvDLModel}} object.}
 
-\item{value}{List with the resulting metrics after prediction on test data
-with the trained Deep Neural Network model.}
+\item{value}{List with evaluation metrics after prediction on test data.}
 }
 \description{
 Get and set \code{test.metrics} slot in a

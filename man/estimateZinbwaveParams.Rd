@@ -68,17 +68,17 @@ default).}
 A \code{\linkS4class{SpatialDDLS}} object with \code{zinb.params}
 slot containing a \code{\linkS4class{ZinbParametersModel}} object. This
 object contains a slot with the estimated ZINB-WaVE parameters from the
-real single-cell RNA-Se`q data.
+real single-cell RNA-Seq data.
 }
 \description{
 Estimate the parameters of the ZINB-WaVE model using a real single-cell
 RNA-Seq data set as reference to simulate new single-cell profiles and
-increase the signal of underrepresented cell types. This step is optional,
-only is needed if the size of you dataset is too small or there are
-underrepresented cell types in order to train the Deep Neural Network model
-in a more balanced way. After this step, the \code{\link{simSCProfiles}}
-function will use the estimated parameters to simulate new single-cell
-profiles. See \code{?\link{simSCProfiles}} for more information.
+increase the signal of underrepresented cell types. This step is only is
+needed if the size of the single-cell RNA-seq dataset is too small or there
+are underrepresented cell types. After this step, the
+\code{\link{simSCProfiles}} function will use the estimated parameters to
+simulate new single-cell profiles. See \code{?\link{simSCProfiles}} for more
+information.
 }
 \details{
 ZINB-WaVE is a flexible model for zero-inflated count data. This function
@@ -110,13 +110,14 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID",
+  project = "Simul_example"
 )
-DDLS <- estimateZinbwaveParams(
-  object = DDLS,
+SDDLS <- estimateZinbwaveParams(
+  object = SDDLS,
   cell.type.column = "Cell_Type",
   cell.ID.column = "Cell_ID",
   gene.ID.column = "Gene_ID",

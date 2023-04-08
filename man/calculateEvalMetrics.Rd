@@ -2,32 +2,29 @@
 % Please edit documentation in R/evalMetrics.R
 \name{calculateEvalMetrics}
 \alias{calculateEvalMetrics}
-\title{Calculate evaluation metrics of test mixed spot transcriptional profiles}
+\title{Calculate evaluation metrics of test mixed transcriptional profiles}
 \usage{
-calculateEvalMetrics(object, metrics = c("MAE", "MSE"))
+calculateEvalMetrics(object)
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with a trained model in
-the \code{trained.model} slot and the actual cell proportions of test mixed
-spot profiles in \code{prob.cell.types} slot.}
-
-\item{metrics}{Metrics used to evaluate the model performance. Mean absolute
-error (\code{"MAE"}) and mean squared error (\code{"MSE"}) by default.}
+\code{trained.model} slot and the actual cell proportions of test mixed
+profiles in \code{prob.cell.types} slot.}
 }
 \value{
-A \code{\linkS4class{SpatialDDLS}} object with the
-\code{trained.model} slot containing a \code{\linkS4class{DeconvDLModel}}
-object with \code{test.deconv.metrics} slot containing the calculated
-metrics.
+A \code{\linkS4class{SpatialDDLS}} object with is a
+\code{\linkS4class{DeconvDLModel}} object. The calculated metrics are
+stored in the \code{test.deconv.metrics} slot of the
+\code{\linkS4class{DeconvDLModel}} object.
 }
 \description{
-Calculate evaluation metrics of test mixed spot transcriptional profiles. By
+Calculate evaluation metrics of test mixed transcriptional profiles. By
 default, absolute error (\code{AbsErr}), proportional absolute error
-(\code{ppAbsErr}), squared error (\code{SqrErr}) and proportional squared
+(\code{ppAbsErr}), squared error (\code{SqrErr}), and proportional squared
 error (\code{ppSqrErr}) are calculated for each test mixed profile. In
 addition, each of these metrics is aggregated according to three criteria:
 cell type (\code{CellType}), probability bins in ranges of 0.1 (\code{pBin}),
-and number of different cell types present in the spot \code{nCellTypes}.
+and number of different cell types present in the spot (\code{nCellTypes}).
 }
 \examples{
 \dontrun{
@@ -48,36 +45,28 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(6)),
-  from = c(1, 1, 1, 15, 15, 30),
-  to = c(15, 15, 30, 50, 50, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 50,
+  num.sim.spots = 50,
   verbose = TRUE
 )
 # training of DDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainSpatialDDLSModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
 # evaluation using test data
-DDLS <- calculateEvalMetrics(
-  object = DDLS
-)
+SDDLS <- calculateEvalMetrics(object = SDDLS)
 }
 
 }

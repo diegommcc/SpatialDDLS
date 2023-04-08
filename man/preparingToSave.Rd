@@ -2,39 +2,38 @@
 % Please edit documentation in R/utils.R
 \name{preparingToSave}
 \alias{preparingToSave}
-\title{Prepare \code{\linkS4class{SpatialDDLS}} object to be saved as an RDA
-file}
+\title{Prepare \code{\linkS4class{SpatialDDLS}} object to be saved as an RDA file}
 \usage{
 preparingToSave(object)
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object with the
-\code{trained.data} slot.}
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with a
+\code{trained.data} slot containing a \code{\linkS4class{DeconvDLModel}}
+object with a trained DNN model.}
 }
 \value{
 A \code{\linkS4class{SpatialDDLS}} or
-\code{\linkS4class{SpatialDDLSDNN}} object with its trained keras model
+\code{\linkS4class{DeconvDLModel}} object with its trained keras model
 transformed from a \code{keras.engine.sequential.Sequential} class into a
-\code{list} with the architecture as a JSON-like character object and the
+\code{list} with its architecture as a JSON-like character object, and its
 weights as a list.
 }
 \description{
-Prepare a \code{\linkS4class{SpatialDDLS}} object that has a
-\code{\linkS4class{SpatialDDLSDNN}} object with a trained DNN model.
-\code{keras} models cannot be stored natively as R objects (e.g. RData or RDS
-files). By saving the structure as a JSON-like character object and the
-weights as a list, it is possible to retrieve the model and make predictions.
-\strong{Note:} with this option, the state of optimizer is not saved, only
-the architecture and weights.
+This function prepares a \code{\linkS4class{SpatialDDLS}} object to be saved
+as an RDA file when contains a \code{\linkS4class{DeconvDLModel}} object with
+a trained DNN model.
 }
 \details{
-It is possible to save the entire model as an HDF5 file with the
-\code{\link{saveTrainedModelAsH5}} function and to load it into a
-\code{\linkS4class{SpatialDDLS}} object with the
-\code{\link{loadTrainedModelFromH5}} function.
+Since \pkg{keras} models cannot be saved natively as R objects, this function
+saves the structure of the model as a JSON-like character object and its
+weights as a list. This allows for the retrieval of the model and making
+predictions. It is important to note that the state of the optimizer is not
+saved, only the model's architecture and weights. To save the entire model,
+please see the \code{\link{saveTrainedModelAsH5}} and
+\code{\link{loadTrainedModelFromH5}} functions.
 
-It is also possible to save a \code{\linkS4class{SpatialDDLS}} object as
-an RDS file with the \code{saveRDS} function without any preparation.
+It is also possible to save a \code{\linkS4class{SpatialDDLS}} object as an
+RDS file with the \code{saveRDS} function without any preparation.
 }
 \seealso{
 \code{\link{saveRDS}} \code{\link{saveTrainedModelAsH5}}

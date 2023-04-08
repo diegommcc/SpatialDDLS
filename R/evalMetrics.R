@@ -39,8 +39,10 @@ default.colors <- function() {
 #'   \code{trained.model} slot and the actual cell proportions of test mixed
 #'   profiles in \code{prob.cell.types} slot.
 #'
-#' @return A \code{\linkS4class{SpatialDDLS}} object with is a \code{\linkS4class{DeconvDLModel}} object. 
-#' The calculated metrics are stored in the \code{test.deconv.metrics} slot of the \code{\linkS4class{DeconvDLModel}} object.
+#' @return A \code{\linkS4class{SpatialDDLS}} object with is a
+#'   \code{\linkS4class{DeconvDLModel}} object. The calculated metrics are
+#'   stored in the \code{test.deconv.metrics} slot of the
+#'   \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export
 #'
@@ -291,8 +293,8 @@ se <- function(x) sqrt(var(x)/length(x))
 #' Generate box or violin plots showing error distribution
 #'
 #' Generate box or violin plots to show how errors are distributed. Errors can
-#' be shown all mixed or split by cell type (\code{CellType}) or number of
-#' cell types present in the spots (\code{nCellTypes}). See the \code{facet.by}
+#' be shown all mixed or split by cell type (\code{CellType}) or number of cell
+#' types present in the spots (\code{nCellTypes}). See the \code{facet.by}
 #' argument and examples for more details.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
@@ -306,18 +308,18 @@ se <- function(x) sqrt(var(x)/length(x))
 #' @param colors Vector of colors to be used.
 #' @param x.by Variable used for the X-axis. When \code{facet.by} is not
 #'   \code{NULL}, the best choice is \code{pBin} (probability bins). Options:
-#'   \code{nCellTypes} (number of different cell types), \code{CellType}
-#'   (cell type), and \code{pBin}.
-#' @param facet.by Show data in different panels. Options are
-#'   \code{nCellTypes} (number of different cell types) and \code{CellType}
-#'   (cell type) (\code{NULL} by default).
-#' @param color.by Variable used to color data. Options are
-#'   \code{nCellTypes} and \code{CellType}.
+#'   \code{nCellTypes} (number of different cell types), \code{CellType} (cell
+#'   type), and \code{pBin}.
+#' @param facet.by Show data in different panels. Options are \code{nCellTypes}
+#'   (number of different cell types) and \code{CellType} (cell type)
+#'   (\code{NULL} by default).
+#' @param color.by Variable used to color data. Options are \code{nCellTypes}
+#'   and \code{CellType}.
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only mixed transcriptional profile errors are shown (\code{TRUE}
-#'   by default).
-#' @param error.label Boolean indicating whether to show the average error as
-#'   a plot annotation (\code{FALSE} by default).
+#'   out and only mixed transcriptional profile errors are shown (\code{TRUE} by
+#'   default).
+#' @param error.label Boolean indicating whether to show the average error as a
+#'   plot annotation (\code{FALSE} by default).
 #' @param pos.x.label X-axis position of error annotations.
 #' @param pos.y.label Y-axis position of error annotations.
 #' @param size.point Size of points (0.1 by default).
@@ -561,27 +563,27 @@ distErrorPlot <- function(
 #' proportions of test data
 #'
 #' Generate correlation plots between predicted and expected cell type
-#' proportions of test data. Correlation plots can be shown all mixed or
-#' split by cell type (\code{CellType}) or the number of different cell types
-#' present in the spots (\code{nCellTypes}).
+#' proportions of test data. Correlation plots can be shown all mixed or split
+#' by cell type (\code{CellType}) or the number of different cell types present
+#' in the spots (\code{nCellTypes}).
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
 #'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
 #'   object.
 #' @param colors Vector of colors to be used.
-#' @param facet.by Show data in different panels. Options are
-#'   \code{nCellTypes} (number of different cell types) and \code{CellType}
-#'   (cell type) (\code{NULL} by default).
+#' @param facet.by Show data in different panels. Options are \code{nCellTypes}
+#'   (number of different cell types) and \code{CellType} (cell type)
+#'   (\code{NULL} by default).
 #' @param color.by Variable used to color data. Options are \code{nCellTypes}
 #'   and \code{CellType}.
-#' @param corr Correlation value shown as an annotation on the plot.
-#'   Available metrics are Pearson's correlation coefficient (\code{'pearson'})
-#'   and concordance correlation coefficient (\code{'ccc'}). It can be
+#' @param corr Correlation value shown as an annotation on the plot. Available
+#'   metrics are Pearson's correlation coefficient (\code{'pearson'}) and
+#'   concordance correlation coefficient (\code{'ccc'}). It can be
 #'   \code{'pearson'}, \code{'ccc'} or \code{'both'} (by default).
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only mixed transcriptional profile errors are shown (\code{TRUE}
-#'   by default).
+#'   out and only mixed transcriptional profile errors are shown (\code{TRUE} by
+#'   default).
 #' @param pos.x.label X-axis position of correlation annotations (0.95 by
 #'   default).
 #' @param pos.y.label Y-axis position of correlation annotations (0.1 by
@@ -816,19 +818,19 @@ corrExpPredPlot <- function(
 ################################################################################
 
 #' Generate Bland-Altman agreement plots between predicted and expected cell
-#' type proportions of test data 
+#' type proportions of test data
 #'
 #' Generate Bland-Altman agreement plots between predicted and expected cell
-#' type proportions from test data. The Bland-Altman agreement plots can
-#' be shown all mixed or split by cell type (\code{CellType}) or the number
-#' of cell types present in spots (\code{nCellTypes}). See the \code{facet.by}
-#' argument and examples for more information.
+#' type proportions from test data. The Bland-Altman agreement plots can be
+#' shown all mixed or split by cell type (\code{CellType}) or the number of cell
+#' types present in spots (\code{nCellTypes}). See the \code{facet.by} argument
+#' and examples for more information.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
 #'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
 #'   object.
-#' @param colors Vector of colors to be used. 
+#' @param colors Vector of colors to be used.
 #' @param color.by Variable used to color data. Options are \code{nCellTypes}
 #'   and \code{CellType}.
 #' @param facet.by Variable used to show the data in different panels. If
@@ -838,8 +840,8 @@ corrExpPredPlot <- function(
 #' @param log.2 Whether to show the Bland-Altman agreement plot in log2 space
 #'   (\code{FALSE} by default).
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only correlations of results associated with mixed spot profiles are
-#'   shown (\code{TRUE} by default).
+#'   out and only correlations of results associated with mixed spot profiles
+#'   are shown (\code{TRUE} by default).
 #' @param density Boolean indicating whether density lines should be shown
 #'   (\code{TRUE} by default).
 #' @param color.density Color of density lines if the \code{density} argument is
@@ -1021,7 +1023,8 @@ blandAltmanLehPlot <- function(
 #' Generate bar error plots
 #'
 #' Generate bar error plots by cell type (\code{CellType}) or by number of
-#' different cell types (\code{nCellTypes}) on test mixed transcriptional profiles.
+#' different cell types (\code{nCellTypes}) on test mixed transcriptional
+#' profiles.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
@@ -1033,8 +1036,8 @@ blandAltmanLehPlot <- function(
 #' @param dispersion Standard error (\code{'se'}) or standard deviation
 #'   (\code{'sd'}). The former by default.
 #' @param filter.sc Boolean indicating whether single-cell profiles are filtered
-#'   out and only correlation of results associated with mixed transcriptional profiles are
-#'   shown (\code{TRUE} by default).
+#'   out and only correlation of results associated with mixed transcriptional
+#'   profiles are shown (\code{TRUE} by default).
 #' @param angle Angle of ticks.
 #' @param title Title of the plot.
 #' @param theme \pkg{ggplot2} theme.

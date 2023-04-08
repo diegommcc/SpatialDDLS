@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{loadTrainedModelFromH5}
 \alias{loadTrainedModelFromH5}
-\title{Load from an HDF5 file a trained Deep Neural Network model into a
+\title{Load from an HDF5 file a trained deep neural network model into a
 \code{\linkS4class{SpatialDDLS}} object}
 \usage{
 loadTrainedModelFromH5(object, file.path, reset.slot = FALSE)
@@ -14,19 +14,18 @@ loadTrainedModelFromH5(object, file.path, reset.slot = FALSE)
 \item{file.path}{Valid file path where the model are stored.}
 
 \item{reset.slot}{Deletes \code{trained.slot} if it already exists. A new
-\code{\link{SpatialDDLSDNN}} object will be formed, but will not
-contain other slots (\code{FALSE} by default).}
+\code{\link{DeconvDLModel}} object will be formed, but will not contain
+other slots (\code{FALSE} by default).}
 }
 \value{
 \code{\linkS4class{SpatialDDLS}} object with \code{trained.model}
-slot with the new keras DNN model incorporated.
+slot with the new \pkg{keras} DNN model incorporated.
 }
 \description{
-Load from an HDF5 file a trained Deep Neural Network model into a
-\code{\linkS4class{SpatialDDLS}} object. Note that HDF5 file must be a
-valid trained model (\pkg{keras} object).
+Load from an HDF5 file a trained deep neural network model into a
+\code{\linkS4class{SpatialDDLS}} object. Note that HDF5 file must be a valid
+trained model (\pkg{keras} object).
 }
 \seealso{
-\code{\link{trainSpatialDDLSModel}}
-\code{\link{deconvSpatialDDLSObj}} \code{\link{saveTrainedModelAsH5}}
+\code{\link{trainDeconvModel}} \code{\link{saveTrainedModelAsH5}}
 }

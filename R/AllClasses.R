@@ -30,8 +30,8 @@ setClassUnion(name = "KerasTrainOrNULL",
 #' The ZinbParametersModel class is a wrapper class for the
 #' \code{\linkS4class{ZinbModel}} class from the \pkg{zinbwave} package.
 #'
-#' This wrapper class contains the \code{zinbwave.model} slot, which holds a valid
-#' \code{\linkS4class{ZinbModel}} object.
+#' This wrapper class contains the \code{zinbwave.model} slot, which holds a
+#' valid \code{\linkS4class{ZinbModel}} object.
 #'
 #' @slot zinbwave.model A valid \code{\linkS4class{ZinbModel}} object.
 #'
@@ -76,7 +76,8 @@ setMethod(
     if (is.null(object@zinbwave.model)) {
       cat("ZinbParametersModel object empty")
     } else {
-      .zinbModelShow(object@zinbwave.model) # TODO: doesn't work, implement a show function
+      # TODO: check if it works out
+      .zinbModelShow(object@zinbwave.model) 
     }
   }
 )
@@ -91,11 +92,11 @@ setClassUnion(
 
 #' The PropCellTypes Class
 #'
-#' The PropCellTypes class is a data storage class which contains information
-#' related to the cell type composition matrices used to simulate mixed
-#' transcriptional profiles. This matrix is stored in the \code{prob.matrix}
-#' slot while the rest contains additional information generated during the
-#' process and required in subsequent steps.
+#' The \code{\linkS4class{PropCellTypes}} class is a data storage class which
+#' contains information related to the cell type composition matrices used to
+#' simulate mixed transcriptional profiles. This matrix is stored in the
+#' \code{prob.matrix} slot while the rest contains additional information
+#' generated during the process and required in subsequent steps.
 #'
 #' See \code{?\link{genMixedCellProp}} function for information about how cell
 #' type composition matrices are generated. Plots about the cell type proportion
@@ -104,8 +105,8 @@ setClassUnion(
 #'
 #' @slot prob.matrix Matrix of cell type proportions to simulate mixed
 #'   transcriptional profiles.
-#' @slot cell.names Matrix containing the name of cells to be used to generate the
-#'   simulated mixed transcriptional profiles.
+#' @slot cell.names Matrix containing the name of cells to be used to generate
+#'   the simulated mixed transcriptional profiles.
 #' @slot set.list List of cells ordered according to the cell type they belong
 #'   to.
 #' @slot set Vector containing cell names present in the object.
@@ -187,23 +188,24 @@ setMethod(
 
 #' The DeconvDLModel Class
 #'
-#' The \code{\linkS4class{DeconvDLModel}} object stores all the information related to deep neural
-#' network models. It consists of the trained model, the training history, and
-#' the predictions on test data. After running
+#' The \code{\linkS4class{DeconvDLModel}} object stores all the information
+#' related to deep neural network models. It consists of the trained model, the
+#' training history, and the predictions on test data. After running
 #' \code{\link{calculateEvalMetrics}}, it is possible to find the performance
 #' evaluation of the model on test data (see \code{?\link{calculateEvalMetrics}}
 #' for details).
 #'
 #' The steps related to Deep Learning are carried out using the \pkg{keras} and
 #' \pkg{tensorflow} packages, which use the R6 classes system. If you want to
-#' save the \code{\linkS4class{DeconvDLModel}} object as an RDS file, \pkg{SpatialDDLS} provides a
-#' \code{saveRDS} generic function that transforms the R6 object containing the
-#' trained model into a native valid R object. Specifically, the model is
-#' converted into a list with the architecture of the network and the weights
-#' learned during training. That is the minimum information needed to use the
-#' model as predictor. If you want to keep the optimizer state, see
-#' \code{?\link{saveTrainedModelAsH5}}. If you want to store either the
-#' \code{\linkS4class{DeconvDLModel}} or the \code{\linkS4class{SpatialDDLS}} objects on disk as RDA files, see
+#' save the \code{\linkS4class{DeconvDLModel}} object as an RDS file,
+#' \pkg{SpatialDDLS} provides a \code{saveRDS} generic function that transforms
+#' the R6 object containing the trained model into a native valid R object.
+#' Specifically, the model is converted into a list with the architecture of the
+#' network and the weights learned during training. That is the minimum
+#' information needed to use the model as predictor. If you want to keep the
+#' optimizer state, see \code{?\link{saveTrainedModelAsH5}}. If you want to
+#' store either the \code{\linkS4class{DeconvDLModel}} or the
+#' \code{\linkS4class{SpatialDDLS}} objects on disk as RDA files, see
 #' \code{?\link{preparingToSave}}.
 #'
 #' @slot model Trained deep neural network. This slot can contain an R6
@@ -300,10 +302,11 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 
 #' The SpatialDDLS Class
 #'
-#' The SpatialDDLS object is the core of the \pkg{SpatialDDLS} package. This
-#' object stores different intermediate data needed for the construction of new
-#' deconvolution models, the spatial transcriptomics profiles to be
-#' deconvoluted, and the predicted cell type proportions.
+#' The \code{\linkS4class{SpatialDDLS}}object is the core of the
+#' \pkg{SpatialDDLS} package. This object stores different intermediate data
+#' needed for the construction of new deconvolution models, the spatial
+#' transcriptomics profiles to be deconvoluted, and the predicted cell type
+#' proportions.
 #'
 #' This object uses other classes to store different types of data generated
 #' during the workflow: \itemize{ \item
@@ -325,8 +328,8 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' In order to provide a way to work with large amounts of data on
 #' RAM-constrained machines, we provide the possibility to use HDF5 files as
 #' back-end to store count matrices of both real and simulated single-cell
-#' profiles by using the \code{HDF5Array} and \code{DelayedArray} classes from
-#' the homonymous packages.
+#' profiles by using the \pkg{HDF5Array} and \pkg{DelayedArray} classes from the
+#' homonymous packages.
 #'
 #' @slot single.cell.real Real single-cell data stored in a
 #'   \code{SingleCellExperiment} object. The count matrix is stored either as
@@ -340,16 +343,15 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #' @slot prob.cell.types \code{\linkS4class{PropCellTypes}} class with cell
 #'   composition matrices built for the simulation of mixed transcriptional
 #'   profiles with known cell composition.
-#' @slot mixed.profiles List of simulated train and test mixed
-#'   transcriptional profiles. Each entry is a
-#'   \code{\linkS4class{SummarizedExperiment}} object. Count matrices can be
-#'   stored as \code{HDF5Array} objects using HDF5 files as back-end in case of
-#'   RAM limitations.
+#' @slot mixed.profiles List of simulated train and test mixed transcriptional
+#'   profiles. Each entry is a \code{\linkS4class{SummarizedExperiment}} object.
+#'   Count matrices can be stored as \code{HDF5Array} objects using HDF5 files
+#'   as back-end in case of RAM limitations.
 #' @slot trained.model \code{\linkS4class{DeconvDLModel}} object with
 #'   information related to the trained model. See
 #'   \code{?\linkS4class{DeconvDLModel}} for more details.
-#' @slot deconv.spots Deconvolution results. It consists of a list where
-#'   each element corresponds to the results for each
+#' @slot deconv.spots Deconvolution results. It consists of a list where each
+#'   element corresponds to the results for each
 #'   \code{\linkS4class{SpatialExperiment}} object contained in the
 #'   \code{spatial.experiments} slot.
 #' @slot project Name of the project.

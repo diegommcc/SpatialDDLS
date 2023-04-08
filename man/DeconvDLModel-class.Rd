@@ -6,30 +6,31 @@
 \alias{DeconvDLModel}
 \title{The DeconvDLModel Class}
 \description{
-The DeconvDLModel object stores all the information related to Deep Neural
-Network models. It consistis of the trained model, the training history and
-the predictions on test data. After running
+The \code{\linkS4class{DeconvDLModel}} object stores all the information
+related to deep neural network models. It consists of the trained model, the
+training history, and the predictions on test data. After running
 \code{\link{calculateEvalMetrics}}, it is possible to find the performance
 evaluation of the model on test data (see \code{?\link{calculateEvalMetrics}}
 for details).
 }
 \details{
 The steps related to Deep Learning are carried out using the \pkg{keras} and
-\pkg{tensorflow} packages which use the R6 classes system. If you want to
-save the DeconvDLModel object as an RDS file, \code{SpatialDDLS} provides a
-\code{saveRDS} generic function that transforms the R6 object containing the
-trained model into a native valid R object. Specifically, the model is
-converted into a list with the architecture of the network and the weights
-learned during training. That is the minimum information needed to use the
-model as predictor. If you want to keep the optimizer state, see
-\code{?\link{saveTrainedModelAsH5}}. If you want to store either the
-DeconvDLModel or the SpatialDDLS objects on disk as RDA files, see
+\pkg{tensorflow} packages, which use the R6 classes system. If you want to
+save the \code{\linkS4class{DeconvDLModel}} object as an RDS file,
+\pkg{SpatialDDLS} provides a \code{saveRDS} generic function that transforms
+the R6 object containing the trained model into a native valid R object.
+Specifically, the model is converted into a list with the architecture of the
+network and the weights learned during training. That is the minimum
+information needed to use the model as predictor. If you want to keep the
+optimizer state, see \code{?\link{saveTrainedModelAsH5}}. If you want to
+store either the \code{\linkS4class{DeconvDLModel}} or the
+\code{\linkS4class{SpatialDDLS}} objects on disk as RDA files, see
 \code{?\link{preparingToSave}}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{model}}{Trained Deep Neural Network. This slot can contain an R6
+\item{\code{model}}{Trained deep neural network. This slot can contain an R6
 \code{keras.engine.sequential.Sequential} object or a list with two
 elements: the architecture of the model and the resulting weights after
 training.}
@@ -39,7 +40,7 @@ training.}
 
 \item{\code{test.metrics}}{Performance of the model on test data.}
 
-\item{\code{test.pred}}{Deconvolution results on test data.}
+\item{\code{test.pred}}{Predicted cell type proportions on test data.}
 
 \item{\code{cell.types}}{Vector with cell types considered by the model.}
 

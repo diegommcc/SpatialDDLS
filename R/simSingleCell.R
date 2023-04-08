@@ -11,11 +11,12 @@ NULL
 #'
 #' Estimate the parameters of the ZINB-WaVE model using a real single-cell
 #' RNA-Seq data set as reference to simulate new single-cell profiles and
-#' increase the signal of underrepresented cell types. This step is only is needed 
-#' if the size of the single-cell RNA-seq dataset is too small or there are
-#' underrepresented cell types. After this step, the \code{\link{simSCProfiles}}
-#' function will use the estimated parameters to simulate new single-cell
-#' profiles. See \code{?\link{simSCProfiles}} for more information.
+#' increase the signal of underrepresented cell types. This step is only is
+#' needed if the size of the single-cell RNA-seq dataset is too small or there
+#' are underrepresented cell types. After this step, the
+#' \code{\link{simSCProfiles}} function will use the estimated parameters to
+#' simulate new single-cell profiles. See \code{?\link{simSCProfiles}} for more
+#' information.
 #'
 #' ZINB-WaVE is a flexible model for zero-inflated count data. This function
 #' carries out the model fit to real single-cell data modeling \eqn{Y_{ij}} (the
@@ -61,7 +62,7 @@ NULL
 #'   installed.
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
-#'   
+#'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with \code{zinb.params}
 #'   slot containing a \code{\linkS4class{ZinbParametersModel}} object. This
 #'   object contains a slot with the estimated ZINB-WaVE parameters from the
@@ -689,9 +690,9 @@ estimateZinbwaveParams <- function(
 #' \code{block.processing = FALSE}, all the single-cell profiles will be
 #' simulated in one step and, therefore, loaded into in RAM memory. Then, data
 #' will be written in HDF5 file. To avoid to collapse RAM memory if too many
-#' single-cell profiles are goin to be simulated, single-cell profiles can be simulated and
-#' written to HDF5 files in blocks of \code{block.size} size by setting
-#' \code{block.processing = TRUE}.
+#' single-cell profiles are goin to be simulated, single-cell profiles can be
+#' simulated and written to HDF5 files in blocks of \code{block.size} size by
+#' setting \code{block.processing = TRUE}.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{single.cell.real} and \code{zinb.params} slots.
@@ -753,7 +754,7 @@ estimateZinbwaveParams <- function(
 #'
 #' @seealso \code{\link{estimateZinbwaveParams}}
 #'
-#' @examples 
+#' @examples
 #' set.seed(123) # reproducibility
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(

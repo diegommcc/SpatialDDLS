@@ -31,15 +31,15 @@ trainDeconvModel(
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with
 \code{single.cell.real}/\code{single.cell.simul}, \code{prob.cell.types},
-and \code{mixed.spot.profiles} slots (the last if \code{on.the.fly =
-  TRUE}).}
+and \code{mixed.profiles} slots (the last only if \code{on.the.fly =
+  FALSE}).}
 
 \item{type.data.train}{Type of profiles used for training. It can be
 \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 default).}
 
 \item{type.data.test}{Type of profiles used for evaluation. It can be
-\code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'both'} by
+\code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 default).}
 
 \item{batch.size}{Number of samples per gradient update (64 by default).}
@@ -75,8 +75,8 @@ documentation} to know available performance metrics.}
 
 \item{scaling}{How to scale data before training. It may be:
 \code{"standarize"} (values are centered around the mean with a unit
-standard deviation) or \code{"rescale"} (values are shifted and rescaled so
-that they end up ranging between 0 and 1).}
+standard deviation, by default) or \code{"rescale"} (values are shifted and
+rescaled so that they end up ranging between 0 and 1).}
 
 \item{custom.model}{It allows to use a custom neural network. It must be a
 \code{keras.engine.sequential.Sequential} object in which the number of
@@ -91,32 +91,32 @@ by default).}
 \item{sc.downsampling}{It is only used if \code{type.data.train} is equal to
 \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
 single-cell profiles from a specific cell type  used for training to avoid
-unbalanced data (\code{NULL} by default).}
+an unbalanced representation of cell types (\code{NULL} by default).}
 
 \item{use.generator}{Boolean indicating whether to use generators during
 training and test. Generators are automatically used when \code{on.the.fly
   = TRUE} or HDF5 files are used, but it can be activated by the user on
 demand (\code{FALSE} by default).}
 
-\item{on.the.fly}{Boolean indicating whether data will be generated 'on the
-fly' during training (\code{FALSE} by default).}
+\item{on.the.fly}{Boolean indicating whether simulated data will be generated
+'on the fly' during training (\code{FALSE} by default).}
 
-\item{agg.function}{Function used to build mixed spot transcriptional
-profiles. It may be: \itemize{ \item \code{"AddRawCount"} (by default):
-single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
-are calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts)
-are transformed into CPMs and cross-cell averages are calculated. Then,
+\item{agg.function}{Function used to build mixed transcriptional profiles. It
+may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
+profiles (raw counts) are added up across cells. Then, log-CPMs are
+calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
+transformed into CPMs and cross-cell averages are calculated. Then,
 \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
 profiles (raw counts) are transformed into CPMs and are added up across
 cells. Then, log-CPMs are calculated.}}
 
-\item{threads}{Number of threads used during simulation of mixed spots
+\item{threads}{Number of threads used during simulation of mixed
 transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).}
 
 \item{view.metrics.plot}{Boolean indicating whether to show plots of loss and
-metrics progression during training (\code{TRUE} by default). \pkg{keras}
-for R allows to see the progression of the model during training if you are
-working in RStudio.}
+evaluation metrics during training (\code{TRUE} by default). \pkg{keras}
+for R allows to see model progression during training if you are working in
+RStudio.}
 
 \item{verbose}{Boolean indicating whether to display model progression during
 training and model architecture information (\code{TRUE} by default).}
@@ -128,27 +128,22 @@ information about the structure of this class, see
 \code{?\linkS4class{DeconvDLModel}}.
 }
 \description{
-Train a Deep Neural Network model using the training data from
+Train a deep neural network model using training data from the
 \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
-evaluated using test data and prediction results are obtained to determine
+evaluated using test data, and prediction results are obtained to determine
 its performance (see \code{?\link{calculateEvalMetrics}}).
 }
 \details{
-\strong{Keras/Tensorflow environment}
-
-All Deep Learning-related steps are performed by using the \pkg{keras}
-package, an API in R for \pkg{keras} in Python available on CRAN.
-
-\strong{Simulation of mixed spot transcriptional profiles 'on the fly'}
+\strong{Simulation of mixed transcriptional profiles 'on the fly'}
 
 \code{trainDeconvModel} can avoid storing simulated mixed spot profiles by
-using the \code{on.the.fly} argument. This functionality aims to reduce the
-the \code{simMixedSpotProfiles} function's memory usage: simulated profiles
-are built in each batch during training/evaluation.
+using the \code{on.the.fly} argument. This functionality aims at reducing the
+the \code{simMixedProfiles} function's memory usage: simulated profiles are
+built in each batch during training/evaluation.
 
 \strong{Neural network architecture}
 
-It is possible to change the DNN's architecture: number of hidden layers,
+It is possible to change the model's architecture: number of hidden layers,
 number of neurons for each hidden layer, dropout rate, activation function,
 and loss function. For more customized models, it is possible to provide a
 pre-built model through the \code{custom.model} argument (a
@@ -159,7 +154,7 @@ considered cell types.
 }
 \examples{
 \dontrun{
-set.seed(123) # reproducibility
+set.seed(123)
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
@@ -176,28 +171,22 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(2)),
-  from = c(1, 30),
-  to = c(15, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 30,
+  num.sim.spots = 30,
   verbose = TRUE
 )
-# training of DDLS model
+# training of SDDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainDeconvModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 12,
   num.epochs = 5

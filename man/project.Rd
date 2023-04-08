@@ -6,8 +6,8 @@
 \alias{project,SpatialDDLS-method}
 \alias{project<-}
 \alias{project<-,SpatialDDLS-method}
-\title{Get and set \code{project} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\title{Get and set \code{project} slot in a \code{\linkS4class{SpatialDDLS}}
+object}
 \usage{
 project(object)
 
@@ -19,6 +19,6 @@ project(object) <- value
 \item{value}{Character indicating the name of the project.}
 }
 \description{
-Get and set \code{project} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+Get and set \code{project} slot in a \code{\linkS4class{SpatialDDLS}}
+object
 }

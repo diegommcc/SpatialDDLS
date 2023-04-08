@@ -32,21 +32,21 @@ object.}
 
 \item{colors}{Vector of colors to be used.}
 
-\item{facet.by}{Display data in different panels. Options are
-\code{nCellTypes} (number of different cell types) and \code{CellType}
-(cell type) (\code{NULL} by default).}
+\item{facet.by}{Show data in different panels. Options are \code{nCellTypes}
+(number of different cell types) and \code{CellType} (cell type)
+(\code{NULL} by default).}
 
 \item{color.by}{Variable used to color data. Options are \code{nCellTypes}
 and \code{CellType}.}
 
-\item{corr}{Correlation value displayed as an annotation on the plot.
-Available metrics are Pearson's correlation coefficient (\code{'pearson'})
-and concordance correlation coefficient (\code{'ccc'}). It can be
+\item{corr}{Correlation value shown as an annotation on the plot. Available
+metrics are Pearson's correlation coefficient (\code{'pearson'}) and
+concordance correlation coefficient (\code{'ccc'}). It can be
 \code{'pearson'}, \code{'ccc'} or \code{'both'} (by default).}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only errors associated with mixed spots are displayed (\code{TRUE}
-by default).}
+out and only mixed transcriptional profile errors are shown (\code{TRUE} by
+default).}
 
 \item{pos.x.label}{X-axis position of correlation annotations (0.95 by
 default).}
@@ -70,16 +70,16 @@ default).}
 \item{theme}{\pkg{ggplot2} theme.}
 
 \item{...}{Additional arguments for the \link[ggplot2]{facet_wrap} function
-from \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
+of \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Generate correlation plot between predicted and expected cell type
-proportions of test data. Correlation plots can be displayed all mixed or
-split by cell type (\code{CellType}) or number of different cell types
-present in the spots (\code{nCellTypes}).
+Generate correlation plots between predicted and expected cell type
+proportions of test data. Correlation plots can be shown all mixed or split
+by cell type (\code{CellType}) or the number of different cell types present
+in the spots (\code{nCellTypes}).
 }
 \examples{
 \dontrun{
@@ -100,46 +100,38 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(6)),
-  from = c(1, 1, 1, 15, 15, 30),
-  to = c(15, 15, 30, 50, 50, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 50,
+  num.sim.spots = 50,
   verbose = TRUE
 )
 # training of DDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainSpatialDDLSModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
 # evaluation using test data
-DDLS <- calculateEvalMetrics(
-  object = DDLS
-)
+SDDLS <- calculateEvalMetrics(object = SDDLS)
 # correlations by cell type
 corrExpPredPlot(
-  object = DDLS,
+  object = SDDLS,
   facet.by = "CellType",
   color.by = "CellType",
   corr = "both"
 )
 # correlations of all samples mixed
 corrExpPredPlot(
-  object = DDLS,
+  object = SDDLS,
   facet.by = NULL,
   color.by = "CellType",
   corr = "ccc",

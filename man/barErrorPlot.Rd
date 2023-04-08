@@ -23,15 +23,15 @@ object.}
 
 \item{error}{\code{'MAE'} or \code{'MSE'}.}
 
-\item{by}{Variable used to display errors. Available options are:
+\item{by}{Variable used to show errors. Available options are:
 \code{'nCellTypes'}, \code{'CellType'}.}
 
 \item{dispersion}{Standard error (\code{'se'}) or standard deviation
 (\code{'sd'}). The former by default.}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only correlation of results associated with mixed spot profiles are
-displayed (\code{TRUE} by default).}
+out and only correlation of results associated with mixed transcriptional
+profiles are shown (\code{TRUE} by default).}
 
 \item{title}{Title of the plot.}
 
@@ -44,7 +44,8 @@ A ggplot object.
 }
 \description{
 Generate bar error plots by cell type (\code{CellType}) or by number of
-different cell types (\code{nCellTypes}) on test mixed spot profiles.
+different cell types (\code{nCellTypes}) on test mixed transcriptional
+profiles.
 }
 \examples{
 \dontrun{
@@ -65,44 +66,36 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(6)),
-  from = c(1, 1, 1, 15, 15, 30),
-  to = c(15, 15, 30, 50, 50, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 50,
+  num.sim.spots = 50,
   verbose = TRUE
 )
 # training of DDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainSpatialDDLSModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
 # evaluation using test data
-DDLS <- calculateEvalMetrics(
-  object = DDLS
-)
+SDDLS <- calculateEvalMetrics(object = SDDLS)
 # bar error plots
 barErrorPlot(
-  object = DDLS,
+  object = SDDLS,
   error = "MSE",
   by = "CellType"
 )
 barErrorPlot(
-  object = DDLS,
+  object = SDDLS,
   error = "MAE",
   by = "nCellTypes"
 )

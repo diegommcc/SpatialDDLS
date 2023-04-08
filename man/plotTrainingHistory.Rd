@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{plotTrainingHistory}
 \alias{plotTrainingHistory}
-\title{Plot training history of a trained SpatialDDLS Deep Neural Network model}
+\title{Plot training history of a trained SpatialDDLS deep neural network model}
 \usage{
 plotTrainingHistory(
   object,
@@ -11,23 +11,22 @@ plotTrainingHistory(
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object with
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with a
 \code{trained.model} slot.}
 
 \item{title}{Title of plot.}
 
 \item{metrics}{Metrics to be plotted. If \code{NULL} (by default), all
-metrics available in the \code{\linkS4class{SpatialDDLSDNN}} object
-will be plotted.}
+metrics available in the \code{\linkS4class{DeconvDLModel}} object will be
+plotted.}
 }
 \value{
 A ggplot object with the progression of the selected metrics during
 training.
 }
 \description{
-Plot training history of a trained SpatialDDLS Deep Neural Network model.
+Plot training history of a trained SpatialDDLS deep neural network model.
 }
 \seealso{
-\code{\link{trainSpatialDDLSModel}}
-\code{\link{deconvSpatialDDLSObj}}
+\code{\link{trainDeconvModel}}
 }

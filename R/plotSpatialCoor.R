@@ -3,7 +3,6 @@ color.prop.scale.blues <- c(
   "#8BBFDC", "#75B3D8", "#62A8D2", "#519CCB", "#4090C5", "#3282BD", "#2474B6", 
   "#1966AD", "#0E59A2", "#084B94", "#083D7F", "#08306B"
 )
-## TODO: this package is not included, I'll have to remove it
 color.prop.scale.spectral <- grDevices::colorRampPalette(
   colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral"))
 )(100)
@@ -20,14 +19,14 @@ color.prop.scale.spectral <- grDevices::colorRampPalette(
 #' color scale from 0 to 1.
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
-#' @param index.st Index of the spatial transcriptomics data to be plotted.
-#' It can be either a position or a name if a named list was provided.
-#' @param colors Color scale to be used. It can be \code{"blues"} or 
-#' \code{"spectral"} (the former by default).
-#' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}} for details),
-#' what results to plot (\code{raw} by default).
+#' @param index.st Index of the spatial transcriptomics data to be plotted. It
+#'   can be either a position or a name if a named list was provided.
+#' @param colors Color scale to be used. It can be \code{"blues"} or
+#'   \code{"spectral"} (the former by default).
+#' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}}
+#'   for details), what results to plot (\code{raw} by default).
 #' @param size.point Size of points (0.1 by default).
-#' @param title Title of plot. 
+#' @param title Title of plot.
 #' @param nrow Number of rows in the split plot.
 #' @param ncol Number of columns in the split plot.
 #' @param theme \pkg{ggplot2} theme.
@@ -37,7 +36,7 @@ color.prop.scale.spectral <- grDevices::colorRampPalette(
 #' @export
 #'
 #' @seealso \code{\link{plotSpatialProp}} \code{\link{deconvSpatialDDLS}}
-#'   \code{\link{trainDeconvModel}} 
+#'   \code{\link{trainDeconvModel}}
 #'
 #' @examples
 #' \dontrun{
@@ -122,20 +121,20 @@ plotSpatialPropAll <- function(
 #' Plot predicted proportions for a specific cell type using spatial coordinates
 #' of spots
 #'
-#' Color spots on the spatial coordinates according to the predicted
-#' proportions of a particular cell type. Color scale is adapted depending on
-#' the range of predicted proportions.
+#' Color spots on the spatial coordinates according to the predicted proportions
+#' of a particular cell type. Color scale is adapted depending on the range of
+#' predicted proportions.
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
-#' @param index.st Index of the spatial transcriptomics data to be plotted.
-#' It can be either a position or a name if a named list was provided.
+#' @param index.st Index of the spatial transcriptomics data to be plotted. It
+#'   can be either a position or a name if a named list was provided.
 #' @param cell.type Cell type predicted proportions to color spots by.
-#' @param colors Color scale to be used. It can be \code{"blues"} or 
-#' \code{"spectral"} (the former by default).
-#' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}} for details),
-#' what results to plot (\code{raw} by default).
+#' @param colors Color scale to be used. It can be \code{"blues"} or
+#'   \code{"spectral"} (the former by default).
+#' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}}
+#'   for details), what results to plot (\code{raw} by default).
 #' @param size.point Size of points (0.1 by default).
-#' @param title Title of plot. 
+#' @param title Title of plot.
 #' @param theme \pkg{ggplot2} theme.
 #'
 #' @return A ggplot object.

@@ -16,7 +16,7 @@ cell.types(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{DeconvDLModel}} object.}
 
-\item{value}{Vector with cell types considered by the Deep Neural Network
+\item{value}{Vector with cell types considered by the deep neural network
 model.}
 }
 \description{

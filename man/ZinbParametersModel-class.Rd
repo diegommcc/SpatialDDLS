@@ -6,13 +6,12 @@
 \alias{ZinbParametersModel}
 \title{The Class ZinbParametersModel}
 \description{
-The ZinbParametersModel class is a wrapper class of the
+The ZinbParametersModel class is a wrapper class for the
 \code{\linkS4class{ZinbModel}} class from the \pkg{zinbwave} package.
 }
 \details{
-Wrapper class of the \code{\linkS4class{ZinbModel}} class. It
-consists of the \code{zinbwave.mode} slot which contains the
-\code{\linkS4class{ZinbModel}} object.
+This wrapper class contains the \code{zinbwave.model} slot, which holds a
+valid \code{\linkS4class{ZinbModel}} object.
 }
 \section{Slots}{
 

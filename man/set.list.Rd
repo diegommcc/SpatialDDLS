@@ -16,8 +16,7 @@ set.list(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{PropCellTypes}} object.}
 
-\item{value}{List of cells ordered according to the cell type to which they
-belong.}
+\item{value}{List of cells sorted by their corresponding cell type.}
 }
 \description{
 Get and set \code{set.list} slot in a

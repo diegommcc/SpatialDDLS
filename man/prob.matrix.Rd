@@ -16,8 +16,7 @@ prob.matrix(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{PropCellTypes}} object.}
 
-\item{value}{Matrix with cell types as columns and samples as
-rows.}
+\item{value}{Matrix with cell types as columns and samples as rows.}
 }
 \description{
 Get and set \code{prob.matrix} slot in a

@@ -115,43 +115,44 @@ instead of loaded into RAM. If the \code{file.backend} argument is used with
 \code{block.processing = FALSE}, all the single-cell profiles will be
 simulated in one step and, therefore, loaded into in RAM memory. Then, data
 will be written in HDF5 file. To avoid to collapse RAM memory if too many
-single-cell profiles are simulated, single-cell profiles can be simulated and
-written to HDF5 files in blocks of \code{block.size} size by setting
-\code{block.processing = TRUE}.
+single-cell profiles are goin to be simulated, single-cell profiles can be
+simulated and written to HDF5 files in blocks of \code{block.size} size by
+setting \code{block.processing = TRUE}.
 }
 \examples{
 set.seed(123) # reproducibility
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
-      rpois(30, lambda = 5), nrow = 15, ncol = 10, 
+      rpois(30, lambda = 5), nrow = 15, ncol = 10,
       dimnames = list(paste0("Gene", seq(15)), paste0("RHC", seq(10)))
     )
   ),
   colData = data.frame(
     Cell_ID = paste0("RHC", seq(10)),
-    Cell_Type = sample(x = paste0("CellType", seq(2)), size = 10, 
+    Cell_Type = sample(x = paste0("CellType", seq(2)), size = 10,
                        replace = TRUE)
   ),
   rowData = data.frame(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID",
+  project = "Simul_example"
 )
-DDLS <- estimateZinbwaveParams(
-  object = DDLS,
+SDDLS <- estimateZinbwaveParams(
+  object = SDDLS,
   cell.type.column = "Cell_Type",
   cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID", 
-  subset.cells = 4,
-  verbose = FALSE
+  gene.ID.column = "Gene_ID",
+  subset.cells = 2,
+  verbose = TRUE
 )
-DDLS <- simSCProfiles(
-  object = DDLS,
+SDDLS <- simSCProfiles(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   n.cells = 2,

@@ -12,23 +12,26 @@ plotSpatialProp(
   colors = NULL,
   set = "raw",
   size.point = 1,
-  alpha.point = 1,
   title = NULL,
   theme = NULL,
   ...
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
-\item{index.st}{Nmae or index of the desired
-\code{\linkS4class{SpatialExperiment}} object to visualize.}
+\item{index.st}{Index of the spatial transcriptomics data to be plotted. It
+can be either a position or a name if a named list was provided.}
 
 \item{cell.type}{Cell type predicted proportions to color spots by.}
 
-\item{size.point}{Size of points (0.1 by default).}
+\item{colors}{Color scale to be used. It can be \code{"blues"} or
+\code{"spectral"} (the former by default).}
 
-\item{alpha.point}{Alpha of points (0.1 by default).}
+\item{set}{If results were simplified (see \code{?\link{deconvSpatialDDLS}}
+for details), what results to plot (\code{raw} by default).}
+
+\item{size.point}{Size of points (0.1 by default).}
 
 \item{title}{Title of plot.}
 
@@ -38,9 +41,9 @@ plotSpatialProp(
 A ggplot object.
 }
 \description{
-Color spots on the spatial coordinates plot according to predicted
-proportions of a particular cell type. Color scale is adapted depending on
-the range of predicted proportions.
+Color spots on the spatial coordinates according to the predicted proportions
+of a particular cell type. Color scale is adapted depending on the range of
+predicted proportions.
 }
 \examples{
 \dontrun{

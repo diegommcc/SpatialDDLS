@@ -16,11 +16,11 @@ prob.cell.types(object, type.data = "both") <- value
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object.}
 
-\item{type.data}{Type of data to return. It can be \code{'train'},
-\code{'test'} or \code{'both'} (the last by default).}
+\item{type.data}{Type of data to return. It can be \code{'both'} (default),
+\code{'train'}, or \code{'test'}.}
 
-\item{value}{List with two elements corresponding to train and test, each one
-with a \code{\linkS4class{PropCellTypes}} object.}
+\item{value}{List with two \code{\linkS4class{PropCellTypes}} objects
+corresponding to train and test data.}
 }
 \description{
 Get and set \code{prob.cell.types} slot in a

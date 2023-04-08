@@ -52,12 +52,6 @@ bar plot.
 \description{
 Bar plot of deconvoluted cell type proportions.
 }
-\examples{
-
-DDLS <- SpatialDDLS(deconv.spots = list(Example = deconvResults))
-barPlotCellTypes(DDLS)
-
-}
 \seealso{
 \code{\link{deconvSpatialDDLS}}
 }

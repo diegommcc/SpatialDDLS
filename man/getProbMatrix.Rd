@@ -10,16 +10,16 @@ getProbMatrix(object, type.data)
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with
 \code{prob.cell.types} slot.}
 
-\item{type.data}{Subset of data to e shown: \code{train} or \code{test}.}
+\item{type.data}{Subset of data to return: \code{train} or \code{test}.}
 }
 \value{
-A matrix object with the desired cell proportion matrix.
+Cell type proportion matrix.
 }
 \description{
 Getter function for the cell composition matrix. This function allows to
-access to the cell composition matrix of simulated training or test
-pseudo-bulk RNA-Seq data.
+access to the cell composition matrix of simulated mixed transcriptional
+profiles.
 }
 \seealso{
-\code{\link{generateBulkCellMatrix}}
+\code{\link{genMixedCellProp}}
 }

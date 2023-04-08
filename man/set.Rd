@@ -6,8 +6,8 @@
 \alias{set,PropCellTypes-method}
 \alias{set<-}
 \alias{set<-,PropCellTypes-method}
-\title{Get and set \code{set} slot in a
-\code{\linkS4class{PropCellTypes}} object}
+\title{Get and set \code{set} slot in a \code{\linkS4class{PropCellTypes}}
+object}
 \usage{
 set(object)
 
@@ -16,9 +16,10 @@ set(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{PropCellTypes}} object.}
 
-\item{value}{Vector with names of cells present in the object.}
+\item{value}{A vector containing the names of cells that are present in the
+object.}
 }
 \description{
-Get and set \code{set} slot in a
-\code{\linkS4class{PropCellTypes}} object
+Get and set \code{set} slot in a \code{\linkS4class{PropCellTypes}}
+object
 }

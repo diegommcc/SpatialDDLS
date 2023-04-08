@@ -6,14 +6,14 @@
 \alias{PropCellTypes}
 \title{The PropCellTypes Class}
 \description{
-The PropCellTypes class is a data storage class which contains information
-related to the cell type composition matrices used to simulate mixed spot
-transcriptional profiles. This matrix is stored in the \code{prob.matrix}
-slot while the rest contains additional information generated during the
-process and required in subsequent steps.
+The \code{\linkS4class{PropCellTypes}} class is a data storage class which
+contains information related to the cell type composition matrices used to
+simulate mixed transcriptional profiles. This matrix is stored in the
+\code{prob.matrix} slot while the rest contains additional information
+generated during the process and required in subsequent steps.
 }
 \details{
-See \code{?\link{genMixSpotProp}} function for information about how cell
+See \code{?\link{genMixedCellProp}} function for information about how cell
 type composition matrices are generated. Plots about the cell type proportion
 distributions can be accessed using the \code{\link{showProbPlot}} function
 (see \code{?\link{showProbPlot}} for more details).
@@ -21,11 +21,11 @@ distributions can be accessed using the \code{\link{showProbPlot}} function
 \section{Slots}{
 
 \describe{
-\item{\code{prob.matrix}}{Matrix of cell type proportions generated to simulate mixed
-spot transcriptional profiles.}
+\item{\code{prob.matrix}}{Matrix of cell type proportions to simulate mixed
+transcriptional profiles.}
 
-\item{\code{cell.names}}{Matrix containing name of cells to be used to generate the
-simulated mixed spot transcriptional profiles.}
+\item{\code{cell.names}}{Matrix containing the name of cells to be used to generate
+the simulated mixed transcriptional profiles.}
 
 \item{\code{set.list}}{List of cells ordered according to the cell type they belong
 to.}
@@ -33,7 +33,7 @@ to.}
 \item{\code{set}}{Vector containing cell names present in the object.}
 
 \item{\code{method}}{Vector containing the method by which cell type proportions were
-generated}
+generated.}
 
 \item{\code{plots}}{Plots showing the distribution of the cell type proportions. See
 \code{?\link{showProbPlot}} for more details.}

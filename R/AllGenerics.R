@@ -14,7 +14,7 @@ NULL
 #' @name prob.matrix
 #' @rdname prob.matrix
 #' @aliases prob.matrix,PropCellTypes-method
-#' 
+#'
 #' @param object \code{\linkS4class{PropCellTypes}} object.
 #'
 #' @export prob.matrix
@@ -32,12 +32,11 @@ setMethod(
 #' @docType methods
 #' @rdname prob.matrix
 #' @aliases prob.matrix<-,PropCellTypes-method
-#' 
-#' @param value Matrix with cell types as columns and samples as
-#'   rows.
+#'
+#' @param value Matrix with cell types as columns and samples as rows.
 #'
 #' @export prob.matrix<-
-#'
+#'   
 setGeneric(
   name = "prob.matrix<-", 
   def = function(object, value) standardGeneric("prob.matrix<-")
@@ -78,8 +77,8 @@ setMethod(
 #' @rdname cell.names
 #' @aliases cell.names<-,PropCellTypes-method
 #'
-#' @param value Matrix containing names of the mixed transcriptional profiles to be
-#'   simulated as rows and cells to be used to simulate them as columns.
+#' @param value Matrix containing names of the mixed transcriptional profiles to
+#'   be simulated as rows and cells to be used to simulate them as columns.
 #'
 #' @export cell.names<-
 #'   
@@ -105,7 +104,7 @@ setMethod(
 #' @name set.list
 #' @rdname set.list
 #' @aliases set.list,PropCellTypes-method
-#' 
+#'
 #' @param object \code{\linkS4class{PropCellTypes}} object.
 #'
 #' @export set.list
@@ -123,7 +122,7 @@ setMethod(
 #' @rdname set.list
 #' @aliases set.list<-,PropCellTypes-method
 #'
-#' @param value List of cells sorted by their corresponding cell type. 
+#' @param value List of cells sorted by their corresponding cell type.
 #'
 #' @export set.list<-
 #'   
@@ -142,14 +141,14 @@ setMethod(
 
 # set
 
-#' @title Get and set \code{set} slot in a
-#'   \code{\linkS4class{PropCellTypes}} object
+#' @title Get and set \code{set} slot in a \code{\linkS4class{PropCellTypes}}
+#'   object
 #'
 #' @docType methods
 #' @name set
 #' @rdname set
 #' @aliases set,PropCellTypes-method
-#' 
+#'
 #' @param object \code{\linkS4class{PropCellTypes}} object.
 #'
 #' @export set
@@ -164,11 +163,12 @@ setMethod(
 #' @docType methods
 #' @rdname set
 #' @aliases set<-,PropCellTypes-method
-#' 
-#' @param value A vector containing the names of cells that are present in the object.
+#'
+#' @param value A vector containing the names of cells that are present in the
+#'   object.
 #'
 #' @export set<-
-#'
+#'   
 setGeneric(
   name = "set<-", def = function(object, value) standardGeneric("set<-")
 )
@@ -183,14 +183,14 @@ setMethod(
 
 # method
 
-#' @title Get and set \code{method} slot in a
-#'   \code{\linkS4class{PropCellTypes}} object
+#' @title Get and set \code{method} slot in a \code{\linkS4class{PropCellTypes}}
+#'   object
 #'
 #' @docType methods
 #' @name method
 #' @rdname method
 #' @aliases method,PropCellTypes-method
-#' 
+#'
 #' @param object \code{\linkS4class{PropCellTypes}} object.
 #'
 #' @export method
@@ -226,14 +226,14 @@ setMethod(
 
 # plots
 
-#' @title Get and set \code{plots} slot in a
-#'   \code{\linkS4class{PropCellTypes}} object
+#' @title Get and set \code{plots} slot in a \code{\linkS4class{PropCellTypes}}
+#'   object
 #'
 #' @docType methods
 #' @name plots
 #' @rdname plots
 #' @aliases plots,PropCellTypes-method
-#' 
+#'
 #' @param object \code{\linkS4class{PropCellTypes}} object.
 #'
 #' @export plots
@@ -272,14 +272,14 @@ setMethod(
 
 # model
 
-#' @title Get and set \code{model} slot in a
-#'   \code{\linkS4class{DeconvDLModel}} object
+#' @title Get and set \code{model} slot in a \code{\linkS4class{DeconvDLModel}}
+#'   object
 #'
 #' @docType methods
 #' @name model
 #' @rdname model
 #' @aliases model,DeconvDLModel-method
-#' 
+#'
 #' @param object \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export model
@@ -294,12 +294,12 @@ setMethod(
 #' @docType methods
 #' @rdname model
 #' @aliases model<-,DeconvDLModel-method
-#' 
-#' @param value \code{keras.engine.sequential.Sequential} object with a
-#' trained deep neural network model.
+#'
+#' @param value \code{keras.engine.sequential.Sequential} object with a trained
+#'   deep neural network model.
 #'
 #' @export model<-
-#'
+#'   
 setGeneric(
   name = "model<-", def = function(object, value) standardGeneric("model<-")
 )
@@ -325,7 +325,7 @@ setMethod(
 #' @param object \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export training.history
-#'
+#'   
 setGeneric(
   name = "training.history", 
   def = function(object) standardGeneric("training.history")
@@ -371,7 +371,7 @@ setMethod(
 #' @param object \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export test.metrics
-#'
+#'   
 setGeneric(
   name = "test.metrics", def = function(object) standardGeneric("test.metrics")
 )
@@ -409,9 +409,9 @@ setMethod(
 #'
 #' @docType methods
 #' @name test.pred
-#' @rdname test.pred   
+#' @rdname test.pred
 #' @aliases test.pred,DeconvDLModel-method
-#' 
+#'
 #' @param object \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export test.pred
@@ -428,11 +428,11 @@ setMethod(
 #' @docType methods
 #' @rdname test.pred
 #' @aliases test.pred<-,DeconvDLModel-method
-#' 
-#' @param value Matrix object with prediction results on test data.
-#' 
-#' @export test.pred<-
 #'
+#' @param value Matrix object with prediction results on test data.
+#'
+#' @export test.pred<-
+#'   
 setGeneric(
   name = "test.pred<-", 
   def = function(object, value) standardGeneric("test.pred<-")
@@ -500,7 +500,7 @@ setMethod(
 #' @name features
 #' @rdname features
 #' @aliases features,DeconvDLModel-method
-#' 
+#'
 #' @param object \code{\linkS4class{DeconvDLModel}} object.
 #'
 #' @export features
@@ -545,12 +545,12 @@ setMethod(
 #' @name test.deconv.metrics
 #' @rdname test.deconv.metrics
 #' @aliases test.deconv.metrics,DeconvDLModel-method
-#' 
+#'
 #' @param object \code{\linkS4class{DeconvDLModel}} object.
 #' @param metrics Metrics to show (\code{'All'} by default)
 #'
 #' @export test.deconv.metrics
-#'
+#'   
 setGeneric(
   name = "test.deconv.metrics",
   def = function(object, metrics = "All") standardGeneric("test.deconv.metrics")
@@ -571,9 +571,9 @@ setMethod(
 #' @docType methods
 #' @rdname test.deconv.metrics
 #' @aliases test.deconv.metrics<-,DeconvDLModel-method
-#' 
-#' @param value List with evaluation metrics to assess the
-#'   performance of the model on each sample of test data.
+#'
+#' @param value List with evaluation metrics to assess the performance of the
+#'   model on each sample of test data.
 #' @export test.deconv.metrics<-
 #'   
 setGeneric(
@@ -609,7 +609,7 @@ setMethod(
 #' @name single.cell.real
 #' @rdname single.cell.real
 #' @aliases single.cell.real,SpatialDDLS-method
-#' 
+#'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #'
 #' @export single.cell.real
@@ -627,10 +627,10 @@ setMethod(
 #' @docType methods
 #' @rdname single.cell.real
 #' @aliases single.cell.real<-,SpatialDDLS-method
-#' 
+#'
 #' @param value \code{\linkS4class{SingleCellExperiment}} object with real
 #'   single-cell profiles.
-#'   
+#'
 #' @export single.cell.real<-
 #'   
 setGeneric(
@@ -657,9 +657,10 @@ setMethod(
 #' @aliases spatial.experiments,SpatialDDLS-method
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param index.st Index of the spatial transcriptomics data within the list. It can be either an position or a name if
-#'   a named list was provided. If \code{NULL} (by default), all data contained
-#'   in the \code{spatial.experiments} slot are returned.
+#' @param index.st Index of the spatial transcriptomics data within the list. It
+#'   can be either an position or a name if a named list was provided. If
+#'   \code{NULL} (by default), all data contained in the
+#'   \code{spatial.experiments} slot are returned.
 #'
 #' @export spatial.experiments
 #'   
@@ -731,7 +732,7 @@ setMethod(
 #' @name zinb.params
 #' @rdname zinb.params
 #' @aliases zinb.params,SpatialDDLS-method
-#' 
+#'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #'
 #' @export zinb.params
@@ -776,7 +777,7 @@ setMethod(
 #' @name single.cell.simul
 #' @rdname single.cell.simul
 #' @aliases single.cell.simul,SpatialDDLS-method
-#' 
+#'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #'
 #' @export single.cell.simul
@@ -824,8 +825,8 @@ setMethod(
 #' @aliases prob.cell.types,SpatialDDLS-method
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param type.data Type of data to return. It can be \code{'both'} (default), \code{'train'}, or
-#'   \code{'test'}.
+#' @param type.data Type of data to return. It can be \code{'both'} (default),
+#'   \code{'train'}, or \code{'test'}.
 #'
 #' @export prob.cell.types
 #'   
@@ -848,7 +849,8 @@ setMethod(
 #' @rdname prob.cell.types
 #' @aliases prob.cell.types<-,SpatialDDLS-method
 #'
-#' @param value List with two \code{\linkS4class{PropCellTypes}} objects corresponding to train and test data.
+#' @param value List with two \code{\linkS4class{PropCellTypes}} objects
+#'   corresponding to train and test data.
 #'
 #' @export prob.cell.types<-
 #'   
@@ -872,8 +874,8 @@ setMethod(
 
 # mixed.profiles
 
-#' Get and set \code{mixed.profiles} slot in a
-#' \code{\linkS4class{SpatialDDLS}} object
+#' Get and set \code{mixed.profiles} slot in a \code{\linkS4class{SpatialDDLS}}
+#' object
 #'
 #' @docType methods
 #' @name mixed.profiles
@@ -881,8 +883,8 @@ setMethod(
 #' @aliases mixed.profiles,SpatialDDLS-method
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param type.data Type of data to return. It can be \code{'both'} (default), \code{'train'}, or
-#'   \code{'test'}.
+#' @param type.data Type of data to return. It can be \code{'both'} (default),
+#'   \code{'train'}, or \code{'test'}.
 #'
 #' @export mixed.profiles
 #'   
@@ -905,9 +907,9 @@ setMethod(
 #' @rdname mixed.profiles
 #' @aliases mixed.profiles<-,SpatialDDLS-method
 #'
-#' @param value List with two \code{\linkS4class{SummarizedExperiment}} objects, 
-#'   train and test, each one containing simulated mixed
-#'   transcriptional profiles.
+#' @param value List with two \code{\linkS4class{SummarizedExperiment}} objects,
+#'   train and test, each one containing simulated mixed transcriptional
+#'   profiles.
 #'
 #' @export mixed.profiles<-
 #'   
@@ -956,11 +958,11 @@ setMethod(
 #' @docType methods
 #' @rdname trained.model
 #' @aliases trained.model<-,SpatialDDLS-method
-#' 
-#' @param value \code{\linkS4class{DeconvDLModel}} object.
-#' 
-#' @export trained.model<-
 #'
+#' @param value \code{\linkS4class{DeconvDLModel}} object.
+#'
+#' @export trained.model<-
+#'   
 setGeneric(
   name = "trained.model<-", 
   def = function(object, value) standardGeneric("trained.model<-")
@@ -986,8 +988,8 @@ setMethod(
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Name or index of predicted cell proportions (same as for the
-#'   \code{spatial.experiments} slot). If \code{NULL} (by default), all the results
-#'   are returned.
+#'   \code{spatial.experiments} slot). If \code{NULL} (by default), all the
+#'   results are returned.
 #'
 #' @export deconv.spots
 #'   
@@ -1021,8 +1023,8 @@ setMethod(
 #' @rdname deconv.spots
 #' @aliases deconv.spots<-,SpatialDDLS-method
 #'
-#' @param value List with predicted cell type proportions for the experiments stored in the
-#'   \code{spatial.experiments} slot.
+#' @param value List with predicted cell type proportions for the experiments
+#'   stored in the \code{spatial.experiments} slot.
 #'
 #' @export deconv.spots<-
 #'   
@@ -1047,14 +1049,14 @@ setMethod(
 
 # project
 
-#' @title Get and set \code{project} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#' @title Get and set \code{project} slot in a \code{\linkS4class{SpatialDDLS}}
+#'   object
 #'
 #' @docType methods
 #' @name project
 #' @rdname project
 #' @aliases project,SpatialDDLS-method
-#' 
+#'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #'
 #' @export project
@@ -1071,11 +1073,11 @@ setMethod(
 #' @docType methods
 #' @rdname project
 #' @aliases project<-,SpatialDDLS-method
-#' 
-#' @param value Character indicating the name of the project.
-#' 
-#' @export project<-
 #'
+#' @param value Character indicating the name of the project.
+#'
+#' @export project<-
+#'   
 setGeneric(
   name = "project<-", def = function(object, value) standardGeneric("project<-")
 )
@@ -1101,7 +1103,7 @@ setMethod(
 #' @name zinbwave.model
 #' @rdname zinbwave.model
 #' @aliases zinbwave.model,ZinbParametersModel-method
-#' 
+#'
 #' @param object \code{\linkS4class{ZinbParametersModel}} object.
 #'
 #' @export zinbwave.model
@@ -1147,8 +1149,8 @@ setMethod(
 #' character object and the weights as a list, it is possible to retrieve the
 #' model and make new predictions. If the \code{trained.model} slot is empty,
 #' the function will behave as normal. \strong{Note:} with this option, the
-#' state of optimizer is not saved, only the model's architecture and weights. It is
-#' possible to save the entire model as an HDF5 file with the
+#' state of optimizer is not saved, only the model's architecture and weights.
+#' It is possible to save the entire model as an HDF5 file with the
 #' \code{\link{saveTrainedModelAsH5}} function and load it into a
 #' \code{\linkS4class{SpatialDDLS}} object with the
 #' \code{\link{loadTrainedModelFromH5}} function. See documentation for details.

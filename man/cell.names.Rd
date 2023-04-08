@@ -16,9 +16,8 @@ cell.names(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{PropCellTypes}} object.}
 
-\item{value}{Matrix containing names of the mixed spots to be
-simulated as rows and cells to be used to simulate them as columns
-(\code{n.cell} argument)}
+\item{value}{Matrix containing names of the mixed transcriptional profiles to
+be simulated as rows and cells to be used to simulate them as columns.}
 }
 \description{
 Get and set \code{cell.names} slot in a

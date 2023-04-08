@@ -17,8 +17,8 @@ NULL
 #'
 #' \code{trainDeconvModel} can avoid storing simulated mixed spot profiles by
 #' using the \code{on.the.fly} argument. This functionality aims at reducing the
-#' the \code{simMixedProfiles} function's memory usage: simulated profiles
-#' are built in each batch during training/evaluation.
+#' the \code{simMixedProfiles} function's memory usage: simulated profiles are
+#' built in each batch during training/evaluation.
 #'
 #' \strong{Neural network architecture}
 #'
@@ -66,8 +66,8 @@ NULL
 #'    documentation} to know available performance metrics.
 #' @param scaling How to scale data before training. It may be:
 #'   \code{"standarize"} (values are centered around the mean with a unit
-#'   standard deviation, by default) or \code{"rescale"} (values are shifted and rescaled so
-#'   that they end up ranging between 0 and 1).
+#'   standard deviation, by default) or \code{"rescale"} (values are shifted and
+#'   rescaled so that they end up ranging between 0 and 1).
 #' @param custom.model It allows to use a custom neural network. It must be a
 #'   \code{keras.engine.sequential.Sequential} object in which the number of
 #'   input neurons is equal to the number of considered features/genes, and the
@@ -84,13 +84,13 @@ NULL
 #'   training and test. Generators are automatically used when \code{on.the.fly
 #'   = TRUE} or HDF5 files are used, but it can be activated by the user on
 #'   demand (\code{FALSE} by default).
-#' @param on.the.fly Boolean indicating whether simulated data will be generated 'on the
-#'   fly' during training (\code{FALSE} by default).
-#' @param agg.function Function used to build mixed transcriptional
-#'   profiles. It may be: \itemize{ \item \code{"AddRawCount"} (by default):
-#'   single-cell profiles (raw counts) are added up across cells. Then, log-CPMs
-#'   are calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts)
-#'   are transformed into CPMs and cross-cell averages are calculated. Then,
+#' @param on.the.fly Boolean indicating whether simulated data will be generated
+#'   'on the fly' during training (\code{FALSE} by default).
+#' @param agg.function Function used to build mixed transcriptional profiles. It
+#'   may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
+#'   profiles (raw counts) are added up across cells. Then, log-CPMs are
+#'   calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
+#'   transformed into CPMs and cross-cell averages are calculated. Then,
 #'   \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
 #'   profiles (raw counts) are transformed into CPMs and are added up across
 #'   cells. Then, log-CPMs are calculated.}
@@ -98,8 +98,8 @@ NULL
 #'   transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).
 #' @param view.metrics.plot Boolean indicating whether to show plots of loss and
 #'   evaluation metrics during training (\code{TRUE} by default). \pkg{keras}
-#'   for R allows to see model progression during training if you are
-#'   working in RStudio.
+#'   for R allows to see model progression during training if you are working in
+#'   RStudio.
 #' @param verbose Boolean indicating whether to display model progression during
 #'   training and model architecture information (\code{TRUE} by default).
 #'
@@ -1004,14 +1004,14 @@ trainDeconvModel <- function(
 
 #' Deconvolute spatial transcriptomics data
 #'
-#' Deconvolute spatial transcriptomics data using the trained model
-#' contained in the \code{\linkS4class{SpatialDDLS}} object.
+#' Deconvolute spatial transcriptomics data using the trained model contained in
+#' the \code{\linkS4class{SpatialDDLS}} object.
 #'
-#' This function requires a \code{\linkS4class{SpatialDDLS}} object with a trained deep neural
-#' network model (\code{\link{trained.model}} slot, and the spatial transcriptomics datasets to
-#' be deconvoluted in the \code{spatial.experiments} slot. See
-#' \code{?\link{createSpatialDDLSobject}} or \code{?\link{loadSTProfiles}} for
-#' more details.
+#' This function requires a \code{\linkS4class{SpatialDDLS}} object with a
+#' trained deep neural network model (\code{\link{trained.model}} slot, and the
+#' spatial transcriptomics datasets to be deconvoluted in the
+#' \code{spatial.experiments} slot. See \code{?\link{createSpatialDDLSobject}}
+#' or \code{?\link{loadSTProfiles}} for more details.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} and \code{spatial.experiments} slots.
@@ -1025,9 +1025,9 @@ trainDeconvModel <- function(
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 #'   data are not scaled.
-#' @param simplify.set List specifying which cell types should be compressed into a new label 
-#' with the name of the list item. See examples for
-#'   details. If provided, results are stored in a list with \code{'raw'} and
+#' @param simplify.set List specifying which cell types should be compressed
+#'   into a new label with the name of the list item. See examples for details.
+#'   If provided, results are stored in a list with \code{'raw'} and
 #'   \code{'simpli.set'} elements.
 #' @param simplify.majority List specifying which cell types should be
 #'   compressed into the cell type with the highest proportion in each spot.
@@ -1036,13 +1036,14 @@ trainDeconvModel <- function(
 #'   elements.
 #' @param use.generator Boolean indicating whether to use generators for
 #'   prediction (\code{FALSE} by default).
-#' @param batch.size Number of samples per batch. Only when \code{use.generator = TRUE}.
+#' @param batch.size Number of samples per batch. Only when \code{use.generator
+#'   = TRUE}.
 #' @param verbose Show informative messages during the execution.
 #'
 #' @return \code{\linkS4class{SpatialDDLS}} object with a \code{deconv.spots}
 #'   slot. The output is a data frame with spot (\eqn{i}) as rows and cell types
-#'   (\eqn{j}) as columns. Each entry represents the predicted proportion of \eqn{j} cell
-#'   type in \eqn{i} spot. If \code{simplify.set} and/or
+#'   (\eqn{j}) as columns. Each entry represents the predicted proportion of
+#'   \eqn{j} cell type in \eqn{i} spot. If \code{simplify.set} and/or
 #'   \code{simplify.majority} are provided, the \code{deconv.spots} slot will
 #'   contain a list with raw and simplified results.
 #'

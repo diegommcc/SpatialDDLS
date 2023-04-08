@@ -34,19 +34,19 @@ object.}
 \item{color.by}{Variable used to color data. Options are \code{nCellTypes}
 and \code{CellType}.}
 
-\item{facet.by}{Variable used to display the data in different panels. If
+\item{facet.by}{Variable used to show the data in different panels. If
 \code{NULL}, the plot is not split into different panels. Options are
 \code{nCellTypes} (by number of different cell types) and \code{CellType}
 (by cell type).}
 
-\item{log.2}{Whether to display the Bland-Altman agreement plot in log2 space
+\item{log.2}{Whether to show the Bland-Altman agreement plot in log2 space
 (\code{FALSE} by default).}
 
 \item{filter.sc}{Boolean indicating whether single-cell profiles are filtered
-out and only correlations of results associated with mixed spot profiles are
-displayed (\code{TRUE} by default).}
+out and only correlations of results associated with mixed spot profiles
+are shown (\code{TRUE} by default).}
 
-\item{density}{Boolean indicating whether density lines should be displayed
+\item{density}{Boolean indicating whether density lines should be shown
 (\code{TRUE} by default).}
 
 \item{color.density}{Color of density lines if the \code{density} argument is
@@ -64,7 +64,7 @@ displayed (\code{TRUE} by default).}
 
 \item{theme}{\pkg{ggplot2} theme.}
 
-\item{...}{Additional argument for the \code{facet_wrap} function from
+\item{...}{Additional argument for the \code{facet_wrap} function of
 \pkg{ggplot2} if \code{facet.by} is not \code{NULL}.}
 }
 \value{
@@ -72,10 +72,10 @@ A ggplot object.
 }
 \description{
 Generate Bland-Altman agreement plots between predicted and expected cell
-type proportions from test data. The Bland-Altman agreement plots can
-be displayed all mixed or split by cell type (\code{CellType}) or the number
-of cell types present in samples (\code{nCellTypes}). See the \code{facet.by}
-argument and examples for more information.
+type proportions from test data. The Bland-Altman agreement plots can be
+shown all mixed or split by cell type (\code{CellType}) or the number of cell
+types present in spots (\code{nCellTypes}). See the \code{facet.by} argument
+and examples for more information.
 }
 \examples{
 \dontrun{
@@ -96,45 +96,37 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(15))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(6)),
-  from = c(1, 1, 1, 15, 15, 30),
-  to = c(15, 15, 30, 50, 50, 70)
-)
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 50,
+  num.sim.spots = 50,
   verbose = TRUE
 )
 # training of DDLS model
 tensorflow::tf$compat$v1$disable_eager_execution()
-DDLS <- trainSpatialDDLSModel(
-  object = DDLS,
+SDDLS <- trainDeconvModel(
+  object = SDDLS,
   on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
 # evaluation using test data
-DDLS <- calculateEvalMetrics(
-  object = DDLS
-)
+SDDLS <- calculateEvalMetrics(object = SDDLS)
 # Bland-Altman plot by cell type
 blandAltmanLehPlot(
-  object = DDLS,
+  object = SDDLS,
   facet.by = "CellType",
   color.by = "CellType"
 )
 # Bland-Altman plot of all samples mixed
 blandAltmanLehPlot(
-  object = DDLS,
+  object = SDDLS,
   facet.by = NULL,
   color.by = "CellType",
   alpha.point = 0.3,
