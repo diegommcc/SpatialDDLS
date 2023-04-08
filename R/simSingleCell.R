@@ -11,10 +11,9 @@ NULL
 #'
 #' Estimate the parameters of the ZINB-WaVE model using a real single-cell
 #' RNA-Seq data set as reference to simulate new single-cell profiles and
-#' increase the signal of underrepresented cell types. This step is optional,
-#' only is needed if the size of you dataset is too small or there are
-#' underrepresented cell types in order to train the Deep Neural Network model
-#' in a more balanced way. After this step, the \code{\link{simSCProfiles}}
+#' increase the signal of underrepresented cell types. This step is only is needed 
+#' if the size of the single-cell RNA-seq dataset is too small or there are
+#' underrepresented cell types. After this step, the \code{\link{simSCProfiles}}
 #' function will use the estimated parameters to simulate new single-cell
 #' profiles. See \code{?\link{simSCProfiles}} for more information.
 #'
@@ -62,10 +61,11 @@ NULL
 #'   installed.
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
+#'   
 #' @return A \code{\linkS4class{SpatialDDLS}} object with \code{zinb.params}
 #'   slot containing a \code{\linkS4class{ZinbParametersModel}} object. This
 #'   object contains a slot with the estimated ZINB-WaVE parameters from the
-#'   real single-cell RNA-Se`q data.
+#'   real single-cell RNA-Seq data.
 #'
 #' @export
 #'
@@ -89,13 +89,14 @@ NULL
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID",
+#'   project = "Simul_example"
 #' )
-#' DDLS <- estimateZinbwaveParams(
-#'   object = DDLS,
+#' SDDLS <- estimateZinbwaveParams(
+#'   object = SDDLS,
 #'   cell.type.column = "Cell_Type",
 #'   cell.ID.column = "Cell_ID",
 #'   gene.ID.column = "Gene_ID",
@@ -347,9 +348,6 @@ estimateZinbwaveParams <- function(
     )
     sdm.ncol <- ncol(sdm)
     sdm.colnames <- colnames(sdm)
-    # sdm <- NULL
-    # sdm.ncol <- 1
-    # sdm.colnames <- seq(1)
   }
   # covariates for genes
   if (missing(gene.cov.columns) || is.null(gene.cov.columns)) {
@@ -484,8 +482,8 @@ estimateZinbwaveParams <- function(
   if (any(Matrix::rowSums(sub.list.data[[1]]) == 0)) {
     warning("There are some genes with zero expression in selected cells. ", 
             "Consider increasing the minimum expression level when loading ", 
-            "data by loadSCProfiles function with 'min.counts' and ", 
-            "'min.cells' arguments\n", call. = FALSE, immediate. = TRUE)
+            "data by createSpatialDDLSobject function with 'sc.min.counts' and ", 
+            "'sc.min.cells' arguments\n", call. = FALSE, immediate. = TRUE)
     list.data.filf <- .filterGenesSparse(
       counts = sub.list.data[[1]], 
       genes.metadata = list.data[[3]], 
@@ -627,7 +625,6 @@ estimateZinbwaveParams <- function(
   return(list(counts, cells.metadata[pos, ]))
 }
 
-
 .checkHDF5parameters <- function(
   file.backend, 
   name.dataset.backend,
@@ -692,7 +689,7 @@ estimateZinbwaveParams <- function(
 #' \code{block.processing = FALSE}, all the single-cell profiles will be
 #' simulated in one step and, therefore, loaded into in RAM memory. Then, data
 #' will be written in HDF5 file. To avoid to collapse RAM memory if too many
-#' single-cell profiles are simulated, single-cell profiles can be simulated and
+#' single-cell profiles are goin to be simulated, single-cell profiles can be simulated and
 #' written to HDF5 files in blocks of \code{block.size} size by setting
 #' \code{block.processing = TRUE}.
 #'
@@ -761,34 +758,35 @@ estimateZinbwaveParams <- function(
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
 #'     counts = matrix(
-#'       rpois(30, lambda = 5), nrow = 15, ncol = 10, 
+#'       rpois(30, lambda = 5), nrow = 15, ncol = 10,
 #'       dimnames = list(paste0("Gene", seq(15)), paste0("RHC", seq(10)))
 #'     )
 #'   ),
 #'   colData = data.frame(
 #'     Cell_ID = paste0("RHC", seq(10)),
-#'     Cell_Type = sample(x = paste0("CellType", seq(2)), size = 10, 
+#'     Cell_Type = sample(x = paste0("CellType", seq(2)), size = 10,
 #'                        replace = TRUE)
 #'   ),
 #'   rowData = data.frame(
 #'     Gene_ID = paste0("Gene", seq(15))
 #'   )
 #' )
-#' DDLS <- loadSCProfiles(
-#'   single.cell.data = sce,
-#'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID"
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID",
+#'   project = "Simul_example"
 #' )
-#' DDLS <- estimateZinbwaveParams(
-#'   object = DDLS,
+#' SDDLS <- estimateZinbwaveParams(
+#'   object = SDDLS,
 #'   cell.type.column = "Cell_Type",
 #'   cell.ID.column = "Cell_ID",
-#'   gene.ID.column = "Gene_ID", 
-#'   subset.cells = 4,
-#'   verbose = FALSE
+#'   gene.ID.column = "Gene_ID",
+#'   subset.cells = 2,
+#'   verbose = TRUE
 #' )
-#' DDLS <- simSCProfiles(
-#'   object = DDLS,
+#' SDDLS <- simSCProfiles(
+#'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   n.cells = 2,

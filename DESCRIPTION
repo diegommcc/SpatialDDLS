@@ -1,16 +1,16 @@
 Package: SpatialDDLS
 Type: Package
-Title: Deconvolution of spatial transcriptomics data Based on Deep Learning
+Title: Deconvolution of spatial transcriptomics data based on Deep Learning
 Version: 0.3.2
 Authors@R: c(
   person(given = "Diego", family = "Mañanes", email = "dmananesc@cnic.es", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7247-6794")),
   person(given = "Carlos", family = "Torroja", email = "ctorroja@cnic.es", role = "aut", comment = c(ORCID = "0000-0001-8914-3400")),
   person(given = "Fatima", family = "Sanchez-Cabo", email = "fscabo@cnic.es", role = "aut", comment = c(ORCID = "0000-0003-1881-1664")))
 Maintainer: Diego Mañanes <dmananesc@cnic.es>
-Description: Deconvolution of spatial trascriptomics data using context-specific deconvolution models based on Deep Neural Networks using scRNA-Seq data as input. 
+Description: Deconvolution of spatial trascriptomics data using deconvolution models based on deep neural networks. 
 License: GPL-3
-URL: https://diegommcc.github.io/digitalDLSorteR/, https://github.com/diegommcc/digitalDLSorteR
-BugReports: https://github.com/diegommcc/digitalDLSorteR/issues
+URL: https://diegommcc.github.io/SpatialDDLS/, https://github.com/diegommcc/SpatialDDLS
+BugReports: https://github.com/diegommcc/SpatialDDLS/issues
 Encoding: UTF-8
 Depends: 
     R (>= 4.0.0)
@@ -35,7 +35,8 @@ Imports:
     tensorflow,
     ggplot2,
     ggpubr,
-    RColorBrewer
+    RColorBrewer,
+    grDevices
 Suggests:
     knitr,
     rmarkdown,

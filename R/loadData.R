@@ -328,7 +328,7 @@ NULL
     x = counts@x
   )
   dfSumm <- dfSumm[which(dfSumm$x > min.counts), ]
-  ## in case there are no genes which meet the cutoff
+  ## in case there are no genes that meet the cutoff
   if (any(dim(dfSumm) == 0)) return(rep(FALSE, nrow(counts)))
   m <- Matrix::sparseMatrix(
     i = dfSumm$i + 1,
@@ -861,70 +861,71 @@ NULL
 #'
 #' \strong{Single-cell RNA-seq data}
 #'
-#' from single-cell RNA-seq data from files (formats allowed: tsv, tsv.gz, mtx
+#' Single-cell RNA-seq data can be provided from files (formats allowed: tsv, tsv.gz, mtx
 #' (sparse matrix) and hdf5) or a \code{\linkS4class{SingleCellExperiment}}
-#' object. The data will be stored in \code{single.cell.real} slot. The data
-#' provided must consist of three pieces of information: \itemize{ \item
+#' object. Data will be stored in the \code{single.cell.real} slot, and must 
+#' consist of three pieces of information: \itemize{ \item
 #' Single-cell counts: genes as rows and cells as columns. \item Cells metadata:
 #' annotations (columns) for each cell (rows). \item Genes metadata: annotations
 #' (columns) for each gene (rows). } If data are provided from files,
 #' \code{single.cell.real} argument must be a vector of three elements ordered
 #' so that the first file corresponds to the count matrix, the second to the
-#' cells metadata and the last to the genes metadata. On the other hand, if data
+#' cells metadata, and the last to the genes metadata. On the other hand, if data
 #' are provided as a \code{\linkS4class{SingleCellExperiment}} object, it must
-#' contain single-cell counts in the \code{assay} slot, cells metadata in the
-#' \code{colData} slot and genes metadata in the \code{rowData}. The data must
-#' be provided without any transformation (e.g. log-transformation) and raw
+#' contain single-cell counts in \code{assay}, cells metadata in
+#' \code{colData}, and genes metadata in \code{rowData}. Data must
+#' be provided without any transformation (e.g. log-transformation), raw
 #' counts are preferred.
-#'
-#' This data can be used to simulate new single-cell profiles using the
-#' ZINB-WaVE framework with the \code{\link{estimateZinbwaveParams}} function.
-#' In this way, it is possible to increase the signal of cell types that are
-#' underrepresented in the original dataset. If this step is not necessary,
-#' these profiles will be used directly to simulate pseudo-bulk RNA-seq samples
-#' with known cell composition.
 #'
 #' \strong{Spatial transcriptomics data}
 #'
 #' It must be a \code{\listS4class{SpatialExperiment}} object (or a list of them
-#' if more than one slide is going to be deconvoluted) containing ....
+#' if more than one slide is going to be deconvoluted) containing the same 
+#' information as the single-cell RNA-seq data: the count matrix, spots metadata, 
+#' and genes metadata. Please, make sure the gene identifiers used the spatial and 
+#' single-cell transcriptomics data are consistent. 
 #'
 #' @param sc.data Single-cell RNA-seq profiles to be used as reference. If data
 #'   are provided from files, \code{single.cell.real} must be a vector of three
-#'   elements: single-cell counts, cells metadata and genes metadata. If data
+#'   elements: single-cell counts, cells metadata and genes metadata. On the other hand, 
+#'   If data
 #'   are provided from a \code{\linkS4class{SingleCellExperiment}} object,
 #'   single-cell counts must be present in the \code{assay} slot, cells metadata
 #'   in the \code{colData} slot, and genes metadata in the \code{rowData} slot.
-#' @param sc.cell.ID.column Name or number of the column in the cells metadata
-#'   corresponding to cell names in expression matrix.
-#' @param sc.gene.ID.column Name or number of the column in the genes metadata
-#'   corresponding to the names used for features/genes.
+#' @param sc.cell.ID.column Name or number of the column in cells metadata
+#'   corresponding to cell names in expression matrix (single-cell RNA-seq data).
+#' @param sc.gene.ID.column Name or number of the column in genes metadata
+#'   corresponding to the names used for features/genes (single-cell RNA-seq data).
 #' @param st.data Spatial transcriptomics datasets to be deconvoluted. It can be
 #'   a single \code{\linkS4class{SpatialExperiment}} object or a list of them.
-#' @param st.spot.ID.column Name or number of the column in the cells metadata
-#'   corresponding to cell names in expression matrix.
+#' @param st.spot.ID.column Name or number of the column in spots metadata
+#'   corresponding to spot names in expression matrix (spatial transcriptomics data).
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
-#'   corresponding to the names used for features/genes.
-#' @param sc.min.counts Minimum gene counts to filter (0 by default).
+#'   corresponding to the names used for features/genes (spatial transcriptomics data).
+#' @param sc.min.counts Minimum gene counts to filter (0 by default; single-cell RNA-seq data).
 #' @param sc.min.cells Minimum of cells with more than \code{min.counts} (0 by
-#'   default).
-#' @param st.min.counts Minimum gene counts to filter (0 by default).
+#'   default; single-cell RNA-seq data).
+#' @param st.min.counts Minimum gene counts to filter (0 by default; spatial transcriptomics data).
 #' @param st.min.spots Minimum of cells with more than \code{min.counts} (0 by
-#'   default).
-#' @param st.n.slides
-#' @param shared.genes
-#' @param sc.name.dataset.h5 Name of the data set if HDF5 file is provided.
-#' @param sc.file.backend Valid file path where to store the loaded data as HDF5
-#'   file. If provided, data are stored in HDF5 files as back-end using
+#'   default; spatial transcriptomics data).
+#' @param st.n.slides Minimum number of slides (\code{\linkS4class{SpatialExperiment}} objects)
+#' in which a gene has to be expressed in order to keep it. This parameter is applicable only when multiple
+#' \code{\linkS4class{SpatialExperiment}} objects are provided. Genes not present in at least 
+#' \code{st.n.slides} will be discarded. If no filtering is desired, set \code{st.n.slides = 1}.
+#' @param shared.genes If set to \code{TRUE}, only genes present in both the isngle-cell 
+#' and spatial transcriptomics data will be retained for further processing (\code{TRUE} by default). 
+#' @param sc.name.dataset.h5 Name of the data set if HDF5 file is provided for single-cell RNA-seq data.
+#' @param sc.file.backend Valid file path where to store the loaded for single-cell RNA-seq data as HDF5
+#'   file. If provided, data are stored in a HDF5 file as back-end using the
 #'   \pkg{DelayedArray} and \pkg{HDF5Array} packages instead of being loaded
 #'   into RAM. This is suitable for situations where you have large amounts of
 #'   data that cannot be stored in memory. Note that operations on these data
 #'   will be performed by blocks (i.e subsets of determined size), which may
 #'   result in longer execution times. \code{NULL} by default.
-#' @param sc.name.dataset.backend Name of the dataset of the HDF5 file to be
+#' @param sc.name.dataset.backend Name of the HDF5 file dataset to be
 #'   used. Note that it cannot exist. If \code{NULL} (by default), a random
-#'   dataset name will be used.
-#' @param sc.compression.level The compression level used if \code{file.backend}
+#'   dataset name will be generated.
+#' @param sc.compression.level The compression level used if \code{sc.file.backend}
 #'   is provided. It is an integer value between 0 (no compression) and 9
 #'   (highest and slowest compression). See
 #'   \code{?\link[HDF5Array]{getHDF5DumpCompressionLevel}} from the
@@ -935,10 +936,10 @@ NULL
 #'   simulation, and only one sample in order to increase read times in the
 #'   following steps. A larger number of columns written in each chunk may lead
 #'   to longer read times.
-#' @param sc.block.processing Boolean indicating whether data should be treated
+#' @param sc.block.processing Boolean indicating whether single-cell RNA-seq data should be treated
 #'   as blocks (only if data are provided as HDF5 file). \code{FALSE} by
-#'   default. Note that using this functionality is suitable for cases where is
-#'   not possible to load the data into RAM and therefore execution times will
+#'   default. Note that using this functionality is suitable for cases where it is
+#'   not possible to load data into RAM and therefore execution times will
 #'   be longer.
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
@@ -947,7 +948,8 @@ NULL
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with the single-cell
 #'   RNA-seq data provided loaded into the \code{single.cell.real} slot as a
-#'   \code{\linkS4class{SingleCellExperiment}} object.
+#'   \code{\linkS4class{SingleCellExperiment}} object. If spatial transcriptomics
+#'   data are provided, they will be loaded into the \code{spatial.experiments} slot.
 #'
 #' @export
 #'
@@ -1093,18 +1095,22 @@ createSpatialDDLSobject <- function(
 #'
 #' This function loads a \code{\linkS4class{SpatialExperiment}} object 
 #' (or a list with several \code{\linkS4class{SpatialExperiment}} objects) into 
-#' a \code{\linkS4class{SpatialDDLS}} object. It is recommended to perform this step 
+#' a \code{\linkS4class{SpatialDDLS}} object. 
+#' 
+#' It is recommended to perform this step 
 #' when creating the \code{\linkS4class{SpatialDDLS}} object using the 
 #' \code{\link{createSpatialDDLSobject}} function in order to only keep genes shared between 
-#' the spatial transcriptomics data and the single-cell transcriptomics data used as reference. 
+#' the spatial transcriptomics and the single-cell transcriptomics data used as 
+#' reference. In addition, please, make sure the gene identifiers used the spatial and 
+#' single-cell transcriptomics data are consistent. 
 #'
-#' @param object A \code{\linkS4class{SpatialExperiment}} object.
+#' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param st.data A \code{\linkS4class{SpatialExperiment}} object 
 #' (or a list with several \code{\linkS4class{SpatialExperiment}} objects) to be deconvoluted. 
-#' @param st.spot.ID.column Name or number of the column in the spot metadata
+#' @param st.spot.ID.column Name or number of the column in spots metadata
 #'   corresponding to spot names in the expression matrix.
-#' @param st.gene.ID.column Name or number of the column in the genes metadata
-#'   corresponding to the names used for features/genes.
+#' @param st.gene.ID.column Name or number of the column in genes metadata
+#'   corresponding to names used for features/genes.
 #' @param st.min.counts Minimum gene counts to filter (0 by default).
 #' @param st.min.spots Minimum of spots with more than \code{min.counts} (0 by
 #'   default).
@@ -1116,7 +1122,7 @@ createSpatialDDLSobject <- function(
 #'   default).
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with the provided spatial 
-#' trainscriptomics data loaded in the \code{spatial.experiments} slot.
+#' trainscriptomics data loaded into the \code{spatial.experiments} slot.
 #'
 #' @export
 #'

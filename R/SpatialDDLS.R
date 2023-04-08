@@ -2,21 +2,20 @@
 NULL
 
 #' SpatialDDLS: an R package to deconvolute spatial transcriptomics data using
-#' single-cell RNA-Seq data and Neural Networks
-#'
-#' \pkg{SpatialDDLS} is an R package that allows to deconvolute spatial
-#' transcriptomics data using context-specific deconvolution models based on
-#' single-cell RNA-Seq data and Neural Networks. These models are able to make
-#' accurate estimates of the cell composition of spots using the advances
-#' provided by Deep Learning and the meaningful information provided by
-#' scRNA-Seq data. See Torroja and Sanchez-Cabo (2019)
-#' (\doi{10.3389/fgene.2019.00978}) for more details.
-#'
-#' The foundation of the method consists of a process that starts from
-#' single-cell RNA-Seq data and, after a few steps, a Deep Neural Network (DNN)
-#' model is trained with simulated mixed spot transcriptional profiles whose cell
-#' composition is known. See vignettes and
-#' \url{https://diegommcc.github.io/SpatialDDLS/} for more details.
+#' deep neural networks
+#' 
+#' \pkg{SpatialDDLS} is an R package that provides a neural network-based solution 
+#' for cell type deconvolution from spatial transcriptomics data. The package 
+#' takes advantage of single-cell RNA sequencing (scRNA-seq) data to simulate 
+#' mixed transcriptional profiles with known cell composition and train 
+#' fully-connected neural networks to predict the cell type composition of 
+#' spatial transcriptomics spots. The resulting trained models can be applied to 
+#' new spatial transcriptomics data to predict cell type proportions, allowing 
+#' for more accurate cell type identification and characterization of spatially-resolved 
+#' transcriptomic data. Overall, \pkg{SpatialDDLS} is a powerful tool for cell 
+#' type deconvolution in spatial transcriptomics data, providing a reliable, fast and
+#'  flexible solution for researchers in the field. See Torroja and Sanchez-Cabo (2019)
+#' (\doi{10.3389/fgene.2019.00978}), and some examples (\url{https://diegommcc.github.io/SpatialDDLS/}) for more details.
 #'
 #' @docType package
 #' @name SpatialDDLS

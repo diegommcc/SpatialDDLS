@@ -1,10 +1,12 @@
-
-
-color.prop.scale <- c(
+color.prop.scale.blues <- c(
   "#ECF4FB", "#E1EDF8", "#D7E6F4", "#CDE0F1", "#C1D9ED", "#B0D2E7", "#A0CAE1",
   "#8BBFDC", "#75B3D8", "#62A8D2", "#519CCB", "#4090C5", "#3282BD", "#2474B6", 
   "#1966AD", "#0E59A2", "#084B94", "#083D7F", "#08306B"
 )
+## TODO: this package is not included, I'll have to remove it
+color.prop.scale.spectral <- grDevices::colorRampPalette(
+  colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral"))
+)(100)
 
 ################################################################################
 ####################### Plot spatial proportions (all) #########################
@@ -14,26 +16,20 @@ color.prop.scale <- c(
 #' spots
 #'
 #' Color spots on the spatial coordinates plot according to their predicted cell
-#' type proportions. All cell types are represented altogether using the same
-#' scale of colors (from 0 to 1).
+#' type proportions. All cell types are represented together using the same
+#' color scale from 0 to 1.
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param index.st
-#' @param colors Vector of colors to be used. Only vectors with a number of
-#'   colors equal to or greater than the levels of \code{color.by} will be
-#'   accepted. By default, a custom color list is used.
-#' @param set
-#' @param color.scale Variable used to display data in different panels. If
-#'   \code{NULL}, the plot is not split into different panels. Options are
-#'   \code{nCellTypes} (by number of different cell types) and \code{CellType}
-#'   (by cell type).
+#' @param object A \code{\linkS4class{SpatialDDLS}} object.
+#' @param index.st Index of the spatial transcriptomics data to be plotted.
+#' It can be either a position or a name if a named list was provided.
+#' @param colors Color scale to be used. It can be \code{"blues"} or 
+#' \code{"spectral"} (the former by default).
+#' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}} for details),
+#' what results to plot (\code{raw} by default).
 #' @param size.point Size of points (0.1 by default).
-#' @param alpha.point Alpha of points (0.1 by default).
-#' @param title Boolean indicating whether single-cell profiles are filtered out
-#'   and only errors associated with pseudo-bulk samples are displayed
-#'   (\code{TRUE} by default).
+#' @param title Title of plot. 
 #' @param nrow Number of rows in the split plot.
-#' @param ncol Nomber of columns in the split plot
+#' @param ncol Number of columns in the split plot.
 #' @param theme \pkg{ggplot2} theme.
 #'
 #' @return A ggplot object.
@@ -51,10 +47,9 @@ color.prop.scale <- c(
 plotSpatialPropAll <- function(
     object,
     index.st,
-    colors = NULL,
+    colors = "blues",
     set = "raw",
     size.point = 0.1,
-    alpha.point = 1,
     title = NULL,
     nrow = NULL,
     ncol = NULL,
@@ -63,7 +58,9 @@ plotSpatialPropAll <- function(
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
-  } else if (is.null(spatial.experiments(object)) || is.null(deconv.spots(object))) {
+  } else if (
+    is.null(spatial.experiments(object)) || is.null(deconv.spots(object))
+  ) {
     stop(
       "Either predictions (`deconv.spots` slot) or ST data ", 
       "(`spatial.experiments` slot) not present in SpatialDDLS object"
@@ -74,8 +71,8 @@ plotSpatialPropAll <- function(
     spatial.experiments(object = object, index.st = index.st)
   )[, 1:2]
   colnames(st.coor) <- paste("Spatial", 1:2)
-  ## TODO: change the default behaviour: create a list with diff elements
-  ## also consider the possibitly of using raw, simplified props, etc
+  ## TODO: change the default behavior: create a list with diff elements
+  ## also consider the possibility of using raw, simplified props, etc
   st.pred <- deconv.spots(object = object, index.st = index.st)
   if(is.list(st.pred)) {
     if (!set %in% c("raw", "simplify.set", "simpli.majority")) {
@@ -85,26 +82,31 @@ plotSpatialPropAll <- function(
     }
     st.pred <- st.pred[[set]]
   }
-  # if (!all(rownames(st.coor) == rownames(st.pred))) {
-  #   stop("Matrices in `deconv.spots` and `spatalCoords` are not complementary")
-  # }
   dfPlot <- reshape2::melt(
     as.data.frame(cbind(st.coor, st.pred)), 
     id.vars = c("Spatial 1", "Spatial 2"), 
     variable.name = "CellType", value.name = "Proportion"
   )
-  # TODO: change this to parse a gradient palette blablabla
-  if (is.null(colors))  {
-    scale_colors <- scale_color_gradientn(colors = color.prop.scale, limits = c(0, 1))  
+  if (colors == "blues")  {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.blues, limits = c(0, 1)
+    )  
     # colors <- scale_color_gradient(low = "white", high = "blue")
+  } else if (colors == "spectral") {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.spectral, limits = c(0, 1)
+    )  
   } else {
-    scale_colors <- scale_color_gradientn(colors = colors, limits = c(0, 1))  
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.blues, limits = c(0, 1)
+    )
   }
     
   if (is.null(title)) title <- "Predicted proportions"
   plot <- ggplot(
-    dfPlot, aes(x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], color = Proportion)
-  ) + geom_point(size = size.point, alpha = alpha.point) + 
+    dfPlot, 
+    aes(x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], color = Proportion)
+  ) + geom_point(size = size.point) + 
     ggtitle(title) + 
     SpatialDDLSTheme() + facet_wrap(~ CellType, nrow = nrow, ncol = ncol) +
     scale_colors
@@ -120,19 +122,20 @@ plotSpatialPropAll <- function(
 #' Plot predicted proportions for a specific cell type using spatial coordinates
 #' of spots
 #'
-#' Color spots on the spatial coordinates plot according to predicted
+#' Color spots on the spatial coordinates according to the predicted
 #' proportions of a particular cell type. Color scale is adapted depending on
 #' the range of predicted proportions.
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
-#' @param index.st Nmae or index of the desired
-#'   \code{\linkS4class{SpatialExperiment}} object to visualize.
+#' @param object A \code{\linkS4class{SpatialDDLS}} object.
+#' @param index.st Index of the spatial transcriptomics data to be plotted.
+#' It can be either a position or a name if a named list was provided.
 #' @param cell.type Cell type predicted proportions to color spots by.
-#' @param set
-#' @param color.scale
+#' @param colors Color scale to be used. It can be \code{"blues"} or 
+#' \code{"spectral"} (the former by default).
+#' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}} for details),
+#' what results to plot (\code{raw} by default).
 #' @param size.point Size of points (0.1 by default).
-#' @param alpha.point Alpha of points (0.1 by default).
-#' @param title Title of plot.
+#' @param title Title of plot. 
 #' @param theme \pkg{ggplot2} theme.
 #'
 #' @return A ggplot object.
@@ -154,7 +157,6 @@ plotSpatialProp <- function(
     colors = NULL, 
     set = "raw",
     size.point = 1,
-    alpha.point = 1,
     title = NULL,
     theme = NULL,
     ...
@@ -179,17 +181,22 @@ plotSpatialProp <- function(
     st.pred <- st.pred[[set]]
   }
   if (!cell.type %in% colnames(st.pred)) stop("`cell.type` must be a valid cell type")
+  
   st.pred <- st.pred[, cell.type, drop = FALSE]
   dfPlot <- as.data.frame(cbind(st.coor, st.pred))
-  
-  # if (!all(rownames(st.coor) == rownames(st.pred))) {
-  #   stop("Matrices in `deconv.spots` and `spatalCoords` are not complementary")
-  # }
-  if (is.null(colors)) {
-    color.scale <- scale_color_gradientn(colors = color.prop.scale)
-    # color.scale <- scale_color_gradient(low = "white", high = "blue")
+  if (colors == "blues")  {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.blues, limits = c(0, 1)
+    )  
+    # colors <- scale_color_gradient(low = "white", high = "blue")
+  } else if (colors == "spectral") {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.spectral, limits = c(0, 1)
+    )  
   } else {
-    color.scale <- scale_color_gradientn(colors = colors)
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.blues, limits = c(0, 1)
+    )
   }
     
   if (is.null(title)) title.plot <- paste0("Predicted proportions (", cell.type, ")")
@@ -199,7 +206,7 @@ plotSpatialProp <- function(
       x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], 
       color = .data[[cell.type]]
     )
-  ) + geom_point(size = size.point, alpha = alpha.point) + color.scale + 
+  ) + geom_point(size = size.point) + scale_colors + 
     ggtitle(title.plot) + SpatialDDLSTheme() 
 
   return(plot)
@@ -209,7 +216,7 @@ plotSpatialProp <- function(
 ##################### Plot spatial proportions (blended) #######################
 ################################################################################
 
-# not exported, still unstable
+# not exported, still unstable. also, it requires a new package dependency
 .plotSpatialPropBlended <- function(
     object,
     index.st,
