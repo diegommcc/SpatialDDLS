@@ -1,6 +1,6 @@
 # **SpatialDDLS** <img src="man/figures/logo.png" align="right" width="120"/>
 
-[![R build status](https://github.com/diegommcc/SpatialDDLS/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/diegommcc/SpatialDDLS/actions) 
+<!-- [![R build status](https://github.com/diegommcc/SpatialDDLS/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/diegommcc/SpatialDDLS/actions)  -->
 [![codecov.io](https://codecov.io/github/diegommcc/SpatialDDLS/coverage.svg?branch=master)](https://app.codecov.io/gh/diegommcc/SpatialDDLS)
 
 
