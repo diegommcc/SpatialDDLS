@@ -16,17 +16,19 @@ The **SpatialDDLS** R package provides a neural network-based solution for cell 
 For more details about the algorithm and the functionalities implemented in this package, see <https://diegommcc.github.io/SpatialDDLS/>.
 
 
-<img src="man/figures/summary.png"/>
+<!-- <img src="man/figures/summary.png"/> -->
 
 ## Installation
 
-**SpatialDDLS** is available on CRAN and can be installed as follows:
+**SpatialDDLS** will be availabnle on CRAN soon!
+
+<!-- is available on CRAN and can be installed as follows:
 
 ```r
 install.packages("SpatialDDLS")
-```
+``` -->
 
-The version under developtment is available on GitHub and can be also installed as follows:
+The version under developtment is available on GitHub and can be installed as follows:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
@@ -41,11 +43,11 @@ library("SpatialDDLS")
 installTFpython(install.conda = TRUE)
 ```
 
-## Usage
+<!-- ## Usage
 
 In the following figure, an outline of the package's workflow can be found: 
 
-<img src="man/figures/workflow_readme.png"/>
+<img src="man/figures/workflow_readme.png"/> -->
 
 
 ## References

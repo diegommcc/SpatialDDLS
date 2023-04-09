@@ -504,7 +504,7 @@ NULL
     compression.level <- hdf5Params[[2]]
   }
   if (verbose) {
-    message("=== Processing single-cell data\n")
+    message("=== Processing single-cell data")
   }
   if (is(single.cell, "SingleCellExperiment")) {
     # extract data (no filtering)
@@ -986,7 +986,10 @@ NULL
 #'     Gene_ID = paste0("Gene", seq(40))
 #'   )
 #' )
-#' counts <- matrix(rpois(30, lambda = 5), ncol = 6)
+#' counts <- matrix(
+#'   rpois(30, lambda = 5), ncol = 6,
+#'   dimnames = list(paste0("Gene", 1:5), paste0("Spot", 1:6))
+#' )
 #' coordinates <- matrix(
 #'   c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), ncol = 2
 #' )
@@ -1003,7 +1006,7 @@ NULL
 #'   sc.gene.ID.column = "Gene_ID",
 #'   sc.min.cells = 0,
 #'   sc.min.counts = 0,
-#'   st.data = sce,
+#'   st.data = ste,
 #'   st.spot.ID.column = "Cell_ID",
 #'   st.gene.ID.column = "Gene_ID",
 #'   project = "Simul_example"
@@ -1064,8 +1067,10 @@ createSpatialDDLSobject <- function(
   ## intersection between datasets
   if (!missing(st.data)) {
     if (shared.genes) {
+      ## slide with more genes
+      pos.max <- which.max(sapply(spatial.experiments, nrow))
       inter.genes <- intersect(
-        rownames(single.cell.real), rownames(spatial.experiments[[1]])
+        rownames(single.cell.real), rownames(spatial.experiments[[pos.max]])
       )
       if (verbose) {
         message(
@@ -1076,13 +1081,14 @@ createSpatialDDLSobject <- function(
           "    - Original number of genes of single-cell data: ", nrow(single.cell.real) 
         )
         message(
-          "    - Original number of genes of spatial transcriptomics data: ", 
-          nrow(spatial.experiments[[1]]) 
+          "    - Original number of genes of spatial transcriptomics data (object with more genes): ", 
+          nrow(spatial.experiments[[pos.max]]) 
         )
       }
       single.cell.real <- single.cell.real[inter.genes, ]
       spatial.experiments <- lapply(
-        X = spatial.experiments, FUN = function(obj) obj[inter.genes, ]
+        X = spatial.experiments, 
+        FUN = function(obj) obj[inter.genes[inter.genes %in% rownames(obj)], ]
       )
     }
   }

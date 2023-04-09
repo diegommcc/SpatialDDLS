@@ -547,21 +547,15 @@ barPlotCellTypes <- function(
   if (!all(dependencies)) {
     messageT <- c(
       "There is no a Python interpreter with all the SpatialDDLS \
-        dependencies covered available. Please, look at \
-        https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html \
-        or see ?installPythonDepend"
+        dependencies covered available. Please, see ?installTFpython"
     )
     warningT <- c(
       "There is no a Python interpreter with all the SpatialDDLS \
-        dependencies covered available. Please, look at \
-        https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html \
-        or see ?installPythonDepend"
+        dependencies covered available. Please, see ?installTFpython"
     )
     errorT <- c(
       "There is no a Python interpreter with all the SpatialDDLS \
-        dependencies covered available. Please, look at \
-        https://diegommcc.github.io/SpatialDDLS/articles/kerasIssues.html \
-        or see ?installPythonDepend"
+        dependencies covered available. Please, see ?installTFpython"
     )
     switch(
       alert,
