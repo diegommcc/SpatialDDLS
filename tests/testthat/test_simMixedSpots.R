@@ -1,12 +1,12 @@
-context("Simulation of bulk RNA-Seq profiles: simBulk.R")
+context("Simulation of mixed transcriptional profiles: simMixedSpots.R")
 
 ################################################################################
-######################## generateBulkCellMatrix function #######################
+######################## genMixedCellProp function #######################
 ################################################################################
 
 # simulating data
 set.seed(123)
-sce <- SingleCellExperiment(
+sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
       stats::rpois(100, lambda = 5), nrow = 40, ncol = 30, 
@@ -21,206 +21,103 @@ sce <- SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(40))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-DDLS <- estimateZinbwaveParams(
-  object = DDLS,
+SDDLS <- estimateZinbwaveParams(
+  object = SDDLS,
   cell.type.column = "Cell_Type",
   cell.ID.column = "Cell_ID",
   gene.ID.column = "Gene_ID",
   verbose = FALSE
 )
-DDLS <- simSCProfiles(
-  object = DDLS,
+SDDLS <- simSCProfiles(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   n.cells = 15,
   verbose = FALSE
 )
-# set valid prob.matrix
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(4)),
-  from = c(1, 1, 1, 30),
-  to = c(15, 15, 50, 70)
-)
 
 # check if object contains all information needed
-test_that("Wrong object: single.cell.final missing || Wrong column cell type", {
+test_that("Wrong object: Wrong column cell type", {
   # incorrect object
-  DDLSBad <- DDLS
-  single.cell.real(DDLSBad) <- NULL
+  SDDLSBad <- SDDLS
+  single.cell.real(SDDLSBad) <- NULL
   expect_error(
-    generateBulkCellMatrix(
-      object = DDLSBad,
+    genMixedCellProp(
+      object = SDDLSBad,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 200,
+      num.sim.spots = 200,
       verbose = TRUE
     ), regexp = "'single.cell.real' slot is empty"
   )
   # incorrect column
   expect_error(
-    generateBulkCellMatrix(
-      object = DDLS,
+    genMixedCellProp(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
-      cell.type.column = "non_existent_column",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 200,
+      cell.type.column = "no_column",
+      num.sim.spots = 200,
       verbose = TRUE
-    ), regexp = "non_existent_column column is not present in cells.metadata"
+    ), regexp = "no_column column is not present in cells.metadata"
   )
 })
 
-# check if prob.design is correctly built
-test_that("Wrong prob.design", {
-  # incorrect cell type
-  probMatrixInvalid <- data.frame(
-    Cell_Type = c("bad", "gB", "CD8Gn", "Mc", "M", 
-                  "CD8Gp", "CD4", "Fb", "Ep", "CRC"),
-    from = c(rep(0, 8), 1, 30),
-    to = c(rep(15, 8), 50, 70)
-  )
-  expect_error(
-    generateBulkCellMatrix(
-      object = DDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixInvalid,
-      num.bulk.samples = 200,
-      verbose = TRUE
-    ), 
-    regexp = "There are some cell types"
-  )
-
-  # new cell types
-  probMatrixInvalid <- data.frame(
-    Cell_Type = paste0("CellType", seq(5)),
-    from = c(1, 1, 1, 30, 30),
-    to = c(15, 15, 50, 70, 70)
-  )
-  expect_error(
-    generateBulkCellMatrix(
-      object = DDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixInvalid,
-      num.bulk.samples = 200,
-      verbose = TRUE
-    ), 
-    regexp = "There are some cell types"
-  )
-  # duplicates
-  probMatrixInvalid <- data.frame(
-    Cell_Type = c(paste0("CellType", seq(4)), "CellType3"),
-    from = c(1, 1, 1, 30, 30),
-    to = c(15, 15, 50, 70, 70)
-  )
-  expect_error(
-    generateBulkCellMatrix(
-      object = DDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixInvalid,
-      num.bulk.samples = 200,
-      verbose = TRUE
-    ), 
-    regexp = "'prob.design' must not contain duplicated cell types"
-  )
-  # from greater than to
-  probMatrixInvalid <- data.frame(
-    Cell_Type = c(paste0("CellType", seq(4))),
-    from = c(16, 1, 1, 30),
-    to = c(15, 15, 50, 70)
-  )
-  expect_error(
-    object = generateBulkCellMatrix(
-      object = DDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixInvalid,
-      num.bulk.samples = 200,
-      verbose = TRUE
-    ), 
-    regexp = "'from' entries must be less than 'to' entries"
-  )
-  # prob ranges incorrect
-  probMatrixInvalid <- data.frame(
-    Cell_Type = c(paste0("CellType", seq(4))),
-    from = c(1, 1, 1, 40),
-    to = c(15, 15, 50, 70)
-  )
-  expect_error(
-    generateBulkCellMatrix(
-      object = DDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixInvalid,
-      num.bulk.samples = 200,
-      verbose = TRUE
-    ), 
-    regexp = "The sum between"
-  )
-})
-
-# check proportions arguments
+# check proportion.method argument
 test_that(
   desc = "Wrong proportion arguments", 
   code = {
     # incorrect number of elements
     expect_error(
-      generateBulkCellMatrix(
-        object = DDLS,
+      genMixedCellProp(
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        proportions.test = c(10, 5, 20, 15, 52),
-        num.bulk.samples = 200,
+        proportion.method = c(0.6, 0.2, 0.5),
+        num.sim.spots = 200,
         verbose = TRUE
       ), 
-      regexp = "Proportions provided must add up to 100"
+      regexp = "Proportions in `proportion.method` must add up to 1"
     )
     # not add 100
     expect_error(
-      generateBulkCellMatrix(
-        object = DDLS,
+      genMixedCellProp(
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        proportions.test = c(10, 5, 20, 15, 52, 1),
-        num.bulk.samples = 200,
+        proportion.method = c(0.6, 0.2, 0.1),
+        num.sim.spots = 200,
         verbose = TRUE
       ), 
-      regexp = "Proportions provided must add up to 100"
+      regexp = "Proportions in `proportion.method` must add up to 1"
     )
     # negative numbers
     expect_error(
-      generateBulkCellMatrix(
-        object = DDLS,
+      genMixedCellProp(
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        proportions.test = c(60, 5, 60, 15, -40, 20),
-        num.bulk.samples = 200,
+        proportion.method = c(0.6, 0.2, -0.2),
+        num.sim.spots = 200,
         verbose = TRUE
       ), 
-      regexp = "Proportions cannot be less than zero"
+      regexp = "Proportions in `proportion.method cannot be less than zero"
     )
-    # not add 100
-    expect_error(
-      generateBulkCellMatrix(
-        object = DDLS,
+    # checking set one method to 0
+    expect_is(
+      genMixedCellProp(
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        proportions.train = c(0, 5, 20, 15, 10, 60),
-        num.bulk.samples = 200,
-        verbose = TRUE
+        proportion.method = c(0.6, 0.4, 0),
+        num.sim.spots = 200,
+        verbose = FALSE
       ), 
-      regexp = "Proportions provided must add up to 100"
+      class = "SpatialDDLS"
     )
   }
 )
@@ -228,116 +125,110 @@ test_that(
 test_that(
   desc = "Check number samples and cells: argument control and expected output",
   code = {
-    # n.cells less than n cell types
-    expect_error(
-      generateBulkCellMatrix(
-        object = DDLS,
-        cell.ID.column = "Cell_ID",
-        cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        num.bulk.samples = 200,
-        n.cells = 2,
-        verbose = TRUE
-      ), regexp = "'n.cells' must be equal to or greater than the number of"
-    )
-    # num.bulk.samples too low to proportions
-    expect_error(
-      generateBulkCellMatrix(
-        object = DDLS,
-        cell.ID.column = "Cell_ID",
-        cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        num.bulk.samples = 2,
-        verbose = TRUE
-      ), 
-      regexp = "'num.bulk.samples' too low in relation to 'train.freq.bulk'"
-    )
-    # dim samples <- 1000 (600 train and 400 test) || n.cells <- 250
-    DDLS.1 <- generateBulkCellMatrix(
-      object = DDLS,
+    ## number of cells per mixed transcriptional profile
+    SDDLS1 <- genMixedCellProp(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 1000,
-      train.freq.bulk = 1/2,
-      n.cells = 250,
+      num.sim.spots = 200,
+      n.cells = 2,
       verbose = TRUE
+    )
+    expect_equal(prob.cell.types(SDDLS1, "train") %>% cell.names() %>% ncol(), 2)
+    
+    # num.sim.spots too low to proportions
+    expect_error(
+      genMixedCellProp(
+        object = SDDLS,
+        cell.ID.column = "Cell_ID",
+        cell.type.column = "Cell_Type",
+        num.sim.spots = 2,
+        verbose = TRUE
+      ), 
+      regexp = "'num.sim.spots' too low compared to 'train.freq.spots'"
+    )
+    # dim samples <- 1000 (600 train and 400 test) || n.cells <- 250
+    SDDLS.1 <- genMixedCellProp(
+      object = SDDLS,
+      cell.ID.column = "Cell_ID",
+      cell.type.column = "Cell_Type",
+      num.sim.spots = 1000,
+      train.freq.spots = 1/2,
+      n.cells = 250,
+      verbose = FALSE
     )
     # number of bulk samples
     # train matrix
-    cell.train.matrix <- prob.cell.types(DDLS.1, "train") %>% prob.matrix
+    cell.train.matrix <- prob.cell.types(SDDLS.1, "train") %>% prob.matrix
     expect_equal(nrow(cell.train.matrix), 500)
     expect_true(all(rowSums(cell.train.matrix) == 100))
     # test matrix
-    cell.test.matrix <- prob.cell.types(DDLS.1, "test") %>% prob.matrix
+    cell.test.matrix <- prob.cell.types(SDDLS.1, "test") %>% prob.matrix
     expect_equal(nrow(cell.test.matrix), 500)
     expect_true(all(rowSums(cell.test.matrix) == 100))
     
     # number of cell types
     # train
-    n.cell.train <- prob.cell.types(DDLS.1, "train") %>% cell.names
+    n.cell.train <- prob.cell.types(SDDLS.1, "train") %>% cell.names
     expect_equal(dim(n.cell.train), c(500, 250))
     # test
-    n.cell.test <- prob.cell.types(DDLS.1, "test") %>% cell.names
+    n.cell.test <- prob.cell.types(SDDLS.1, "test") %>% cell.names
     expect_equal(dim(n.cell.test), c(500, 250))
     # any shared cell between train and test
     expect_false(any(n.cell.train %in% n.cell.test))
     # with random numbers -------------------------------------------------------
     set.seed(123)
     n.cells <- ceiling(runif(n = 1, min = 100, max = 500))
-    num.bulk.samples <- ceiling(runif(n = 1, min = 200, max = 5000))
-    DDLS.2 <- generateBulkCellMatrix(
-      object = DDLS,
+    num.sim.spots <- ceiling(runif(n = 1, min = 200, max = 5000))
+    SDDLS.2 <- genMixedCellProp(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = num.bulk.samples,
+      num.sim.spots = num.sim.spots,
       n.cells = n.cells,
-      verbose = TRUE
+      verbose = FALSE
     )
     # number of bulk samples
     # total matrix
-    cell.train.matrix <- prob.cell.types(DDLS.2, "train") %>% prob.matrix
-    cell.test.matrix <- prob.cell.types(DDLS.2, "test") %>% prob.matrix
+    cell.train.matrix <- prob.cell.types(SDDLS.2, "train") %>% prob.matrix
+    cell.test.matrix <- prob.cell.types(SDDLS.2, "test") %>% prob.matrix
     cell.total.matrix <- rbind(cell.train.matrix, cell.test.matrix)
-    expect_equal(nrow(cell.total.matrix), num.bulk.samples)
+    expect_equal(nrow(cell.total.matrix), num.sim.spots)
     expect_true(all(rowSums(cell.total.matrix) == 100))
     # number of cell types
     # train
-    n.cell.train <- prob.cell.types(DDLS.2, "train") %>% cell.names
+    n.cell.train <- prob.cell.types(SDDLS.2, "train") %>% cell.names
     expect_equal(ncol(n.cell.train), n.cells)
     # test
-    n.cell.test <- prob.cell.types(DDLS.2, "test") %>% cell.names
+    n.cell.test <- prob.cell.types(SDDLS.2, "test") %>% cell.names
     expect_equal(ncol(n.cell.test), n.cells)
     # any shared cell between train and test
     expect_false(any(n.cell.train %in% n.cell.test))
     # with random numbers and changing proportions ------------------------------
     n.cells <- ceiling(runif(n = 1, min = 100, max = 500))
-    num.bulk.samples <- ceiling(runif(n = 1, min = 200, max = 5000))
-    DDLS.3 <- generateBulkCellMatrix(
-      object = DDLS,
+    num.sim.spots <- ceiling(runif(n = 1, min = 200, max = 5000))
+    SDDLS.3 <- genMixedCellProp(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = num.bulk.samples,
-      proportions.train = c(10, 20, 1, 9, 50, 10),
-      proportions.test = c(50, 20, 1, 9, 10, 10),
+      num.sim.spots = num.sim.spots,
+      proportion.method = c(0.4, 0.5, 0.1),
       n.cells = n.cells,
       verbose = TRUE
     )
     # number of bulk samples
     # total matrix
-    cell.train.matrix <- prob.cell.types(DDLS.3, "train") %>% prob.matrix
-    cell.test.matrix <- prob.cell.types(DDLS.3, "test") %>% prob.matrix
+    cell.train.matrix <- prob.cell.types(SDDLS.3, "train") %>% prob.matrix
+    cell.test.matrix <- prob.cell.types(SDDLS.3, "test") %>% prob.matrix
     cell.total.matrix <- rbind(cell.train.matrix, cell.test.matrix)
-    expect_equal(nrow(cell.total.matrix), num.bulk.samples)
+    expect_equal(nrow(cell.total.matrix), num.sim.spots)
     expect_true(all(rowSums(cell.total.matrix) == 100))
     # number of cell types
     # train
-    n.cell.train <- prob.cell.types(DDLS.3, "train") %>% cell.names
+    n.cell.train <- prob.cell.types(SDDLS.3, "train") %>% cell.names
     expect_equal(ncol(n.cell.train), n.cells)
     # test
-    n.cell.test <- prob.cell.types(DDLS.3, "test") %>% cell.names
+    n.cell.test <- prob.cell.types(SDDLS.3, "test") %>% cell.names
     expect_equal(ncol(n.cell.test), n.cells)
     # any shared cell between train and test
     expect_false(any(n.cell.train %in% n.cell.test))
@@ -345,7 +236,7 @@ test_that(
 )
 
 ################################################################################
-########################### simBulkProfiles function ###########################
+########################### simMixedProfiles function ###########################
 ################################################################################
 
 # check if object contains all information needed
@@ -354,41 +245,39 @@ test_that(
   code = {
     # no prob matrix
     expect_error(
-      simBulkProfiles(
-        object = DDLS,
+      simMixedProfiles(
+        object = SDDLS,
         type.data = "both"
       ), 
       regexp = "'prob.cell.types' slot is empty"
     )
-    DDLS <- generateBulkCellMatrix(
-      object = DDLS,
+    SDDLS <- genMixedCellProp(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
+      num.sim.spots = 100,
       verbose = FALSE
     )
-    DDLSBad <- DDLS
-    single.cell.real(DDLSBad) <- NULL
+    SDDLSBad <- SDDLS
+    single.cell.real(SDDLSBad) <- NULL
     expect_error(
-      simBulkProfiles(
-        object = DDLSBad,
+      simMixedProfiles(
+        object = SDDLSBad,
         type.data = "both"
       ), 
-      regexp = "There are no real single-cell profiles in DigitalDLSorter object"
+      regexp = "There are no real single-cell profiles in SpatialDDLS object"
     )
   }
 )
 
-DDLS <- generateBulkCellMatrix(
-  object = DDLS,
+SDDLS <- genMixedCellProp(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 10,
+  num.sim.spots = 10,
   verbose = FALSE
 )
-DDLS <- simBulkProfiles(object = DDLS, type.data = "both", verbose = FALSE)
+SDDLS <- simMixedProfiles(object = SDDLS, type.data = "both", verbose = FALSE)
 
 # check expected behaviour
 test_that(
@@ -396,74 +285,74 @@ test_that(
   code = {
     # incorrect type.data
     expect_error(
-      simBulkProfiles(
-        object = DDLS,
+      simMixedProfiles(
+        object = SDDLS,
         type.data = "incorrect"
       ), 
       regexp = "'type.data' argument must be one of the following options: 'train', 'test' or 'both'"
     )
     # generate only training data
-    DDLSMod <- DDLS
-    bulk.simul(DDLSMod) <- NULL
-    DDLSMod <- simBulkProfiles(
-      object = DDLSMod, type.data = "train", verbose = FALSE
+    SDDLSMod <- SDDLS
+    mixed.profiles(SDDLSMod) <- NULL
+    SDDLSMod <- simMixedProfiles(
+      object = SDDLSMod, type.data = "train", verbose = FALSE
     )
-    expect_null(bulk.simul(DDLSMod, type.data = "test"))
+    expect_null(mixed.profiles(SDDLSMod, type.data = "test"))
     # dimensions of resulting matrices
-    bulk.simul(DDLS) <- NULL
-    DDLS <- simBulkProfiles(object = DDLS, type.data = "both", verbose = FALSE)
+    mixed.profiles(SDDLS) <- NULL
+    SDDLS <- simMixedProfiles(object = SDDLS, type.data = "both", verbose = FALSE)
     expect_true(
-      dim(bulk.simul(DDLS, type.data = "train"))[2] == 
-        dim(prob.cell.types(DDLS, type.data = "train")@prob.matrix)[1]
+      dim(mixed.profiles(SDDLS, type.data = "train"))[2] == 
+        dim(prob.cell.types(SDDLS, type.data = "train")@prob.matrix)[1]
     )
     # chcek how pseudo-bulks are generated
-    DDLS@bulk.simul <- NULL
+    SDDLS@mixed.profiles <- NULL
     expect_error(
-      object = simBulkProfiles(
-        object = DDLS, type.data = "train", 
-        pseudobulk.function = "Invalid", verbose = FALSE
+      object = simMixedProfiles(
+        object = SDDLS, type.data = "train", 
+        mixing.function = "Invalid", verbose = FALSE
       ), 
-      regexp = "'pseudobulk.function' must be one of the following options"
+      regexp = "'mixing.function' must be one of the following options"
     )
     # check if pseudo-bulks are different
-    DDLS.meanCPM <- simBulkProfiles(
-      object = DDLS, type.data = "train", 
-      pseudobulk.function = "MeanCPM", verbose = FALSE
+    SDDLS.meanCPM <- simMixedProfiles(
+      object = SDDLS, type.data = "train", 
+      mixing.function = "MeanCPM", verbose = FALSE
     )
-    DDLS.addCPM <- simBulkProfiles(
-      object = DDLS, type.data = "train", 
-      pseudobulk.function = "AddCPM", verbose = FALSE
+    SDDLS.addCPM <- simMixedProfiles(
+      object = SDDLS, type.data = "train", 
+      mixing.function = "AddCPM", verbose = FALSE
     )
-    DDLS.addCounts <- simBulkProfiles(
-      object = DDLS, type.data = "train", 
-      pseudobulk.function = "AddRawCount", verbose = FALSE
-    )
-    expect_false(
-      all(assay(DDLS.meanCPM@bulk.simul$train) == 
-            assay(DDLS.addCPM@bulk.simul$train))
+    SDDLS.addCounts <- simMixedProfiles(
+      object = SDDLS, type.data = "train", 
+      mixing.function = "AddRawCount", verbose = FALSE
     )
     expect_false(
-      all(assay(DDLS.addCounts@bulk.simul$train) == 
-            assay(DDLS.addCPM@bulk.simul$train))
+      all(assay(SDDLS.meanCPM@mixed.profiles$train) == 
+            assay(SDDLS.addCPM@mixed.profiles$train))
+    )
+    expect_false(
+      all(assay(SDDLS.addCounts@mixed.profiles$train) == 
+            assay(SDDLS.addCPM@mixed.profiles$train))
     )
   }
 )
 
-# simBulkProfiles: check parameters related to HDF5 files used as back-end
+# simMixedProfiles: check parameters related to HDF5 files used as back-end
 test_that(
   desc = paste(
-    "Using HDF5 files as back-end simBulkProfiles: the following", 
+    "Using HDF5 files as back-end simMixedProfiles: the following", 
     "tests will write file in temp directory/files. Only available if", 
     "DelayedArray and HDF5Array packages are installed"
   ), code = {
     skip_if_not_installed("DelayedArray")
     skip_if_not_installed("HDF5Array")
-    bulk.simul(DDLS) <- NULL
+    mixed.profiles(SDDLS) <- NULL
     # check if HDF5 file exists and if it is correct
     file <- tempfile()
     expect_message(
-      DDLS <- simBulkProfiles(
-        object = DDLS,
+      SDDLS <- simMixedProfiles(
+        object = SDDLS,
         type.data = "both",
         file.backend = file,
         verbose = TRUE
@@ -471,18 +360,18 @@ test_that(
       regexp = "=== Writing data to HDF5 file"
     )
     expect_equal(
-      dim(bulk.simul(DDLS, "train"))[2], 
-      dim(prob.cell.types(DDLS, type.data = "train")@prob.matrix)[1]
+      dim(mixed.profiles(SDDLS, "train"))[2], 
+      dim(prob.cell.types(SDDLS, type.data = "train")@prob.matrix)[1]
     )
     expect_true(file.exists(file))
     expect_s4_class(
-      object = bulk.simul(DDLS, "train")@assays@data$counts, 
+      object = mixed.profiles(SDDLS, "train")@assays@data$counts, 
       class = "HDF5Array"
     )
     # file.backend that already exists
     expect_error(
-      object = simBulkProfiles(
-        object = DDLS,
+      object = simMixedProfiles(
+        object = SDDLS,
         type.data = "both",
         file.backend = file,
         verbose = TRUE
@@ -490,10 +379,10 @@ test_that(
       regexp = "'file.backend' already exists. Please provide a correct file path"
     )
     # check if block.processing works
-    bulk.simul(DDLS) <- NULL
+    mixed.profiles(SDDLS) <- NULL
     expect_message(
-      DDLS <- simBulkProfiles(
-        object = DDLS,
+      SDDLS <- simMixedProfiles(
+        object = SDDLS,
         type.data = "both",
         file.backend = tempfile(),
         block.processing = TRUE,

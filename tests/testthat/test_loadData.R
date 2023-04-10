@@ -638,10 +638,7 @@ test_that(
         st.gene.ID.column = "Gene_ID",
         st.n.slides = 20
       ), 
-      paste0(
-        "- Original number of genes of spatial transcriptomics data: ", 
-        min.genes
-      )
+      regexp = paste0("with more genes): ", min.genes)
     )
     # max gene
     set.seed(123)
@@ -657,10 +654,7 @@ test_that(
         st.gene.ID.column = "Gene_ID",
         st.n.slides = 1
       ), 
-      paste0(
-        "- Original number of genes of spatial transcriptomics data: ", 
-        max.genes
-      )
+      paste0("with more genes): ", max.genes)
     )
   }
 )

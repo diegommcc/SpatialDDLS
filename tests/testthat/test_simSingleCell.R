@@ -6,7 +6,7 @@ context("Simulation of single-cell RNA-Seq profiles: simSingleCell.R")
 
 # simulating data
 set.seed(123)
-sce <- SingleCellExperiment(
+sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
       stats::rpois(100, lambda = 5), nrow = 40, ncol = 30, 
@@ -23,13 +23,13 @@ sce <- SingleCellExperiment(
     gene_length = sample(seq(50, 1000), size = 40, replace = TRUE)
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
 )
-DDLS <- estimateZinbwaveParams(
-  object = DDLS,
+SDDLS <- estimateZinbwaveParams(
+  object = SDDLS,
   cell.type.column = "Cell_Type",
   cell.ID.column = "Cell_ID",
   gene.ID.column = "Gene_ID",
@@ -41,12 +41,12 @@ test_that(
   desc = "Wrong parameters in estimateZinbwaveParams", 
   code = {
     # incorrect object
-    DDLSBad <- DDLS
-    single.cell.real(DDLSBad) <- NULL
-    zinb.params(DDLSBad) <- NULL
+    SDDLSBad <- SDDLS
+    single.cell.real(SDDLSBad) <- NULL
+    zinb.params(SDDLSBad) <- NULL
     expect_error(
       estimateZinbwaveParams(
-        object = DDLSBad,
+        object = SDDLSBad,
         cell.ID.column = "Cell_ID",
         gene.ID.column = "Gene_ID",
         cell.type.column = "Cell_Type",
@@ -59,13 +59,13 @@ test_that(
       regexp = "'single.cell.real' slot is empty"
     )
     # incorrect column
-    DDLSMod <- DDLS
-    zinb.params(DDLSMod) <- NULL
+    SDDLSMod <- SDDLS
+    zinb.params(SDDLSMod) <- NULL
     expect_error(
       estimateZinbwaveParams(
-        object = DDLSMod,
+        object = SDDLSMod,
         cell.ID.column = "Cell_ID",
-        gene.ID.column = "non_existent_column",
+        gene.ID.column = "no_column",
         cell.type.column = "Cell_Type",
         cell.cov.columns = "Patient",
         gene.cov.columns = "gene_length",
@@ -73,15 +73,15 @@ test_that(
         threads = 1,
         verbose = TRUE
       ), 
-      regexp = "non_existent_column column is not present in genes.metadata"
+      regexp = "no_column column is not present in genes.metadata"
     )
     # variable with less than two levels
-    sce <- single.cell.real(DDLSMod) 
+    sce <- single.cell.real(SDDLSMod) 
     colData(sce)$Patient <- 1
-    single.cell.real(DDLSMod) <- sce
+    single.cell.real(SDDLSMod) <- sce
     expect_error(
       estimateZinbwaveParams(
-        object = DDLSMod,
+        object = SDDLSMod,
         cell.ID.column = "Cell_ID",
         gene.ID.column = "external_gene_name",
         cell.type.column = "Cell_Type",
@@ -93,12 +93,12 @@ test_that(
       ), 
       regexp = "Patient must have 2 or more unique elements"
     )
-    sce <- single.cell.real(DDLS) 
+    sce <- single.cell.real(SDDLS) 
     rowData(sce)$gene_length <- 1
-    single.cell.real(DDLSMod) <- sce
+    single.cell.real(SDDLSMod) <- sce
     expect_error(
       estimateZinbwaveParams(
-        object = DDLSMod,
+        object = SDDLSMod,
         cell.ID.column = "Cell_ID",
         gene.ID.column = "external_gene_name",
         cell.type.column = "Cell_Type",
@@ -111,14 +111,14 @@ test_that(
       regexp = "gene_length must have 2 or more unique elements"
     )
     # an object with less than two cell types
-    DDLSMod <- DDLS
-    sce <- single.cell.real(DDLS) 
+    SDDLSMod <- SDDLS
+    sce <- single.cell.real(SDDLS) 
     colData(sce)$Cell_Type <- 1
-    single.cell.real(DDLSMod) <- sce
-    zinb.params(DDLSMod) <- NULL
+    single.cell.real(SDDLSMod) <- sce
+    zinb.params(SDDLSMod) <- NULL
     expect_error(
       estimateZinbwaveParams(
-        object = DDLSMod,
+        object = SDDLSMod,
         cell.ID.column = "Cell_ID",
         gene.ID.column = "Gene_ID",
         cell.type.column = "Cell_Type",
@@ -131,11 +131,11 @@ test_that(
       regexp = "'cell.type.column' must have 2 or more unique elements"
     )
     # incorrect set.type
-    DDLSMod <- DDLS
-    zinb.params(DDLSMod) <- NULL
+    SDDLSMod <- SDDLS
+    zinb.params(SDDLSMod) <- NULL
     expect_error(
       estimateZinbwaveParams(
-        object = DDLSMod,
+        object = SDDLSMod,
         cell.ID.column = "Cell_ID",
         gene.ID.column = "Gene_ID",
         cell.type.column = "Cell_Type",
@@ -152,8 +152,8 @@ test_that(
 test_that(
   desc = "Functions to subset data in estimateZinwaveParams function (.reduceDataset)", 
   code = {
-    list.data <- .extractDataFromSCE(
-      SCEobject = single.cell.real(DDLS),
+    list.data <- .extractDataFromSE(
+      SEobject = single.cell.real(SDDLS),
       cell.ID.column = "Cell_ID",
       gene.ID.column = "Gene_ID",
       new.data = FALSE
@@ -189,9 +189,9 @@ test_that(
 test_that(
   desc = "Check object ZinbWave", 
   code = {
-    zinb.params(DDLS) <- NULL
-    DDLS <- estimateZinbwaveParams(
-      object = DDLS,
+    zinb.params(SDDLS) <- NULL
+    SDDLS <- estimateZinbwaveParams(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       gene.ID.column = "Gene_ID",
       cell.type.column = "Cell_Type",
@@ -201,7 +201,7 @@ test_that(
       threads = 1,
       verbose = TRUE
     )
-    expect_s4_class(object = zinb.params(DDLS), class = "ZinbParametersModel")
+    expect_s4_class(object = zinb.params(SDDLS), class = "ZinbParametersModel")
   }
 )
 
@@ -214,12 +214,12 @@ test_that(
   desc = "Wrong parameters in simSCProfiles", 
   code = {
     # incorrect object
-    DDLSBad <- DDLS
-    zinb.params(DDLSBad) <- NULL
-    single.cell.simul(DDLS) <- NULL
+    SDDLSBad <- SDDLS
+    zinb.params(SDDLSBad) <- NULL
+    single.cell.simul(SDDLS) <- NULL
     expect_error(
       simSCProfiles(
-        object = DDLSBad,
+        object = SDDLSBad,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 10,
@@ -231,7 +231,7 @@ test_that(
     # incorrect column
     expect_error(
       simSCProfiles(
-        object = DDLS,
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "non_existent_column",
         n.cells = 10,
@@ -243,7 +243,7 @@ test_that(
     # n.cells
     expect_error(
       simSCProfiles(
-        object = DDLS,
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 0,
@@ -255,7 +255,7 @@ test_that(
     # cell.types 
     expect_error(
       simSCProfiles(
-        object = DDLS,
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 10,
@@ -272,9 +272,9 @@ test_that(
   desc = "Parameters working as expected in simSCProfiles", 
   code = {
     # suffix.names 
-    single.cell.simul(DDLS) <- NULL
-    DDLS <- simSCProfiles(
-      object = DDLS,
+    single.cell.simul(SDDLS) <- NULL
+    SDDLS <- simSCProfiles(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
       n.cells = 10,
@@ -282,15 +282,15 @@ test_that(
       verbose = FALSE
     )
     expect_true(
-      all(grepl(pattern = "_Suffix", colnames(single.cell.simul(DDLS))))
+      all(grepl(pattern = "_Suffix", colnames(single.cell.simul(SDDLS))))
     )
-    expect_true(any(colnames(colData(single.cell.simul(DDLS))) == "suffix"))
+    expect_true(any(colnames(colData(single.cell.simul(SDDLS))) == "suffix"))
     # warning if suffix column in cells metadata is going to be overwritten
-    colData(single.cell.real(DDLS))$suffix <- 1
-    single.cell.simul(DDLS) <- NULL
+    colData(single.cell.real(SDDLS))$suffix <- 1
+    single.cell.simul(SDDLS) <- NULL
     expect_warning(
       simSCProfiles(
-        object = DDLS,
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 10,
@@ -299,20 +299,20 @@ test_that(
       )
     )
     # correct number of cells
-    single.cell.simul(DDLS) <- NULL
-    colData(single.cell.real(DDLS))$suffix <- NULL
-    DDLS <- simSCProfiles(
-      object = DDLS,
+    single.cell.simul(SDDLS) <- NULL
+    colData(single.cell.real(SDDLS))$suffix <- NULL
+    SDDLS <- simSCProfiles(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
       n.cells = 14,
       suffix.names = "_Suffix",
       verbose = FALSE
     )
-    expect_equal(dim(single.cell.simul(DDLS))[2], 14 * 4)
-    single.cell.simul(DDLS) <- NULL
-    DDLS <- simSCProfiles(
-      object = DDLS,
+    expect_equal(dim(single.cell.simul(SDDLS))[2], 14 * 4)
+    single.cell.simul(SDDLS) <- NULL
+    SDDLS <- simSCProfiles(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
       n.cells = 14,
@@ -320,10 +320,10 @@ test_that(
       cell.types = c("CellType1", "CellType3"),
       verbose = FALSE
     )
-    expect_equal(dim(single.cell.simul(DDLS))[2], 14 * 2)
+    expect_equal(dim(single.cell.simul(SDDLS))[2], 14 * 2)
     expect_true(
       all(
-        unique(colData(single.cell.simul(DDLS))[["Cell_Type"]]) %in% 
+        unique(colData(single.cell.simul(SDDLS))[["Cell_Type"]]) %in% 
           c("CellType1", "CellType3")
       )
     )
@@ -339,11 +339,11 @@ test_that(
     skip_if_not_installed("DelayedArray")
     skip_if_not_installed("HDF5Array")
     # check if HDF5 file exists and if it is correct
-    single.cell.simul(DDLS) <- NULL
+    single.cell.simul(SDDLS) <- NULL
     file <- tempfile()
     expect_message(
-      DDLS <- simSCProfiles(
-        object = DDLS,
+      SDDLS <- simSCProfiles(
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 10,
@@ -352,13 +352,13 @@ test_that(
       ), 
       regexp = "=== Writing data to HDF5 file"
     )
-    expect_equal(dim(single.cell.simul(DDLS))[2], 10 * 4)
+    expect_equal(dim(single.cell.simul(SDDLS))[2], 10 * 4)
     expect_true(file.exists(file))
-    expect_s4_class(object = counts(single.cell.simul(DDLS)), class = "HDF5Array")
+    expect_s4_class(object = counts(single.cell.simul(SDDLS)), class = "HDF5Array")
     # check if name.dataset.backend changes the name of dataset used
-    single.cell.simul(DDLS) <- NULL
-    DDLS <- simSCProfiles(
-      object = DDLS,
+    single.cell.simul(SDDLS) <- NULL
+    SDDLS <- simSCProfiles(
+      object = SDDLS,
       cell.ID.column = "Cell_ID",
       cell.type.column = "Cell_Type",
       n.cells = 10,
@@ -368,10 +368,10 @@ test_that(
     )
     expect_true("new.dataset" %in% rhdf5::h5ls(file)[, "name"])
     # cannot be used the same dataset in the same HDF5 file
-    single.cell.simul(DDLS) <- NULL
+    single.cell.simul(SDDLS) <- NULL
     expect_error(
       simSCProfiles(
-        object = DDLS,
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 10,
@@ -381,10 +381,10 @@ test_that(
       )
     )
     # check if block.processing works
-    single.cell.simul(DDLS) <- NULL
+    single.cell.simul(SDDLS) <- NULL
     expect_message(
-      DDLS <- simSCProfiles(
-        object = DDLS,
+      SDDLS <- simSCProfiles(
+        object = SDDLS,
         cell.ID.column = "Cell_ID",
         cell.type.column = "Cell_Type",
         n.cells = 10,

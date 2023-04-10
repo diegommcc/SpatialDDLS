@@ -220,10 +220,10 @@ trainDeconvModel <- function(
          vec.type.data[type] == "both" && 
          (is.null(single.cell.real(object)) && is.null(single.cell.simul(object))))
       ) {
-        stop("If `type.data", text.message, "` = both' is selected, 'mixed.profiles' and at least ",
+        stop("If `type.data.", text.message, "` = both' is selected, 'mixed.profiles' and at least ",
              "one single cell slot must be provided")
       } else if (vec.type.data[type] == "mixed" && is.null(mixed.profiles(object, type.data = text.message))) {
-        stop("If `type.data", text.message, "` = mixed is selected, 'mixed.profiles' must be provided")
+        stop("If `type.data.", text.message, "` = mixed is selected, 'mixed.profiles' must be provided")
       } 
       
     }  
@@ -357,24 +357,26 @@ trainDeconvModel <- function(
   # set if samples will be generated on the fly
   if (!on.the.fly) {
     .dataForDNN <- .dataForDNN.file
+    if (type.data.train == "mixed") {
+      checkingClass <- is(
+        assay(mixed.profiles(object, type.data = "train")), "HDF5Array"
+      )  
+    } else if (type.data.train == "single-cell") {
+      checkingClass <- is(assay(single.cell.real(object)), "HDF5Array")  
+    } else {
+      checkingClass <- all(
+        is(assay(mixed.profiles(object, type.data = "train")), "HDF5Array"), 
+        is(assay(single.cell.real(object)), "HDF5Array")
+      )
+    }
   } else {
     .dataForDNN <- .dataForDNN.onFly
+    checkingClass <- FALSE
   }
   if (verbose) 
     message(paste("\n=== Training DNN with", n.train, "samples:\n"))
   
-  if (type.data.train == "mixed") {
-    checkingClass <- is(
-      assay(mixed.profiles(object, type.data = "train")), "HDF5Array"
-    )  
-  } else if (type.data.train == "single-cell") {
-    checkingClass <- is(assay(single.cell.real(object)), "HDF5Array")  
-  } else {
-    checkingClass <- all(
-      is(assay(mixed.profiles(object, type.data = "train")), "HDF5Array"), 
-      is(assay(single.cell.real(object)), "HDF5Array")
-    )
-  }
+  
   
   if (use.generator | isTRUE(on.the.fly) | checkingClass) {
     gen.train <- .trainGenerator(
@@ -686,7 +688,7 @@ trainDeconvModel <- function(
       FUN = .setBulk,
       object = object,
       pattern = pattern,
-      fun.aggregation = fun.aggregation
+      fun.pseudobulk = fun.aggregation
     )
   } 
   if (any(!bulk.data))  {
@@ -1160,7 +1162,7 @@ deconvSpatialDDLS <- function(
       ## check if all index.st are present in the slot
       stopifnot(
         "`index.st` contains elements not present in spatial.experiments slot " = index.st %in% 
-          names(spatial.experiments(objects))
+          names(spatial.experiments(object))
       )
     }
   }

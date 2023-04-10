@@ -334,7 +334,7 @@ loadTrainedModelFromH5 <- function(
     slot.exists <- TRUE
     message("'trained.model' slot is not empty:")
     if (reset.slot) {
-      message("  'reset.slot' is TRUE, 'trained.model' slot will be restart")
+      message("  'reset.slot' is TRUE, 'trained.model' slot will be restarted")
     } else {
       message("  'reset.slot' is FALSE, just 'model' slot of DeconvDLModel",
               "object will be overwritten")

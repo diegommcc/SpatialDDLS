@@ -19,46 +19,65 @@ sce <- SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(40))
   )
 )
-DDLS <- loadSCProfiles(
-  single.cell.data = sce,
-  cell.ID.column = "Cell_ID",
-  gene.ID.column = "Gene_ID"
+simSpatialExperiment <- function(n = 1) {
+  sim.samples <- function() {
+    ngenes <- sample(3:40, size = 1)
+    ncells <- sample(3:40, size = 1)
+    counts <- matrix(
+      rpois(ngenes * ncells, lambda = 5), ncol = ncells,
+      dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
+    )
+    coordinates <- matrix(
+      rep(c(1, 2), ncells), ncol = 2
+    )
+    return(
+      SpatialExperiment::SpatialExperiment(
+        assays = list(counts = as.matrix(counts)),
+        rowData = data.frame(Gene_ID = paste0("Gene", seq(ngenes))),
+        colData = data.frame(Cell_ID = paste0("Spot", seq(ncells))),
+        spatialCoords = coordinates
+      )
+    )
+  }
+  return(replicate(n = n, expr = sim.samples()))
+}
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID",
+  st.data = simSpatialExperiment(n = 10),
+  st.spot.ID.column = "Cell_ID",
+  st.gene.ID.column = "Gene_ID"
 )
-DDLS <- estimateZinbwaveParams(
-  object = DDLS,
+SDDLS <- estimateZinbwaveParams(
+  object = SDDLS,
   cell.type.column = "Cell_Type",
   cell.ID.column = "Cell_ID",
   gene.ID.column = "Gene_ID",
   verbose = FALSE
 )
 # object completed
-DDLSComp <- simSCProfiles(
-  object = DDLS,
+SDDLSComp <- simSCProfiles(
+  object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   n.cells = 15,
   verbose = FALSE
 )
-probMatrixValid <- data.frame(
-  Cell_Type = paste0("CellType", seq(4)),
-  from = c(1, 1, 1, 30),
-  to = c(15, 15, 50, 70)
-)
-DDLSComp <- generateBulkCellMatrix(
-  object = DDLSComp,
+SDDLSComp <- genMixedCellProp(
+  object = SDDLSComp,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  prob.design = probMatrixValid,
-  num.bulk.samples = 100,
+  num.sim.spots = 100,
   verbose = FALSE
 )
-DDLSComp <- simBulkProfiles(DDLSComp, verbose = FALSE)
-DDLSComp <- trainDigitalDLSorterModel(
-  object = DDLSComp,
+SDDLSComp <- simMixedProfiles(SDDLSComp, verbose = FALSE)
+SDDLSComp <- trainDeconvModel(
+  object = SDDLSComp,
   batch.size = 28,
   verbose = FALSE
 )
-DDLSComp <- calculateEvalMetrics(DDLSComp)
+SDDLSComp <- calculateEvalMetrics(SDDLSComp)
 
 # calculateEvalMetrics
 test_that(
@@ -66,76 +85,70 @@ test_that(
   code = {
     # incorrect object: no trained object
     expect_error(
-      calculateEvalMetrics(object = DDLS), 
+      calculateEvalMetrics(object = SDDLS), 
       regexp = "The provided object does not have a trained model for evaluation"
     )
     # incorrect object: no prob.cell.types slot
-    DDLSCompBad <- DDLSComp
-    prob.cell.types(DDLSCompBad) <- NULL
+    SDDLSCompBad <- SDDLSComp
+    prob.cell.types(SDDLSCompBad) <- NULL
     expect_error(
-      calculateEvalMetrics(object = DDLSCompBad), 
+      calculateEvalMetrics(object = SDDLSCompBad), 
       regexp = "The provided object does not contain actual cell proportions in 'prob.cell.types' slot"
     )
-    # incorrect metrics parameter
-    expect_error(
-      calculateEvalMetrics(object = DDLSComp, metrics = c("incorrect")), 
-      regexp = "The provided metrics are not valid"
-    )
-    
     # check if results are properly stored: only MAE
-    DDLSComp <- calculateEvalMetrics(object = DDLSComp, metrics = "MAE")
-    expect_type(trained.model(DDLSComp) %>% test.deconv.metrics(), type = "list")
+    SDDLSComp <- calculateEvalMetrics(object = SDDLSComp)
+    expect_type(trained.model(SDDLSComp) %>% test.deconv.metrics(), type = "list")
     expect_identical(
-      names(trained.model(DDLSComp) %>% test.deconv.metrics()), 
+      names(trained.model(SDDLSComp) %>% test.deconv.metrics()), 
       c("raw", "allData", "filData")
     )
     expect_true(
-      lapply(
-        trained.model(DDLSComp) %>% test.deconv.metrics(), names
-      )$allData == "MAE"
+      all(lapply(
+        trained.model(SDDLSComp) %>% test.deconv.metrics(), names
+      )$allData == c("MAE", "MSE"))
     )
     expect_true(
-      lapply(
-        trained.model(DDLSComp) %>% test.deconv.metrics(), names
-      )$filData == "MAE"
+      all(lapply(
+        trained.model(SDDLSComp) %>% test.deconv.metrics(), names
+      )$filData == c("MAE", "MSE"))
     )
     # aggregated results
     expect_identical(
-      names(trained.model(DDLSComp)@test.deconv.metrics[["allData"]][["MAE"]]),
+      names(trained.model(SDDLSComp)@test.deconv.metrics[["allData"]][["MAE"]]),
       c("Sample", "CellType", "pBin", "nCellTypes")
     )
     expect_identical(
-      names(trained.model(DDLSComp)@test.deconv.metrics[["filData"]][["MAE"]]),
+      names(trained.model(SDDLSComp)@test.deconv.metrics[["filData"]][["MAE"]]),
       c("Sample", "CellType", "pBin", "nCellTypes")
     )
     
     # both metrics: MAE and MSE
-    DDLSComp <- calculateEvalMetrics(object = DDLSComp)
-    expect_type(trained.model(DDLSComp) %>% test.deconv.metrics(), type = "list")
+    SDDLSComp <- calculateEvalMetrics(object = SDDLSComp)
+    expect_type(trained.model(SDDLSComp) %>% test.deconv.metrics(), type = "list")
     expect_identical(
-      names(trained.model(DDLSComp) %>% test.deconv.metrics()), 
+      names(trained.model(SDDLSComp) %>% test.deconv.metrics()), 
       c("raw", "allData", "filData")
     )
     expect_identical(
       lapply(
-        trained.model(DDLSComp) %>% test.deconv.metrics(), names
+        trained.model(SDDLSComp) %>% test.deconv.metrics(), names
       )$allData,  c("MAE", "MSE")
     )
     expect_identical(
       lapply(
-        trained.model(DDLSComp) %>% test.deconv.metrics(), names
+        trained.model(SDDLSComp) %>% test.deconv.metrics(), names
       )$filData,  c("MAE", "MSE")
     )
     # aggregated results
     expect_identical(
-      lapply(trained.model(DDLSComp)@test.deconv.metrics[["allData"]], names),
+      lapply(trained.model(SDDLSComp)@test.deconv.metrics[["allData"]], names),
       list(
         MAE = c("Sample", "CellType", "pBin", "nCellTypes"), 
         MSE = c("Sample", "CellType", "pBin", "nCellTypes")
       )
     )
     expect_identical(
-      lapply(trained.model(DDLSComp)@test.deconv.metrics[["filData"]], names),
+      lapply(trained.model(SDDLSComp)@test.deconv.metrics[["filData"]], names),
       list(
         MAE = c("Sample", "CellType", "pBin", "nCellTypes"), 
         MSE = c("Sample", "CellType", "pBin", "nCellTypes")
@@ -150,59 +163,59 @@ test_that(
   code = {
     # incorrect object: no evaluation metrics
     expect_error(
-      distErrorPlot(object = DDLS, error = "AbsErr"), 
-      regexp = "The provided object does not have evaluation metrics. Use 'calculateEvalMetrics' function"
+      distErrorPlot(object = SDDLS, error = "AbsErr"), 
+      regexp = "The provided object does not contain evaluation metrics. Use 'calculateEvalMetrics' function"
     )
     # incorrect error parameter
     expect_error(
-      distErrorPlot(object = DDLSComp, error = "no.metrics"), 
+      distErrorPlot(object = SDDLSComp, error = "no.metrics"), 
       regexp = "'error' provided is not valid"
     )
     # incorrect number of colors
     expect_error(
       distErrorPlot(
-        object = DDLSComp, error = "AbsErr", colors = c("red", "blue")
+        object = SDDLSComp, error = "AbsErr", colors = c("red", "blue")
       ), 
-      regexp = "The number of provided colors is not enough"
+      regexp = "Number of provided colors not enough"
     )
     # incorrect X variable (x.by parameter)
     expect_error(
       distErrorPlot(
-        object = DDLSComp, error = "AbsErr", x.by = "no.variable"
+        object = SDDLSComp, error = "AbsErr", x.by = "no.variable"
       ), 
       regexp = "'x.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' and 'pBin'"
     )
     # incorrect facet.by parameter
     expect_error(
       distErrorPlot(
-        object = DDLSComp, error = "AbsErr", facet.by = "no.variable"
+        object = SDDLSComp, error = "AbsErr", facet.by = "no.variable"
       ), 
       regexp = "'facet.by' provided is not valid. Available options are: 'nCellTypes', 'CellType' or NULL"
     )
     # incorrect color.by parameter
     expect_error(
       distErrorPlot(
-        object = DDLSComp, error = "AbsErr", color.by = "no.variable"
+        object = SDDLSComp, error = "AbsErr", color.by = "no.variable"
       ), 
       regexp = "'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' and NULL"
     )
     # incorrect type of plot
     expect_error(
       distErrorPlot(
-        object = DDLSComp, error = "AbsErr", type = "no.type"
+        object = SDDLSComp, error = "AbsErr", type = "no.type"
       ), 
       regexp = "'type' provided is not valid. The available options are: 'violinplot' and 'boxplot'"
     )
     # filtering of single-cell profiles
     p1 <- distErrorPlot(
-      object = DDLSComp, error = "AbsErr", filter.sc = TRUE
+      object = SDDLSComp, error = "AbsErr", filter.sc = TRUE
     )
     p2 <- distErrorPlot(
-      object = DDLSComp, error = "AbsErr", filter.sc = FALSE
+      object = SDDLSComp, error = "AbsErr", filter.sc = FALSE
     )
     expect_true(nrow(p1$data) <= nrow(p2$data))
-    expect_true(all(grepl(pattern = "Bulk", x = p1$data$Sample)))
-    expect_false(all(grepl(pattern = "Bulk", x = p2$data$Sample)))
+    expect_true(all(grepl(pattern = "Spot", x = p1$data$Sample)))
+    expect_false(all(grepl(pattern = "Spot", x = p2$data$Sample)))
   }
 )
 
@@ -212,43 +225,43 @@ test_that(
   code = {
     # incorrect object: no evaluation metrics
     expect_error(
-      corrExpPredPlot(object = DDLS), 
+      corrExpPredPlot(object = SDDLS), 
       regexp = "The provided object does not have evaluation metrics. Use 'calculateEvalMetrics' function"
     )
     # incorrect number of colors
     expect_error(
       corrExpPredPlot(
-        object = DDLSComp, colors = c("red", "blue")
+        object = SDDLSComp, colors = c("red", "blue")
       ), 
       regexp = "The number of provided colors is not enough"
     )
     # incorrect facet.by parameter
     expect_error(
       corrExpPredPlot(
-        object = DDLSComp, facet.by = "no.variable"
+        object = SDDLSComp, facet.by = "no.variable"
       ), 
       regexp = "'facet.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL"
     )
     # incorrect color.by parameter
     expect_error(
       corrExpPredPlot(
-        object = DDLSComp, color.by = "no.variable"
+        object = SDDLSComp, color.by = "no.variable"
       ), 
       regexp = "'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL"
     )
     # incorrect correlation
     expect_error(
       corrExpPredPlot(
-        object = DDLSComp, error = "AbsErr", corr = "no.corr"
+        object = SDDLSComp, error = "AbsErr", corr = "no.corr"
       ), 
       regexp = "Argument 'corr' invalid. Only supported 'pearson', 'ccc' and 'both'"
     )
     # filtering of single-cell profiles
-    p1 <- corrExpPredPlot(object = DDLSComp, filter.sc = TRUE)
-    p2 <- corrExpPredPlot(object = DDLSComp, filter.sc = FALSE)
+    p1 <- corrExpPredPlot(object = SDDLSComp, filter.sc = TRUE)
+    p2 <- corrExpPredPlot(object = SDDLSComp, filter.sc = FALSE)
     expect_true(nrow(p1$data) <= nrow(p2$data))
-    expect_true(all(grepl(pattern = "Bulk", x = p1$data$Sample)))
-    expect_false(all(grepl(pattern = "Bulk", x = p2$data$Sample)))
+    expect_true(all(grepl(pattern = "Spot", x = p1$data$Sample)))
+    expect_false(all(grepl(pattern = "Spot", x = p2$data$Sample)))
   }
 )
 
@@ -258,36 +271,36 @@ test_that(
   code = {
     # incorrect object: no evaluation metrics
     expect_error(
-      blandAltmanLehPlot(object = DDLS), 
+      blandAltmanLehPlot(object = SDDLS), 
       regexp = "The provided object does not have evaluation metrics. Use 'calculateEvalMetrics' function"
     )
     # incorrect number of colors
     expect_error(
       blandAltmanLehPlot(
-        object = DDLSComp, colors = c("red", "blue")
+        object = SDDLSComp, colors = c("red", "blue")
       ), 
       regexp = "The number of provided colors is not enough"
     )
     # incorrect facet.by parameter
     expect_error(
       blandAltmanLehPlot(
-        object = DDLSComp, facet.by = "no.variable"
+        object = SDDLSComp, facet.by = "no.variable"
       ), 
       regexp = "'facet.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL"
     )
     # incorrect color.by parameter
     expect_error(
       blandAltmanLehPlot(
-        object = DDLSComp, color.by = "no.variable"
+        object = SDDLSComp, color.by = "no.variable"
       ), 
       regexp = "'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL"
     )
     # filtering of single-cell profiles
-    p1 <- blandAltmanLehPlot(object = DDLSComp, filter.sc = TRUE)
-    p2 <- blandAltmanLehPlot(object = DDLSComp, filter.sc = FALSE)
+    p1 <- blandAltmanLehPlot(object = SDDLSComp, filter.sc = TRUE)
+    p2 <- blandAltmanLehPlot(object = SDDLSComp, filter.sc = FALSE)
     expect_true(nrow(p1$data) <= nrow(p2$data))
-    expect_true(all(grepl(pattern = "Bulk", x = p1$data$Sample)))
-    expect_false(all(grepl(pattern = "Bulk", x = p2$data$Sample)))
+    expect_true(all(grepl(pattern = "Spot", x = p1$data$Sample)))
+    expect_false(all(grepl(pattern = "Spot", x = p2$data$Sample)))
   }
 )
 
@@ -298,25 +311,26 @@ test_that(
   code = {
     # incorrect object: no evaluation metrics
     expect_error(
-      barErrorPlot(object = DDLS), 
+      barErrorPlot(object = SDDLS), 
       regexp = "The provided object does not have evaluation metrics. Use 'calculateEvalMetrics' function"
     )
     # incorrect by parameter
     expect_error(
-      barErrorPlot(object = DDLSComp, by = "no.variable"), 
+      barErrorPlot(object = SDDLSComp, by = "no.variable"), 
       regexp = "'by' provided is not valid. The available options are: 'nCellTypes', 'CellType'"
     )
     # incorrect error parameter
     expect_error(
-      barErrorPlot(object = DDLSComp, by = "CellType", error = "no.error"), 
+      barErrorPlot(object = SDDLSComp, by = "CellType", error = "no.error"), 
       regexp = "'error' provided is not valid. The available errors are: 'MAE', 'MSE'"
     )
     # incorrect dispersion parameter
     expect_error(
       barErrorPlot(
-        object = DDLSComp, by = "CellType", error = "MSE", dispersion = "no.disp"
+        object = SDDLSComp, by = "CellType", error = "MSE", dispersion = "no.disp"
       ), 
       regexp = "'dispersion' provided is not valid"
     )
   }
 )
+

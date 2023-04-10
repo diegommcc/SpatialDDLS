@@ -163,7 +163,10 @@ plotSpatialProp <- function(
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
   } else if (is.null(spatial.experiments(object)) || is.null(deconv.spots(object))) {
-    stop("djhdhdhd")
+    stop(
+      "Either predictions (`deconv.spots` slot) or ST data ", 
+      "(`spatial.experiments` slot) not present in SpatialDDLS object"
+    )
   } 
   ## getting data
   st.coor <- SpatialExperiment::spatialCoords(

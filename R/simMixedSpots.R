@@ -218,7 +218,7 @@ genMixedCellProp <- function(
     limit = total.test
   )
   if (verbose) {
-    message(paste("\n=== The number of mixed spots that will be generated", 
+    message(paste("\n=== The number of mixed profiles that will be generated", 
                   "is equal to", num.sim.spots))  
   }
   # split data into training and test sets

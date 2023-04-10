@@ -178,7 +178,10 @@ sce <- SingleCellExperiment::SingleCellExperiment(
     Gene_ID = paste0("Gene", seq(40))
   )
 )
-counts <- matrix(rpois(30, lambda = 5), ncol = 6)
+counts <- matrix(
+  rpois(30, lambda = 5), ncol = 6,
+  dimnames = list(paste0("Gene", 1:5), paste0("Spot", 1:6))
+)
 coordinates <- matrix(
   c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), ncol = 2
 )
@@ -195,7 +198,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.gene.ID.column = "Gene_ID",
   sc.min.cells = 0,
   sc.min.counts = 0,
-  st.data = sce,
+  st.data = ste,
   st.spot.ID.column = "Cell_ID",
   st.gene.ID.column = "Gene_ID",
   project = "Simul_example"

@@ -1189,10 +1189,10 @@ loadSTProfiles <- function(
   } 
   spatial.experiments <- .loadSTData(
     list.st.objects = st.data,
-    cell.ID.column = cell.ID.column,
-    gene.ID.column = gene.ID.column,
-    min.cells = min.cells,
-    min.counts = min.counts,
+    cell.ID.column = st.spot.ID.column,
+    gene.ID.column = st.gene.ID.column,
+    min.cells = st.min.spots,
+    min.counts = st.min.counts,
     n.slides = st.n.slides,
     verbose = verbose
   )

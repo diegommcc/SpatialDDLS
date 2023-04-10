@@ -58,56 +58,64 @@ test_that(
     # object without prob.cell.types slot
     expect_error(
       trainDeconvModel(object = SDDLS, verbose = FALSE), 
-      regexp = "'prob.cell.types' slot is empty"
+      regexp = "If `type.data.train` = mixed is selected, 'mixed.profiles' must be provided"
     )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
+    SDDLS <- suppressWarnings(
+      genMixedCellProp(
+        object = SDDLS,
+        cell.ID.column = "Cell_ID",
+        cell.type.column = "Cell_Type",
+        num.sim.spots = 100,
+        verbose = FALSE
+      )
     )
-    # combine = 'both' without bulk samples
+    # combine = 'both' without mixed samples
     expect_error(
       trainDeconvModel(
-        object = SDDLS, combine = "both", verbose = FALSE
+        object = SDDLS, type.data.train = "both", verbose = FALSE
       ), 
-      regexp = "If 'combine = both' is selected, 'bulk.simul' and at least one single cell slot must be provided"
+      regexp = "If `type.data.train` = both'"
     )
-    # combine = 'bulk' without bulk samples
     expect_error(
       trainDeconvModel(
-        object = SDDLS, combine = "bulk", verbose = FALSE
+        object = SDDLS, type.data.train = "single-cell", 
+        type.data.test = "both", verbose = FALSE
       ), 
-      regexp = "If 'combine' = bulk is selected, 'bulk.simul' must be provided"
+      regexp = "If `type.data.test` = both' is selected, 'mixed.profiles' and at least one single cell slot must be provided"
     )
-    # combine = 'single-cell' without bulk for test data (evaluation of the model)
+    # combine = 'mixed' without mixed samples
     expect_error(
       trainDeconvModel(
-        object = SDDLS, combine = "single-cell", verbose = FALSE
+        object = SDDLS, type.data.train = "mixed", verbose = FALSE
       ), 
-      regexp = "trainDeconvModel evaluates DNN model on both types of profiles: bulk and single-cell. Therefore, bulk data for test must be provided"
+      regexp = "If `type.data.train` = mixed is selected, 'mixed.profiles' must be provided"
     )
-    # combine = 'single-cell' without bulk for test data --> on.the.fly = TRUE
+    # combine = 'single-cell' without mixed for test data (evaluation of the model)
+    expect_error(
+      trainDeconvModel(
+        object = SDDLS, type.data.train = "single-cell", verbose = FALSE
+      ), 
+      regexp = "If `type.data.test` = mixed is selected, 'mixed.profiles' must be provided"
+    )
+    # combine = 'single-cell' without mixed data for test data when on.the.fly = TRUE
     expect_message(
       trainDeconvModel(
         object = SDDLS,
-        combine = "single-cell",
+        type.data.train = "single-cell",
         on.the.fly = TRUE,
         batch.size = 12,
         view.metrics.plot = FALSE
-      ), 
+      ),
       regexp = "Training and test on the fly was selected"
     )
     SDDLSBad <- SDDLS
-    bulk.simul(SDDLSBad) <- NULL
+    mixed.profiles(SDDLSBad) <- NULL
     trained.model(SDDLSBad) <- NULL
-    # combine = 'bulk' without bulk for test data --> on.the.fly = TRUE
+    # type.data.train = 'mixed' without mixed for test data when on.the.fly = TRUE
     expect_message(
       SDDLSBad <- trainDeconvModel(
         object = SDDLSBad,
-        combine = "bulk",
+        type.data.train = "mixed",
         on.the.fly = TRUE,
         batch.size = 12,
         view.metrics.plot = FALSE
@@ -119,34 +127,29 @@ test_that(
       trainDeconvModel(
         object = SDDLS,
         on.the.fly = TRUE,
-        pseudobulk.function = "Invalid",
+        agg.function = "Invalid",
         batch.size = 12,
         view.metrics.plot = FALSE
       ), 
-      regexp = "'pseudobulk.function' must be one of the following options"
+      regexp = "'agg.function' must be one of the following options"
     )
   }
 )
 
-# check expected behaviour of parameters
+# check expected parameters
 test_that(
   desc = "Parameters", 
-  code = 
-    {
-      probMatrixValid <- data.frame(
-        Cell_Type = paste0("CellType", seq(4)),
-        from = c(1, 1, 1, 30),
-        to = c(15, 15, 50, 70)
+  code = {
+      SDDLS <- suppressWarnings(
+        genMixedCellProp(
+          object = SDDLS,
+          cell.ID.column = "Cell_ID",
+          cell.type.column = "Cell_Type",
+          num.sim.spots = 100,
+          verbose = FALSE
+        )
       )
-      SDDLS <- genMixedCellProp(
-        object = SDDLS,
-        cell.ID.column = "Cell_ID",
-        cell.type.column = "Cell_Type",
-        prob.design = probMatrixValid,
-        num.bulk.samples = 100,
-        verbose = FALSE
-      )
-      SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
+      SDDLS <- simMixedProfiles(SDDLS, verbose = FALSE)
       # change neural network architecture
       SDDLS <- trainDeconvModel(
         object = SDDLS,
@@ -264,12 +267,12 @@ test_that(
         verbose = FALSE
       )
       samp.stand <- as.numeric(gsub(
-        pattern = "Bulk_|CellType\\d\\_Simul|RH|C", 
+        pattern = "Spot_|CellType\\d\\_Simul|RH|C", 
         replacement = "", 
         x = rownames(SDDLS.standarize@trained.model@test.pred)
       )) %>% order()
       samp.rescale <- as.numeric(gsub(
-        pattern = "Bulk_|CellType\\d\\_Simul|RH|C", 
+        pattern = "Spot_|CellType\\d\\_Simul|RH|C", 
         replacement = "", 
         x = rownames(SDDLS.rescale@trained.model@test.pred)
       )) %>% order()
@@ -283,20 +286,16 @@ test_that(
 test_that(
   desc = "custom.model parameter", 
   {
-    probMatrixValid <- data.frame(
-      Cell_Type = paste0("CellType", seq(4)),
-      from = c(1, 1, 1, 30),
-      to = c(15, 15, 50, 70)
+    SDDLS <- suppressWarnings(
+      genMixedCellProp(
+        object = SDDLS,
+        cell.ID.column = "Cell_ID",
+        cell.type.column = "Cell_Type",
+        num.sim.spots = 100,
+        verbose = FALSE
+      )
     )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
-    )
-    SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
+    SDDLS <- suppressWarnings(simMixedProfiles(SDDLS, verbose = FALSE))
     # 2 hidden layers without dropouts
     customModel <- keras_model_sequential(name = "CustomModel") %>% 
       layer_dense(
@@ -326,7 +325,7 @@ test_that(
     )
     expect_s4_class(
       object = SDDLS, 
-      class = "DigitalDLSorter"
+      class = "SpatialDDLS"
     )
     expect_true(
       grepl(
@@ -425,135 +424,148 @@ test_that(
 )
 
 ################################################################################
-###################### deconvDigitalDLSorterObj function #######################
+######################### deconvSpatialDDLS function ###########################
 ################################################################################
 
-# deconvolution of new samples with DigitalDLSorter object
+# deconvolution of new samples 
 test_that(
-  "deconvDigitalDLSorterObj: deconvolution of new samples", 
+  "Deconvolution of new samples", 
   {
-    probMatrixValid <- data.frame(
-      Cell_Type = paste0("CellType", seq(4)),
-      from = c(1, 1, 1, 30),
-      to = c(15, 15, 50, 70)
+    SDDLS <- suppressWarnings(
+      genMixedCellProp(
+        object = SDDLS,
+        cell.ID.column = "Cell_ID",
+        cell.type.column = "Cell_Type",
+        num.sim.spots = 100,
+        verbose = FALSE
+      )
     )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
-    )
-    SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
+    SDDLS <- suppressWarnings(simMixedProfiles(SDDLS, verbose = FALSE))
     # check is everything works
     SDDLS <- trainDeconvModel(
       object = SDDLS,
       batch.size = 28,
       verbose = FALSE
     )
-    # simulating bulk samples
-    se <- SummarizedExperiment(
-      matrix(
-        stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)), 
-        nrow = 40, ncol = 15, 
-        dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
-      )
+    # simulating spatial data
+    simSpatialExperiment <- function(n = 1) {
+      sim.samples <- function() {
+        ngenes <- sample(3:40, size = 1)
+        ncells <- sample(3:40, size = 1)
+        counts <- matrix(
+          rpois(ngenes * ncells, lambda = 5), ncol = ncells,
+          dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
+        )
+        coordinates <- matrix(
+          rep(c(1, 2), ncells), ncol = 2
+        )
+        return(
+          SpatialExperiment::SpatialExperiment(
+            assays = list(counts = as.matrix(counts)),
+            rowData = data.frame(Gene_ID = paste0("Gene", seq(ngenes))),
+            colData = data.frame(Cell_ID = paste0("Spot", seq(ncells))),
+            spatialCoords = coordinates
+          )
+        )
+      }
+      return(replicate(n = n, expr = sim.samples()))
+    }
+    ste <- simSpatialExperiment(n = 1)
+    SDDLS <- loadSTProfiles(
+      SDDLS, 
+      st.data = ste,
+      st.spot.ID.column = "Cell_ID",
+      st.gene.ID.column = "Gene_ID",
+      st.n.slides = 1
     )
-    SDDLS <- loadDeconvData(
-      SDDLS, data = se, name.data = "TCGA"
-    )
-    SDDLS <- deconvDigitalDLSorterObj(
-      object = SDDLS,
-      name.data = "TCGA"
-    )
-    expect_true(names(deconv.results(SDDLS)) == names(deconv.data(SDDLS)))
+    SDDLS <- deconvSpatialDDLS(object = SDDLS, index.st = 1)
+    # expect_true(names(deconv.spots(SDDLS)) == names(spatial.experiments(SDDLS)))
     expect_true(
-      nrow(deconv.results(SDDLS, "TCGA")) == ncol(deconv.data(SDDLS, "TCGA"))
+      nrow(deconv.spots(SDDLS, 1)) == ncol(spatial.experiments(SDDLS, 1))
     )
     expect_true(
-      all(rownames(deconv.results(SDDLS, "TCGA")) == 
-            colnames(deconv.data(SDDLS, "TCGA")))
+      all(rownames(deconv.spots(SDDLS, 1)) == 
+            colnames(spatial.experiments(SDDLS, 1)))
     )
-    # name.data does not exist
+    # index.st does not exist
     expect_error(
-      deconvDigitalDLSorterObj(
+      deconvSpatialDDLS(
         object = SDDLS, 
-        name.data = "not_exists",
+        index.st = "not_exists",
         verbose = FALSE
-      ), regexp = "'name.data' provided is not present in DigitalDLSorter object"
+      ), regexp = "spatial.experiment slot does not contain names, so `index.st` must be an integer"
     )
     # simplify.set: generate a new class from two or more cell types
-    deconv.results(SDDLS) <- NULL
+    deconv.spots(SDDLS) <- NULL
     expect_error(
-      deconvDigitalDLSorterObj(
+      deconvSpatialDDLS(
         object = SDDLS,
-        name.data = "TCGA",
+        index.st = 1,
         simplify.set = list(c("Mc", "M")),
         verbose = FALSE
       ), 
       regexp = "Each element in the list must contain the corresponding new class as name"
     )
-    deconv.results(SDDLS) <- NULL
-    SDDLS <- deconvDigitalDLSorterObj(
+    deconv.spots(SDDLS) <- NULL
+    SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
-      name.data = "TCGA",
+      index.st = 1,
       simplify.set = list(CellTypesNew = c("CellType2", "CellType4")),
       verbose = FALSE
     )
-    expect_type(deconv.results(SDDLS, "TCGA"), type = "list")
-    expect_identical(names(deconv.results(SDDLS, "TCGA")), c("raw", "simpli.set"))
+    expect_type(deconv.spots(SDDLS, 1), type = "list")
+    expect_identical(names(deconv.spots(SDDLS, 1)), c("raw", "simpli.set"))
     expect_true(
-      any(colnames(deconv.results(SDDLS, name.data = "TCGA")$simpli.set) == 
+      any(colnames(deconv.spots(SDDLS, index.st = 1)$simpli.set) == 
             "CellTypesNew")
     )
     expect_false(
-      any(colnames(deconv.results(SDDLS, name.data = "TCGA")$raw) == 
+      any(colnames(deconv.spots(SDDLS, index.st = 1)$raw) == 
             "CellTypesNew")
     )
-    deconv.results(SDDLS) <- NULL
-    SDDLS <- deconvDigitalDLSorterObj(
+    deconv.spots(SDDLS) <- NULL
+    SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
-      name.data = "TCGA",
+      index.st = 1,
       simplify.set = list(
         CellTypesNew = c("CellType2", "CellType4"), 
         CellTypesNew2 = c("CellType3", "CellType1")
       ), 
       verbose = FALSE
     )
-    expect_true(ncol(deconv.results(SDDLS, name.data = "TCGA")$simpli.set) == 2)
+    expect_true(ncol(deconv.spots(SDDLS, index.st = 1)$simpli.set) == 2)
     expect_true(all(
       c("CellTypesNew", "CellTypesNew2") %in% 
-        colnames(deconv.results(SDDLS, name.data = "TCGA")$simpli.set)
+        colnames(deconv.spots(SDDLS, index.st = 1)$simpli.set)
     ))
     # simplify.majority: add up proportions to the most abundant cell type
-    deconv.results(SDDLS) <- NULL
-    SDDLS <- deconvDigitalDLSorterObj(
+    deconv.spots(SDDLS) <- NULL
+    SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
-      name.data = "TCGA",
+      index.st = 1,
       simplify.majority = list(c("CellType2", "CellType4"), 
                                c("CellType3", "CellType1")),
       verbose = FALSE
     )
     expect_true(
-      all(colnames(deconv.results(SDDLS, name.data = "TCGA")$simpli.maj) == 
-            colnames(deconv.results(SDDLS, name.data = "TCGA")$raw))
+      all(colnames(deconv.spots(SDDLS, index.st = 1)$simpli.maj) == 
+            colnames(deconv.spots(SDDLS, index.st = 1)$raw))
     )
     expect_true(
       all(
         names(which(apply(
-          X = deconv.results(SDDLS, name.data = "TCGA")$simpli.maj != 
-            deconv.results(SDDLS, name.data = "TCGA")$raw,
+          X = deconv.spots(SDDLS, index.st = 1)$simpli.maj != 
+            deconv.spots(SDDLS, index.st = 1)$raw,
           MARGIN = 2,
           FUN = sum) > 0)
         ) %in% c("CellType2", "CellType4", "CellType3", "CellType1")
       )
     )
     # check if both types of simplify can be stored
-    deconv.results(SDDLS) <- NULL
-    SDDLS <- deconvDigitalDLSorterObj(
+    deconv.spots(SDDLS) <- NULL
+    SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
-      name.data = "TCGA",
+      index.st = 1,
       simplify.majority = list(c("CellType2", "CellType4"), 
                                c("CellType3", "CellType1")),
       simplify.set = list(
@@ -563,37 +575,75 @@ test_that(
       verbose = FALSE
     )
     expect_true(
-      all(names(deconv.results(SDDLS, "TCGA")) %in% 
+      all(names(deconv.spots(SDDLS, 1)) %in% 
             c("raw", "simpli.set", "simpli.majority"))
     )
     barPlotCellTypes(
-      data = SDDLS, colors = default.colors(), simplify = "simpli.majority"
+      data = SDDLS, index.st = 1, colors = default.colors(), simplify = "simpli.majority"
+    )
+    
+    ## deconvolution of more than 1 SpatialExperiment object
+    ste <- simSpatialExperiment(n = 6) %>% setNames(paste0("ST", 1:6))
+    SDDLS <- loadSTProfiles(
+      SDDLS, 
+      st.data = ste,
+      st.spot.ID.column = "Cell_ID",
+      st.gene.ID.column = "Gene_ID",
+      st.n.slides = 1
+    )
+    SDDLS <- deconvSpatialDDLS(object = SDDLS)
+    expect_true(
+      all(names(deconv.spots(SDDLS)) == names(spatial.experiments(SDDLS)))
+    )
+    expect_true(
+      nrow(deconv.spots(SDDLS, 4)) == ncol(spatial.experiments(SDDLS, 4))
+    )
+    expect_true(
+      all(rownames(deconv.spots(SDDLS, 1)) == 
+            colnames(spatial.experiments(SDDLS, 1)))
+    )
+    # index.st does not exist
+    expect_error(
+      deconvSpatialDDLS(
+        object = SDDLS, 
+        index.st = "no",
+        verbose = FALSE
+      ), regexp = "`index.st` contains elements not present in spatial.experiments slot"
+    )
+    # simplify.set: generate a new class from two or more cell types
+    deconv.spots(SDDLS) <- NULL
+    expect_error(
+      deconvSpatialDDLS(
+        object = SDDLS,
+        index.st = 1,
+        simplify.set = list(c("Mc", "M")),
+        verbose = FALSE
+      ), 
+      regexp = "Each element in the list must contain the corresponding new class as name"
     )
   }
 )
 
 # check if saving trained models as JSON-like character objects works
 test_that(
-  desc = "deconvDigitalDLSorterObj: deconvolution of new samples (JSON objects from disk)", 
+  desc = "deconvSpatialDDLS: deconvolution of new samples (JSON objects from disk)", 
   {
-    probMatrixValid <- data.frame(
-      Cell_Type = paste0("CellType", seq(4)),
-      from = c(1, 1, 1, 30),
-      to = c(15, 15, 50, 70)
+    SDDLS <- suppressWarnings(
+      genMixedCellProp(
+        object = SDDLS,
+        cell.ID.column = "Cell_ID",
+        cell.type.column = "Cell_Type",
+        num.sim.spots = 100,
+        verbose = FALSE
+      )
     )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
-    )
-    SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
-    SDDLS <- trainDeconvModel(
-      object = SDDLS,
-      batch.size = 28,
-      verbose = FALSE
+    SDDLS <- suppressWarnings(simMixedProfiles(SDDLS, verbose = FALSE))
+    SDDLS <- suppressWarnings(
+      trainDeconvModel(
+        object = SDDLS,
+        batch.size = 28,
+        verbose = FALSE
+      )
     )
     # save SDDLS object as RDS object: transform Python object into a JSON-like character object
     fileTMP <- tempfile()
@@ -613,17 +663,28 @@ test_that(
         dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
       )
     )
-    SDDLS <- loadDeconvData(object = SDDLS, data = se, name.data = "TCGA")
-    SDDLS <- deconvDigitalDLSorterObj(
-      object = SDDLS, name.data = "TCGA", verbose = FALSE
+    SDDLS <- loadSTProfiles(
+      object = SDDLS, st.data = simSpatialExperiment(n = 1),
+      st.spot.ID.column = "Cell_ID",
+      st.gene.ID.column = "Gene_ID",
+      st.n.slides = 1
     )
-    SDDLSNew <- loadDeconvData(object = SDDLSNew, data = se, name.data = "TCGA")
-    SDDLSNew <- deconvDigitalDLSorterObj(
-      object = SDDLSNew, name.data = "TCGA", verbose = FALSE
+    SDDLS <- deconvSpatialDDLS(
+      object = SDDLS, index.st = 1, verbose = FALSE
+    )
+    SDDLSNew <- loadSTProfiles(
+      object = SDDLSNew, 
+      st.data = simSpatialExperiment(n = 1),
+      st.spot.ID.column = "Cell_ID",
+      st.gene.ID.column = "Gene_ID",
+      st.n.slides = 1
+    )
+    SDDLSNew <- deconvSpatialDDLS(
+      object = SDDLSNew, index.st = 1, verbose = FALSE
     )
     expect_true(
-      all(colnames(deconv.results(SDDLSNew, "TCGA")) == 
-            colnames(deconv.results(SDDLS, "TCGA")))
+      all(colnames(deconv.spots(SDDLSNew, 1)) == 
+            colnames(deconv.spots(SDDLS, 1)))
     )
     # save DigitalDLSorterDNN object independently of DigitalDLSorter
     fileTMP <- tempfile()
@@ -639,99 +700,6 @@ test_that(
 )
 
 ################################################################################
-######################## deconvDigitalDLSorter function ########################
-################################################################################
-
-# deconvolution of new samples using pre-trained models --> this functionallity
-# cannot be checked because pre-trained models are allocated in an external 
-# repository (github). In any case, it is going to be checked by random models
-test_that(
-  desc = "deconvDigitalDLSorter: deconvolution of new samples with pre-trained models", 
-  code = {
-    probMatrixValid <- data.frame(
-      Cell_Type = paste0("CellType", seq(4)),
-      from = c(1, 1, 1, 30),
-      to = c(15, 15, 50, 70)
-    )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
-    )
-    SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
-    # check is everything works
-    SDDLS <- trainDeconvModel(
-      object = SDDLS,
-      batch.size = 28,
-      verbose = FALSE
-    )
-    deconv.model <- trained.model(SDDLS)
-    countsBulk <- matrix(
-      stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)), 
-      nrow = 40, ncol = 15, 
-      dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
-    )
-    # incorrect model
-    expect_error(
-      deconvDigitalDLSorter(
-        data = countsBulk,
-        model = "no.existent.model",
-        verbose = FALSE
-      ), 
-      regexp = "'model' is not an object of DigitalDLSorterDNN class"
-    )
-    # generate results
-    resultsBreastGen <- deconvDigitalDLSorter(
-      data = countsBulk,
-      model = deconv.model,
-      verbose = FALSE
-    )
-    expect_true(ncol(resultsBreastGen) == 4)
-    # using simplify arguments
-    # cannot use both argument at the same time
-    expect_error(
-      deconvDigitalDLSorter(
-        data = countsBulk,
-        model = deconv.model,
-        simplify.majority = list(c("CellType2", "CellType4"), 
-                                 c("CellType3", "CellType1")),
-        simplify.set = list(
-          CellTypesNew = c("CellType2", "CellType4"), 
-          CellTypesNew2 = c("CellType3", "CellType1")
-        ),
-        verbose = FALSE
-      ), regexp = "Only one type of simplification can be selected"
-    )
-    # simplify.set
-    resSimSet <- deconvDigitalDLSorter(
-      data = countsBulk,
-      model = deconv.model,
-      simplify.set = list(
-        CellTypesNew = c("CellType2", "CellType4"), 
-        CellTypesNew2 = c("CellType3", "CellType1")
-      ),
-      verbose = FALSE
-    )
-    expect_true(any(colnames(resSimSet) %in% c("CellTypesNew", "CellTypesNew2")))
-    expect_true(ncol(resSimSet) == 2)
-    # simplify.majority
-    resSimMaj <- deconvDigitalDLSorter(
-      data = countsBulk,
-      model = deconv.model,
-      simplify.majority = list(c("CellType2", "CellType4"), 
-                               c("CellType3", "CellType1")),
-      verbose = FALSE
-    )
-    expect_true(any(colnames(resSimMaj) %in% c("CellType2", "CellType4")))
-    expect_true(ncol(resSimMaj) == 4)
-  }
-)
-
-
-################################################################################
 ########################## barPlotCellTypes function ###########################
 ################################################################################
 
@@ -739,55 +707,50 @@ test_that(
 test_that(
   desc = "barPlotCellTypes: visualization of results using a DigitalDLSorter object", 
   code = {
-    probMatrixValid <- data.frame(
-      Cell_Type = paste0("CellType", seq(4)),
-      from = c(1, 1, 1, 30),
-      to = c(15, 15, 50, 70)
-    )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
-    )
-    SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
-    # check is everything works
-    SDDLS <- trainDeconvModel(
-      object = SDDLS,
-      batch.size = 28,
-      verbose = FALSE
-    )
-    se <- SummarizedExperiment(
-      matrix(
-        stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)), 
-        nrow = 40, ncol = 15, 
-        dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
+    SDDLS <- suppressWarnings(
+      genMixedCellProp(
+        object = SDDLS,
+        cell.ID.column = "Cell_ID",
+        cell.type.column = "Cell_Type",
+        num.sim.spots = 100,
+        verbose = FALSE
       )
     )
-    SDDLS <- loadDeconvData(
-      SDDLS, data = se, name.data = "TCGA"
+    SDDLS <- suppressWarnings(simMixedProfiles(SDDLS, verbose = FALSE))
+    # check is everything works
+    SDDLS <- suppressWarnings(
+      trainDeconvModel(
+        object = SDDLS,
+        batch.size = 28,
+        verbose = FALSE
+      )
     )
-    SDDLS <- deconvDigitalDLSorterObj(
+    SDDLS <- loadSTProfiles(
+      SDDLS, 
+      st.data = simSpatialExperiment(n = 1),
+      st.spot.ID.column = "Cell_ID",
+      st.gene.ID.column = "Gene_ID",
+      st.n.slides = 1
+    )
+    SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
-      name.data = "TCGA",
+      index.st = 1,
       verbose = FALSE
     )
-    # name.data not provided
+    # index.st not provided
     expect_message(
       barPlotCellTypes(data = SDDLS), 
-      regexp = "'name.data' not provided. By default, first results are used"
+      regexp = "'index.st' not provided. Setting index.st <- 1"
     )
     # No results available 
     expect_error(
-      barPlotCellTypes(data = SDDLS, simplify = "no_res"),
+      barPlotCellTypes(data = SDDLS, simplify = "no_res", index.st = 1),
       regexp = "No simplified results available"
     )
     # invalid simplify argument 
-    SDDLS <- deconvDigitalDLSorterObj(
+    SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
-      name.data = "TCGA",
+      index.st = 1,
       simplify.set = list(
         CellTypesNew = c("CellType2", "CellType4"), 
         CellTypesNew2 = c("CellType3", "CellType1")
@@ -796,93 +759,38 @@ test_that(
                                c("CellType3", "CellType1"))
     )
     expect_error(
-      barPlotCellTypes(data = SDDLS, simplify = "no_res"),
+      barPlotCellTypes(data = SDDLS, simplify = "no_res", index.st = 1),
       regexp = "simplify argument must be one of the following options: 'simpli.set' or 'simpli.majority'"
     )
     # not enough colors
     expect_error(
-      barPlotCellTypes(data = SDDLS, colors = c("blue", "red")),
+      barPlotCellTypes(data = SDDLS, colors = c("blue", "red"), index.st = 1),
       regexp = "Number of provided colors is not enough for the number of cell types"
     )
-    # incorrect name.data
+    # incorrect index.st
     expect_error(
-      barPlotCellTypes(data = SDDLS, name.data = "no_res"),
-      regexp = "Provided 'name.data' does not exist"
+      barPlotCellTypes(data = SDDLS, index.st = "no_res"),
+      regexp = "Provided 'index.st' does not exist"
     )
     # object without results
     SDDLSBad <- SDDLS
-    deconv.results(SDDLSBad) <- NULL
+    deconv.spots(SDDLSBad) <- NULL
     expect_error(
       barPlotCellTypes(data = SDDLSBad),
-      regexp = "There are no results in DigitalDLSorter object."
+      regexp = "There are no results in SpatialDDLS object."
     )
     # simplify.set and simplify majority work fine --> gg objects
     expect_s3_class(
-      barPlotCellTypes(data = SDDLS, name.data = 1), 
+      barPlotCellTypes(data = SDDLS, index.st = 1), 
       class = "gg"
     )
     expect_s3_class(
-      barPlotCellTypes(data = SDDLS, simplify = "simpli.set", name.data = 1), 
+      barPlotCellTypes(data = SDDLS, simplify = "simpli.set", index.st = 1), 
       class = "gg"
     )
     expect_s3_class(
-      barPlotCellTypes(data = SDDLS, simplify = "simpli.majority", name.data = 1), 
+      barPlotCellTypes(data = SDDLS, simplify = "simpli.majority", index.st = 1), 
       class = "gg"
-    )
-  }
-)
-
-# visualization of results using barPlotCellTypes function using matrices/data.frames
-test_that(
-  "barPlotCellTypes: visualization of results using matrices/data.frames", 
-  {
-    probMatrixValid <- data.frame(
-      Cell_Type = paste0("CellType", seq(4)),
-      from = c(1, 1, 1, 30),
-      to = c(15, 15, 50, 70)
-    )
-    SDDLS <- genMixedCellProp(
-      object = SDDLS,
-      cell.ID.column = "Cell_ID",
-      cell.type.column = "Cell_Type",
-      prob.design = probMatrixValid,
-      num.bulk.samples = 100,
-      verbose = FALSE
-    )
-    SDDLS <- simBulkProfiles(SDDLS, verbose = FALSE)
-    # check is everything works
-    SDDLS <- trainDeconvModel(
-      object = SDDLS,
-      batch.size = 28,
-      verbose = FALSE
-    )
-    deconv.model <- trained.model(SDDLS)
-    countsBulk <- matrix(
-      stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)), 
-      nrow = 40, ncol = 15, 
-      dimnames = list(paste0("Gene", seq(40)), paste0("Bulk", seq(15)))
-    )
-    resultsGen <- deconvDigitalDLSorter(
-      data = countsBulk,
-      model = deconv.model,
-      verbose = FALSE
-    )
-    # function does not need name.data argument with matrix/data.frame
-    expect_error(
-      barPlotCellTypes(data = resultsGen, name.data = "TCGA"),
-      regexp = 'unused argument'
-    )
-    expect_s3_class(barPlotCellTypes(data = resultsGen), class = "gg")
-    # not enough colors
-    expect_error(
-      barPlotCellTypes(data = resultsGen, colors = c("blue", "red")),
-      regexp = "Number of provided colors is not enough for the number of cell types"
-    )
-    # no column names (cell types)
-    colnames(resultsGen) <- NULL
-    expect_error(
-      barPlotCellTypes(data = resultsGen), 
-      regexp = "'data' must have colnames"
     )
   }
 )
