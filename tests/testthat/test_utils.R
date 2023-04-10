@@ -211,7 +211,7 @@ test_that(
       SDDLSCompNoRes <- loadTrainedModelFromH5(
         object = SDDLSComp, file.path = fileTMP
       ), 
-      regexp = "'reset.slot' is FALSE, just 'model' slot of DigitalDLSorterDNNobject will be overwritten"
+      regexp = "DeconvDLModel object will be overwritten"
     )
     expect_false(is.null(SDDLSCompNoRes@trained.model@training.history))
     # reset.slot = TRUE

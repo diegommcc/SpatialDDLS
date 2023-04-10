@@ -336,7 +336,7 @@ loadTrainedModelFromH5 <- function(
     if (reset.slot) {
       message("  'reset.slot' is TRUE, 'trained.model' slot will be restarted")
     } else {
-      message("  'reset.slot' is FALSE, just 'model' slot of DeconvDLModel",
+      message("  'reset.slot' is FALSE, only 'model' slot of DeconvDLModel ",
               "object will be overwritten")
     }
   } else {

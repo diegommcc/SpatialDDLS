@@ -51,6 +51,30 @@ SDDLS <- simSCProfiles(
   verbose = FALSE
 )
 
+# simulating spatial data
+simSpatialExperiment <- function(n = 1) {
+  sim.samples <- function() {
+    ngenes <- sample(3:40, size = 1)
+    ncells <- sample(3:40, size = 1)
+    counts <- matrix(
+      rpois(ngenes * ncells, lambda = 5), ncol = ncells,
+      dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
+    )
+    coordinates <- matrix(
+      rep(c(1, 2), ncells), ncol = 2
+    )
+    return(
+      SpatialExperiment::SpatialExperiment(
+        assays = list(counts = as.matrix(counts)),
+        rowData = data.frame(Gene_ID = paste0("Gene", seq(ngenes))),
+        colData = data.frame(Cell_ID = paste0("Spot", seq(ncells))),
+        spatialCoords = coordinates
+      )
+    )
+  }
+  return(replicate(n = n, expr = sim.samples()))
+}
+
 # check if object contains all information needed
 test_that(
   "Wrong object: lack of specific data", 
@@ -447,29 +471,6 @@ test_that(
       batch.size = 28,
       verbose = FALSE
     )
-    # simulating spatial data
-    simSpatialExperiment <- function(n = 1) {
-      sim.samples <- function() {
-        ngenes <- sample(3:40, size = 1)
-        ncells <- sample(3:40, size = 1)
-        counts <- matrix(
-          rpois(ngenes * ncells, lambda = 5), ncol = ncells,
-          dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
-        )
-        coordinates <- matrix(
-          rep(c(1, 2), ncells), ncol = 2
-        )
-        return(
-          SpatialExperiment::SpatialExperiment(
-            assays = list(counts = as.matrix(counts)),
-            rowData = data.frame(Gene_ID = paste0("Gene", seq(ngenes))),
-            colData = data.frame(Cell_ID = paste0("Spot", seq(ncells))),
-            spatialCoords = coordinates
-          )
-        )
-      }
-      return(replicate(n = n, expr = sim.samples()))
-    }
     ste <- simSpatialExperiment(n = 1)
     SDDLS <- loadSTProfiles(
       SDDLS, 
