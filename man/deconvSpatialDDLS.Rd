@@ -8,7 +8,7 @@ deconvSpatialDDLS(
   object,
   index.st,
   normalize = TRUE,
-  scaling = "standarize",
+  scaling = "rescale",
   simplify.set = NULL,
   simplify.majority = NULL,
   use.generator = FALSE,

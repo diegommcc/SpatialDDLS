@@ -199,8 +199,12 @@ NULL
   counts, 
   cells.metadata, 
   cell.ID.column,
+  cell.type.column,
   genes.metadata, 
   gene.ID.column,
+  filt.genes.cluster,
+  min.mean.counts,
+  filt.genes.cells,
   min.counts, 
   min.cells,
   file.backend,
@@ -214,6 +218,14 @@ NULL
     type.metadata = "cells.metadata",
     arg = "cell.ID.column"
   )
+  if (filt.genes.cluster) {
+    .checkColumn(
+      metadata = cells.metadata,
+      ID.column = cell.type.column,
+      type.metadata = "cells.metadata",
+      arg = "sc.cell.type.column"
+    )
+  }
   .checkColumn(
     metadata = genes.metadata,
     ID.column = gene.ID.column,
@@ -302,11 +314,25 @@ NULL
       counts = counts,
       genes.metadata = genes.metadata,
       gene.ID.column = gene.ID.column,
+      cells.metadata = cells.metadata,
+      cell.type.column = cell.type.column,
+      filt.genes.cluster = filt.genes.cluster,
+      min.mean.counts = min.mean.counts,
+      filt.genes.cells = filt.genes.cells,
       min.counts = min.counts,
       min.cells = min.cells,
       verbose = verbose
     )  
   } else {
+    if (filt.genes.cluster) {
+      warning(
+        paste(
+          "filt.genes.cluster is not available yet when working with HDF5",
+          "files as backend"
+        ), call. = FALSE, immediate. = TRUE
+      )
+    }
+    # TODO: implement filt.genes.cluster: not available
     filtered.genes <- .filterGenesHDF5(
       counts = counts,
       genes.metadata = genes.metadata,
@@ -345,10 +371,66 @@ NULL
   # )
 }
 
+.filterGenesByCells <- function(
+  counts, 
+  genes.metadata, 
+  min.counts, 
+  min.cells
+) {
+  if (min.counts == 0 && min.cells == 0) {
+    return(list(counts, genes.metadata))
+  } else if (min.counts < 0 || min.cells < 0) {
+    stop("'min.counts' and 'min.cells' must be greater than or equal to zero")
+  }
+  if (is(counts, "matrix")) {
+    counts <- counts[Matrix::rowSums(counts > min.counts) >= min.cells, ]
+  } else if (is(counts, "Matrix")) {
+    counts <- counts[.logicalFiltSparse(counts, min.counts, min.cells), ]  
+  }
+  
+  return(list(counts, genes.metadata))
+}
+
+# TODO: control what numbers can be used for min.mean.counts
+.filterGenesByCluster <- function(
+  counts, 
+  genes.metadata, 
+  cells.metadata, 
+  cell.type.column, 
+  min.mean.counts
+) {
+  ## mean counts per cluster: with big matrices, this will be problematic
+  mean.cluster <- aggregate(
+    x = t(as.matrix(counts)), 
+    by = list(cells.metadata[[cell.type.column]]), 
+    FUN = mean
+  )
+  rownames(mean.cluster) <- mean.cluster[, 1]
+  mean.cluster[, 1] <- NULL
+  
+  ## using cutoffs
+  sel.genes <- unlist(
+    apply(
+      X = mean.cluster >= min.mean.counts, MARGIN = 2, 
+      FUN = function(x) if(any(x)) return(TRUE)
+    )
+  )
+  if (!any(sel.genes)) {
+    return(list(counts, genes.metadata))
+  } else {
+    return(list(counts[names(sel.genes), ], genes.metadata[names(sel.genes), ]))
+  }
+}
+
 .filterGenesSparse <- function(
   counts,
   genes.metadata,
   gene.ID.column,
+  cells.metadata,
+  cell.type.column,
+  filt.genes.cluster,
+  min.mean.counts,
+  filt.genes.cells,
   min.counts,
   min.cells,
   verbose
@@ -365,7 +447,7 @@ NULL
   genes.metadata <- genes.metadata[match(rownames(counts), 
                                          genes.metadata[, gene.ID.column]), , 
                                    drop = FALSE]
-  # removing genes without any expression
+  # removing genes with no expression
   row.zero <- Matrix::rowSums(counts) > 0
   if (!all(row.zero)) {
     if (verbose) {
@@ -376,31 +458,41 @@ NULL
     genes.metadata <- genes.metadata[genes.metadata[, gene.ID.column] %in%
                                        rownames(counts), , drop = FALSE]
   }
-  # filtering genes by expression thresholds
-  if (min.counts == 0 && min.cells == 0) {
-    return(list(counts, genes.metadata))
-  } else if (min.counts < 0 || min.cells < 0) {
-    stop("'min.counts' and 'min.cells' must be greater than or equal to zero")
-  }
   dim.bef <- dim(counts)
-  if (is(counts, "matrix")) {
-    counts <- counts[Matrix::rowSums(counts > min.counts) >= min.cells, ]
-  } else if (is(counts, "Matrix")) {
-    counts <- counts[.logicalFiltSparse(counts, min.counts, min.cells), ]  
+  # filtering genes by expression thresholds: if both criteria are used, 
+  # unexpected results can happen
+  if (filt.genes.cells) {
+    list.data <- .filterGenesByCells(
+      counts = counts, 
+      genes.metadata = genes.metadata, 
+      min.counts = min.counts, 
+      min.cells = min.cells 
+    )
+    counts <- list.data[[1]]
+    genes.metadata <- list.data[[2]]
   }
-  
+  if (filt.genes.cluster) {
+    list.data <- .filterGenesByCluster(
+      counts = counts, 
+      genes.metadata = genes.metadata, 
+      cells.metadata = cells.metadata, 
+      cell.type.column = cell.type.column, 
+      min.mean.counts = min.mean.counts
+    )
+    counts <- list.data[[1]]
+    genes.metadata <- list.data[[2]]
+  }
   if (dim(counts)[1] == 0) {
-    stop(paste("Resulting count matrix after filtering using min.genes =",
-               min.counts, "and min.cells =", min.cells,
-               "does not have entries"))
+    stop(paste("Resulting count matrix after filtering does not have entries"))
   }
   if (verbose) {
-    message("      - Filtering features by 'min.counts' and 'min.cells':")
+    message("      - Filtering features:")
     message(paste("         - Selected features:",  dim(counts)[1]))
     message(paste("         - Discarded features:", dim.bef[1] - dim(counts)[1]))  
   }
   genes.metadata <- genes.metadata[genes.metadata[, gene.ID.column] %in%
                                      rownames(counts), , drop = FALSE]
+  
   return(list(counts, genes.metadata))
 }
 
@@ -440,6 +532,7 @@ NULL
                                          rownames(counts), , drop = FALSE]  
     }
   }
+  
   # filtered genes
   if (min.counts == 0 && min.cells == 0) {
     return(list(counts, genes.metadata))
@@ -475,9 +568,13 @@ NULL
 
 .loadSCData <- function(
   single.cell, 
-  cell.ID.column, 
+  cell.ID.column,
+  cell.type.column,
   gene.ID.column,
   name.dataset.h5,
+  filt.genes.cluster = TRUE,
+  min.mean.counts = 0,
+  filt.genes.cells = TRUE,
   min.cells = 0, 
   min.counts = 0,
   file.backend = NULL,
@@ -571,8 +668,12 @@ NULL
     counts = list.data[[1]],
     cells.metadata = list.data[[2]],
     cell.ID.column = cell.ID.column,
+    cell.type.column = cell.type.column,
     genes.metadata = list.data[[3]],
     gene.ID.column = gene.ID.column,
+    filt.genes.cluster = filt.genes.cluster,
+    min.mean.counts = min.mean.counts,
+    filt.genes.cells = filt.genes.cells,
     min.counts = min.counts,
     min.cells = min.cells,
     block.processing = block.processing,
@@ -814,13 +915,17 @@ NULL
   if (verbose) {
     message("   === Processing spatial transcriptomics data")
   }
-  ## filtering genes
+  ## filtering genes: setting not used arguments manually
   list.data <- .processData(
     counts = list.data[[1]],
     cells.metadata = list.data[[2]],
     cell.ID.column = cell.ID.column,
+    cell.type.column = NULL,
     genes.metadata = list.data[[3]],
     gene.ID.column = gene.ID.column,
+    filt.genes.cluster = FALSE,
+    min.mean.counts = NULL,
+    filt.genes.cells = TRUE,
     min.counts = min.counts,
     min.cells = min.cells,
     block.processing = FALSE,
@@ -879,7 +984,7 @@ NULL
 #'
 #' \strong{Spatial transcriptomics data}
 #'
-#' It must be a \code{\listS4class{SpatialExperiment}} object (or a list of them
+#' It must be a \code{\linkS4class{SpatialExperiment}} object (or a list of them
 #' if more than one slide is going to be deconvoluted) containing the same
 #' information as the single-cell RNA-seq data: the count matrix, spots
 #' metadata, and genes metadata. Please, make sure the gene identifiers used the
@@ -906,6 +1011,13 @@ NULL
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes (spatial transcriptomics
 #'   data).
+#' @param sc.filt.genes.cluster Whether to filter single-cell RNA-seq genes
+#'   according to a minimum threshold of mean counts per cell type
+#'   \code{sc.min.mean.counts}.
+#' @param sc.min.mean.counts Minimum mean counts per cluster to filter genes.
+#' @param sc.filt.genes.cells Whether to filter single-cell RNA-seq genes
+#'   according to a minimum number of counts \code{sc.min.counts} in a minimum
+#'   number of cells \code{sc.min.cells}.
 #' @param sc.min.counts Minimum gene counts to filter (0 by default; single-cell
 #'   RNA-seq data).
 #' @param sc.min.cells Minimum of cells with more than \code{min.counts} (0 by
@@ -1004,8 +1116,6 @@ NULL
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
-#'   sc.min.cells = 0,
-#'   sc.min.counts = 0,
 #'   st.data = ste,
 #'   st.spot.ID.column = "Cell_ID",
 #'   st.gene.ID.column = "Gene_ID",
@@ -1015,10 +1125,14 @@ NULL
 createSpatialDDLSobject <- function(
     sc.data,
     sc.cell.ID.column,
+    sc.cell.type.column,
     sc.gene.ID.column,
     st.data,
     st.spot.ID.column,
     st.gene.ID.column,
+    sc.filt.genes.cluster = TRUE,
+    sc.min.mean.counts = 0, 
+    sc.filt.genes.cells = TRUE,
     sc.min.counts = 0,
     sc.min.cells = 0,
     st.min.counts = 0,
@@ -1034,6 +1148,18 @@ createSpatialDDLSobject <- function(
     verbose = TRUE,
     project = "SpatialDDLS-Proj"
 ) {
+  if (missing(sc.cell.type.column)) sc.cell.type.column <- NULL
+  # in case filtering according to expression in each cluster is used
+  if (sc.filt.genes.cluster & is.null(sc.cell.type.column)) {
+    stop(
+      paste(
+        "If genes will be filtered out according to their expression in", 
+        "each cell type (sc.filt.genes.cluster = TRUE), sc.cell.type.column",
+        "must be provided"
+      )
+    )
+  } 
+  
   ## spatial transcriptomics profiles
   if (!missing(st.data)) {
     spatial.experiments <- .loadSTData(
@@ -1054,7 +1180,11 @@ createSpatialDDLSobject <- function(
     single.cell = sc.data,
     cell.ID.column = sc.cell.ID.column,
     gene.ID.column = sc.gene.ID.column,
+    cell.type.column = sc.cell.type.column,
     name.dataset.h5 = sc.name.dataset.h5,
+    filt.genes.cluster = sc.filt.genes.cluster,
+    min.mean.counts = sc.min.mean.counts,
+    filt.genes.cells = sc.filt.genes.cells,
     min.cells = sc.min.cells,
     min.counts = sc.min.counts,
     file.backend = sc.file.backend,

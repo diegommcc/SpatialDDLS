@@ -12,11 +12,12 @@ trainDeconvModel(
   num.epochs = 10,
   num.hidden.layers = 2,
   num.units = c(200, 200),
-  activation.fun = "relu",
+  activation.fun = "sigmoid",
   dropout.rate = 0.25,
   loss = "kullback_leibler_divergence",
   metrics = c("accuracy", "mean_absolute_error", "categorical_accuracy"),
-  scaling = "standarize",
+  scaling = "rescale",
+  norm.batch.layers = FALSE,
   custom.model = NULL,
   shuffle = FALSE,
   sc.downsampling = NULL,
@@ -54,7 +55,8 @@ argument.}
 (\code{c(200, 200)} by default). The length of this vector must be equal to
 \code{num.hidden.layers} argument.}
 
-\item{activation.fun}{Activation function (\code{'relu'} by default). See the
+\item{activation.fun}{Activation function (\code{'sigmoid'} by default). See
+the
 \href{https://tensorflow.rstudio.com/reference/keras/activation_relu.html}{keras
 documentation} to know available activation functions.}
 
@@ -75,8 +77,11 @@ documentation} to know available performance metrics.}
 
 \item{scaling}{How to scale data before training. It may be:
 \code{"standarize"} (values are centered around the mean with a unit
-standard deviation, by default) or \code{"rescale"} (values are shifted and
-rescaled so that they end up ranging between 0 and 1).}
+standard deviation) or \code{"rescale"} (values are shifted and rescaled so
+that they end up ranging between 0 and 1, by default).}
+
+\item{norm.batch.layers}{Whether to include batch normalization layers
+between each hidden dense layer (\code{FALSE} by default).}
 
 \item{custom.model}{It allows to use a custom neural network. It must be a
 \code{keras.engine.sequential.Sequential} object in which the number of

@@ -1,3 +1,5 @@
+#' @importFrom ggplot2 scale_color_gradientn
+NULL
 color.prop.scale.blues <- c(
   "#ECF4FB", "#E1EDF8", "#D7E6F4", "#CDE0F1", "#C1D9ED", "#B0D2E7", "#A0CAE1",
   "#8BBFDC", "#75B3D8", "#62A8D2", "#519CCB", "#4090C5", "#3282BD", "#2474B6", 
@@ -153,8 +155,9 @@ plotSpatialProp <- function(
     object,
     index.st,
     cell.type,
-    colors = NULL, 
+    colors = "blues", 
     set = "raw",
+    limits = NULL,
     size.point = 1,
     title = NULL,
     theme = NULL,
@@ -188,16 +191,16 @@ plotSpatialProp <- function(
   dfPlot <- as.data.frame(cbind(st.coor, st.pred))
   if (colors == "blues")  {
     scale_colors <- scale_color_gradientn(
-      colors = color.prop.scale.blues, limits = c(0, 1)
+      colors = color.prop.scale.blues, limits = limits
     )  
     # colors <- scale_color_gradient(low = "white", high = "blue")
   } else if (colors == "spectral") {
     scale_colors <- scale_color_gradientn(
-      colors = color.prop.scale.spectral, limits = c(0, 1)
+      colors = color.prop.scale.spectral, limits = limits
     )  
   } else {
     scale_colors <- scale_color_gradientn(
-      colors = color.prop.scale.blues, limits = c(0, 1)
+      colors = color.prop.scale.blues, limits = limits
     )
   }
     

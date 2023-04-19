@@ -77,6 +77,7 @@ lapply(
      )
    }
  )
+ 
 }
 \seealso{
 \code{\link{genMixedCellProp}}

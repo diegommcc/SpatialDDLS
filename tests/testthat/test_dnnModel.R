@@ -123,12 +123,14 @@ test_that(
     )
     # combine = 'single-cell' without mixed data for test data when on.the.fly = TRUE
     expect_message(
-      trainDeconvModel(
-        object = SDDLS,
-        type.data.train = "single-cell",
-        on.the.fly = TRUE,
-        batch.size = 12,
-        view.metrics.plot = FALSE
+      suppressWarnings(
+        trainDeconvModel(
+          object = SDDLS,
+          type.data.train = "single-cell",
+          on.the.fly = TRUE,
+          batch.size = 12,
+          view.metrics.plot = FALSE
+        )
       ),
       regexp = "Training and test on the fly was selected"
     )
@@ -137,12 +139,14 @@ test_that(
     trained.model(SDDLSBad) <- NULL
     # type.data.train = 'mixed' without mixed for test data when on.the.fly = TRUE
     expect_message(
-      SDDLSBad <- trainDeconvModel(
-        object = SDDLSBad,
-        type.data.train = "mixed",
-        on.the.fly = TRUE,
-        batch.size = 12,
-        view.metrics.plot = FALSE
+      SDDLSBad <- suppressWarnings(
+        trainDeconvModel(
+          object = SDDLSBad,
+          type.data.train = "mixed",
+          on.the.fly = TRUE,
+          batch.size = 12,
+          view.metrics.plot = FALSE
+        )
       ), 
       regexp = "Training and test on the fly was selected"
     )

@@ -7,10 +7,14 @@
 createSpatialDDLSobject(
   sc.data,
   sc.cell.ID.column,
+  sc.cell.type.column,
   sc.gene.ID.column,
   st.data,
   st.spot.ID.column,
   st.gene.ID.column,
+  sc.filt.genes.cluster = TRUE,
+  sc.min.mean.counts = 0,
+  sc.filt.genes.cells = TRUE,
   sc.min.counts = 0,
   sc.min.cells = 0,
   st.min.counts = 0,
@@ -54,6 +58,16 @@ data).}
 \item{st.gene.ID.column}{Name or number of the column in the genes metadata
 corresponding to the names used for features/genes (spatial transcriptomics
 data).}
+
+\item{sc.filt.genes.cluster}{Whether to filter single-cell RNA-seq genes
+according to a minimum threshold of mean counts per cell type
+\code{sc.min.mean.counts}.}
+
+\item{sc.min.mean.counts}{Minimum mean counts per cluster to filter genes.}
+
+\item{sc.filt.genes.cells}{Whether to filter single-cell RNA-seq genes
+according to a minimum number of counts \code{sc.min.counts} in a minimum
+number of cells \code{sc.min.cells}.}
 
 \item{sc.min.counts}{Minimum gene counts to filter (0 by default; single-cell
 RNA-seq data).}
@@ -154,7 +168,7 @@ log-transformation), raw counts are preferred.
 
 \strong{Spatial transcriptomics data}
 
-It must be a \code{\listS4class{SpatialExperiment}} object (or a list of them
+It must be a \code{\linkS4class{SpatialExperiment}} object (or a list of them
 if more than one slide is going to be deconvoluted) containing the same
 information as the single-cell RNA-seq data: the count matrix, spots
 metadata, and genes metadata. Please, make sure the gene identifiers used the
@@ -196,8 +210,6 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
-  sc.min.cells = 0,
-  sc.min.counts = 0,
   st.data = ste,
   st.spot.ID.column = "Cell_ID",
   st.gene.ID.column = "Gene_ID",

@@ -49,7 +49,8 @@ NULL
 #' @param num.units Vector indicating the number of neurons per hidden layer
 #'   (\code{c(200, 200)} by default). The length of this vector must be equal to
 #'   \code{num.hidden.layers} argument.
-#' @param activation.fun Activation function (\code{'relu'} by default). See the
+#' @param activation.fun Activation function (\code{'sigmoid'} by default). See
+#'   the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/activation_relu.html}{keras
 #'    documentation} to know available activation functions.
 #' @param dropout.rate Float between 0 and 1 indicating the fraction of the
@@ -66,8 +67,10 @@ NULL
 #'    documentation} to know available performance metrics.
 #' @param scaling How to scale data before training. It may be:
 #'   \code{"standarize"} (values are centered around the mean with a unit
-#'   standard deviation, by default) or \code{"rescale"} (values are shifted and
-#'   rescaled so that they end up ranging between 0 and 1).
+#'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
+#'   that they end up ranging between 0 and 1, by default).
+#' @param norm.batch.layers Whether to include batch normalization layers
+#'   between each hidden dense layer (\code{FALSE} by default).
 #' @param custom.model It allows to use a custom neural network. It must be a
 #'   \code{keras.engine.sequential.Sequential} object in which the number of
 #'   input neurons is equal to the number of considered features/genes, and the
@@ -161,12 +164,13 @@ trainDeconvModel <- function(
   num.epochs = 10,
   num.hidden.layers = 2,
   num.units = c(200, 200),
-  activation.fun = "relu",
+  activation.fun = "sigmoid",
   dropout.rate = 0.25,
   loss = "kullback_leibler_divergence",
   metrics = c("accuracy", "mean_absolute_error",
               "categorical_accuracy"),
-  scaling = "standarize",
+  scaling = "rescale",
+  norm.batch.layers = FALSE,
   custom.model = NULL,
   shuffle = FALSE,
   sc.downsampling = NULL,
@@ -307,19 +311,35 @@ trainDeconvModel <- function(
           name = paste0("Dense", i)
         )
       }
-      model <- model %>% 
-        layer_batch_normalization(name = paste0("BatchNormalization", i)) %>%
-        layer_activation(activation = activation.fun, 
-                         name = paste0("Activation", i)) %>%
-        layer_dropout(rate = dropout.rate, name = paste0("Dropout", i))
+      if (norm.batch.layers) {
+        model <- model %>% 
+          layer_batch_normalization(name = paste0("BatchNormalization", i)) %>%
+          layer_activation(activation = activation.fun, 
+                           name = paste0("Activation", i)) %>%
+          layer_dropout(rate = dropout.rate, name = paste0("Dropout", i))  
+      } else {
+        model <- model %>% 
+          layer_activation(activation = activation.fun, 
+                           name = paste0("Activation", i)) %>%
+          layer_dropout(rate = dropout.rate, name = paste0("Dropout", i))  
+      }
+      
     }
     # final layer --> compression and proportions
-    model <- model %>% layer_dense(
-      units = ncol(prob.cell.types(object, "train") %>% prob.matrix()),
-      name = paste0("Dense", i + 1)
-    ) %>% layer_batch_normalization(
-      name = paste0("BatchNormalization", i + 1)
-    ) %>% layer_activation(activation = "softmax", name = "ActivationSoftmax")
+    if (norm.batch.layers) {
+      model <- model %>% layer_dense(
+        units = ncol(prob.cell.types(object, "train") %>% prob.matrix()),
+        name = paste0("Dense", i + 1)
+      ) %>% 
+        layer_batch_normalization(name = paste0("BatchNormalization", i + 1)) %>%
+        layer_activation(activation = "softmax", name = "ActivationSoftmax")  
+    } else {
+      model <- model %>% layer_dense(
+        units = ncol(prob.cell.types(object, "train") %>% prob.matrix()),
+        name = paste0("Dense", i + 1)
+      ) %>% layer_activation(activation = "softmax", name = "ActivationSoftmax")  
+    }
+    
   } else {
     if (!is(custom.model, "keras.engine.sequential.Sequential")) {
       stop("'custom.model' must be a keras.engine.sequential.Sequential object")
@@ -1119,7 +1139,7 @@ deconvSpatialDDLS <- function(
   object,
   index.st,
   normalize = TRUE,
-  scaling = "standarize",
+  scaling = "rescale",
   simplify.set = NULL,
   simplify.majority = NULL,
   use.generator = FALSE,
@@ -1135,12 +1155,12 @@ deconvSpatialDDLS <- function(
   } else if (is.null(spatial.experiments(object))) {
     stop("No spatial transcriptomics data provided. See ?createSpatialDDLSobject or ?loadSTProfiles")
   }
-  if (!scaling %in% c("standarize", "rescaling")) {
-    stop("'scaling' argument must be one of the following options: 'standarize' or 'rescaling'")
+  if (!scaling %in% c("standarize", "rescale")) {
+    stop("'scaling' argument must be one of the following options: 'standarize' or 'rescale'")
   } else {
     if (scaling == "standarize") {
       scaling.fun <- base::scale
-    } else if (scaling == "rescaling") {
+    } else if (scaling == "rescale") {
       scaling.fun <- rescale.function
     }
   }
