@@ -11,3 +11,4 @@ cran-comments.md
 ^Meta$
 ^.*\.py$
 __pycache__
+realModelExample-hq.Rmd

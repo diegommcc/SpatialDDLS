@@ -25,7 +25,7 @@ navbar:
    - text: "Vignettes"
      menu:
        - text: "Deconvolution of mouse lymph node samples"
-         href: ./articles/realModelExample.html
+         href: ./articles/realModelExample-hq.html
    - text: "Functions"
      href: reference/index.html
   right:
