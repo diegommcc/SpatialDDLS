@@ -1,2 +1,13 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.travis\.yml$
+^\.github$
+^\.git$
+cran-comments.md
+^doc$
+^Meta$
+^.*\.py$
+__pycache__

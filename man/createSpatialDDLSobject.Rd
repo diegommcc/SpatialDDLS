@@ -12,7 +12,7 @@ createSpatialDDLSobject(
   st.data,
   st.spot.ID.column,
   st.gene.ID.column,
-  sc.filt.genes.cluster = TRUE,
+  sc.filt.genes.cluster = FALSE,
   sc.min.mean.counts = 0,
   sc.filt.genes.cells = TRUE,
   sc.min.counts = 0,
@@ -43,6 +43,9 @@ slot, and genes metadata in the \code{rowData} slot.}
 \item{sc.cell.ID.column}{Name or number of the column in cells metadata
 corresponding to cell names in expression matrix (single-cell RNA-seq
 data).}
+
+\item{sc.cell.type.column}{Name or column number corresponding to cell types
+in cells metadata.}
 
 \item{sc.gene.ID.column}{Name or number of the column in genes metadata
 corresponding to the names used for features/genes (single-cell RNA-seq
@@ -218,6 +221,5 @@ SDDLS <- createSpatialDDLSobject(
   
 }
 \seealso{
-\code{\link{estimateZinbwaveParams}}
-\code{\link{generateBulkCellMatrix}}
+\code{\link{estimateZinbwaveParams}} \code{\link{genMixedCellProp}}
 }

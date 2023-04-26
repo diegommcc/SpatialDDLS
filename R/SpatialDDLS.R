@@ -20,6 +20,6 @@ NULL
 #' details.
 #'
 #' @docType package
-#' @name SpatialDDLS
+#' @name SpatialDDLS-Rpackage
 NULL
 #> NULL

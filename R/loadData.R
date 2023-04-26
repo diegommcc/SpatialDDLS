@@ -1,4 +1,5 @@
-#' @importFrom utils read.delim
+#' @importFrom utils read.delim 
+#' @importFrom stats setNames
 NULL
 
 .readTabFiles <- function(file) {
@@ -1000,6 +1001,8 @@ NULL
 #' @param sc.cell.ID.column Name or number of the column in cells metadata
 #'   corresponding to cell names in expression matrix (single-cell RNA-seq
 #'   data).
+#' @param sc.cell.type.column Name or column number corresponding to cell types
+#'   in cells metadata.
 #' @param sc.gene.ID.column Name or number of the column in genes metadata
 #'   corresponding to the names used for features/genes (single-cell RNA-seq
 #'   data).
@@ -1077,8 +1080,7 @@ NULL
 #'
 #' @export
 #'
-#' @seealso \code{\link{estimateZinbwaveParams}}
-#'   \code{\link{generateBulkCellMatrix}}
+#' @seealso \code{\link{estimateZinbwaveParams}} \code{\link{genMixedCellProp}}
 #'
 #' @examples
 #' set.seed(123)
@@ -1130,7 +1132,7 @@ createSpatialDDLSobject <- function(
     st.data,
     st.spot.ID.column,
     st.gene.ID.column,
-    sc.filt.genes.cluster = TRUE,
+    sc.filt.genes.cluster = FALSE,
     sc.min.mean.counts = 0, 
     sc.filt.genes.cells = TRUE,
     sc.min.counts = 0,

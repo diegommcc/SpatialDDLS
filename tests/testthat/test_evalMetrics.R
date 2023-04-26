@@ -77,7 +77,7 @@ SDDLSComp <- trainDeconvModel(
   batch.size = 28,
   verbose = FALSE
 )
-SDDLSComp <- calculateEvalMetrics(SDDLSComp)
+SDDLSComp <- suppressWarnings(calculateEvalMetrics(SDDLSComp))
 
 # calculateEvalMetrics
 test_that(

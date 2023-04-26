@@ -110,7 +110,7 @@ NULL
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #'   project = "Simul_example"
 #' )
 #' SDDLS <- genMixedCellProp(
@@ -374,8 +374,8 @@ genMixedCellProp <- function(
   # check if matrix is correctly built
   if (is.null(dim(train.prob.matrix))) 
     train.prob.matrix <- matrix(train.prob.matrix, nrow = 1)
-  if (is.null(colnames(train.prob.matrix)))
-    colnames(train.prob.matrix) <- prob.design[, cell.type.column]
+  # if (is.null(colnames(train.prob.matrix)))
+  #   colnames(train.prob.matrix) <- prob.design[, cell.type.column]
   
   rownames(train.prob.matrix) <- paste("Spot", seq(dim(train.prob.matrix)[1]),
                                        sep = "_")
@@ -864,7 +864,7 @@ setCount <- function(
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #'   project = "Simul_example"
 #' )
 #' SDDLS <- genMixedCellProp(

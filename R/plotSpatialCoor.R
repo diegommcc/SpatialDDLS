@@ -1,4 +1,4 @@
-#' @importFrom ggplot2 scale_color_gradientn
+#' @importFrom ggplot2 scale_color_gradientn scale_fill_gradientn
 NULL
 color.prop.scale.blues <- c(
   "#ECF4FB", "#E1EDF8", "#D7E6F4", "#CDE0F1", "#C1D9ED", "#B0D2E7", "#A0CAE1",
@@ -39,11 +39,6 @@ color.prop.scale.spectral <- grDevices::colorRampPalette(
 #'
 #' @seealso \code{\link{plotSpatialProp}} \code{\link{deconvSpatialDDLS}}
 #'   \code{\link{trainDeconvModel}}
-#'
-#' @examples
-#' \dontrun{
-#'
-#' }
 #' 
 plotSpatialPropAll <- function(
     object,
@@ -54,8 +49,7 @@ plotSpatialPropAll <- function(
     title = NULL,
     nrow = NULL,
     ncol = NULL,
-    theme = NULL,
-    ...
+    theme = NULL
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
@@ -106,7 +100,10 @@ plotSpatialPropAll <- function(
   if (is.null(title)) title <- "Predicted proportions"
   plot <- ggplot(
     dfPlot, 
-    aes(x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], color = Proportion)
+    aes(
+      x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], 
+      color = .data[["Proportion"]]
+    )
   ) + geom_point(size = size.point) + 
     ggtitle(title) + 
     SpatialDDLSTheme() + facet_wrap(~ CellType, nrow = nrow, ncol = ncol) +
@@ -135,6 +132,9 @@ plotSpatialPropAll <- function(
 #'   \code{"spectral"} (the former by default).
 #' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}}
 #'   for details), what results to plot (\code{raw} by default).
+#' @param limits A vector of two elements indicating wanted limits for color
+#'   scale. If \code{NULL} (by default), color scale is adjusted to max and min
+#'   predicted proportions.
 #' @param size.point Size of points (0.1 by default).
 #' @param title Title of plot.
 #' @param theme \pkg{ggplot2} theme.
@@ -145,12 +145,7 @@ plotSpatialPropAll <- function(
 #'
 #' @seealso \code{\link{plotSpatialPropAll}} \code{\link{deconvSpatialDDLS}}
 #'   \code{\link{trainDeconvModel}}
-#'
-#' @examples
-#' \dontrun{
-#'
-#' }
-#' 
+#'   
 plotSpatialProp <- function(
     object,
     index.st,
@@ -160,8 +155,7 @@ plotSpatialProp <- function(
     limits = NULL,
     size.point = 1,
     title = NULL,
-    theme = NULL,
-    ...
+    theme = NULL
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
@@ -217,63 +211,3 @@ plotSpatialProp <- function(
   return(plot)
 }
 
-################################################################################
-##################### Plot spatial proportions (blended) #######################
-################################################################################
-
-# not exported, still unstable. also, it requires a new package dependency
-.plotSpatialPropBlended <- function(
-    object,
-    index.st,
-    colors,
-    cell.type,
-    set = "raw",
-    size.point = 2,
-    alpha.point = 0.5,
-    title = NULL,
-    theme = NULL,
-    ...
-) {
-  if (!is(object, "SpatialDDLS")) {
-    stop("The provided object is not of class SpatialDDLS")
-  } else if (is.null(spatial.experiments(object)) || is.null(deconv.spots(object))) {
-    stop("djhdhdhd")
-  } 
-  ## getting data
-  st.coor <- SpatialExperiment::spatialCoords(
-    spatial.experiments(object = object, index.st = index.st)
-  )[, 1:2]
-  colnames(st.coor) <- paste("Spatial", 1:2)
-  st.pred <- deconv.spots(object = object, index.st = index.st)
-  if(is.list(st.pred)) {
-    if (!set %in% c("raw", "simplify.set", "simpli.majority")) {
-      stop(
-        "`set`must be one of the following options: 'raw', 'simplify.set', 'simpli.majority'"
-      )
-    }
-    st.pred <- st.pred[[set]]
-  }
-  # if (!all(rownames(st.coor) == rownames(st.pred))) {
-  #   stop("Matrices in `deconv.spots` and `spatalCoords` are not complementary")
-  # }
-  if (length(cell.type) != 2) stop("Only 2 cell types are accepted")
-  dfPlot <- as.data.frame(cbind(st.coor, st.pred[, cell.type]))
-  if (is.null(title)) title.plot <- "Predicted proportions"
-  
-  plot <- ggplot(
-    dfPlot, aes(x = .data[["Spatial 1"]], y = .data[["Spatial 2"]])
-  ) + geom_point(
-    aes(fill = .data[[cell.type[1]]], color = .data[[cell.type[1]]]), 
-    size = size.point, alpha = alpha.point
-  ) + scale_color_gradientn(cell.type[1], colors = c("white", "blue")) + 
-    scale_fill_gradientn(cell.type[1], colors = c("white", "blue")) + 
-    ggnewscale::new_scale_color() +
-    geom_point(
-      aes(fill = .data[[cell.type[2]]]),  color = "black",
-      size = size.point, alpha = alpha.point, shape = 21
-    ) + 
-    scale_fill_gradientn(cell.type[2], colors = c("white", "red")) + 
-    SpatialDDLSTheme() 
-  
-  return(plot)
-}

@@ -113,7 +113,7 @@ test_that(
     # invalid set
     expect_error(
       showProbPlot(SDDLSComp, type.data = "train", set = 7), 
-      regexp = "'set' argument must be an integer between 1 and 6"
+      regexp = "'set' argument must be an integer between 1 and 3"
     )
     # invalid type.plot
     expect_error(

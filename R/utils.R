@@ -66,7 +66,7 @@ getProbMatrix <- function(object, type.data) {
 #' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
-#'     counts = matrix(``
+#'     counts = matrix(
 #'       rpois(100, lambda = 5), nrow = 40, ncol = 30,
 #'       dimnames = list(paste0("Gene", seq(40)), paste0("RHC", seq(30)))
 #'     )
@@ -84,7 +84,7 @@ getProbMatrix <- function(object, type.data) {
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #'   project = "Simul_example"
 #' )
 #' SDDLS <- genMixedCellProp(
@@ -94,15 +94,11 @@ getProbMatrix <- function(object, type.data) {
 #'   num.sim.spots = 10,
 #'   verbose = TRUE
 #' )
-#' lapply(
-#'   X = 1:6, FUN = function(x) {
-#'      showProbPlot(
-#'       SDDLS,
-#'       type.data = "train",
-#'       set = x,
-#'         type.plot = "boxplot"
-#'      )
-#'    }
+#' showProbPlot(
+#'    SDDLS,
+#'    type.data = "train",
+#'    set = 1,
+#'    type.plot = "boxplot"
 #'  )
 #'  
 showProbPlot <- function(
@@ -120,8 +116,8 @@ showProbPlot <- function(
     stop("'type.data' argument must be 'train' or 'test'")
   } else if (length(object@prob.cell.types[[type.data]]) == 0) {
     stop(paste0("ProbMatrixCellTypes object does not have plots (", type.data, " data)"))
-  } else if (set < 1 || set > 6) {
-    stop("'set' argument must be an integer between 1 and 6")
+  } else if (set < 1 || set > 3) {
+    stop("'set' argument must be an integer between 1 and 3")
   } else if (!any(type.plot == c("violinplot", "boxplot", "linesplot", "ncelltypes"))) {
     stop("'type.plot' argument must be one of the next options: 'violinplot', ", 
          "'boxplot', 'linesplot' or 'ncelltypes'")

@@ -1,4 +1,8 @@
+SpatialDDLS.Rproj
 *.Rproject
 *.Rhistory
 .Rproj.user
 .RData
+docs
+/doc/
+/Meta/

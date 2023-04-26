@@ -1,8 +1,8 @@
 #' @importFrom methods setClass setOldClass setClassUnion
 #' @importFrom utils packageVersion
-#' @import SingleCellExperiment SummarizedExperiment
+#' @import SingleCellExperiment SummarizedExperiment keras
 #' @importClassesFrom Matrix dgCMatrix
-#' @importFrom keras keras_model_sequential layer_dense layer_batch_normalization layer_activation layer_dropout get_output_shape_at compile optimizer_adam fit_generator evaluate_generator predict_generator fit evaluate model_from_json set_weights model_to_json get_weights load_model_hdf5 save_model_hdf5
+#' @importFrom stats predict
 NULL
 
 setOldClass(Classes = 'package_version')
@@ -443,7 +443,7 @@ setMethod(
   cat("   ", dim(se)[2], "features and", dim(se)[1], "samples: ")
   n.spot <- sum(grepl("Spot\\.*", rowData(se)[[1]]))
   n.sc <- abs(n.spot - dim(se)[1])
-  cat(n.bulk, "mixed spots and", n.sc, "single-cell profiles\n")
+  cat(n.spot, "mixed spots and", n.sc, "single-cell profiles\n")
 }
 
 .zinbModelShow <- function(zinb.model) {

@@ -87,7 +87,7 @@ test_that(
         sc.min.counts = 10e6,
         sc.min.cells = 10
       ),
-      regexp = "Resulting count matrix after filtering using min.genes"
+      regexp = "Resulting count matrix after filtering"
     )
     expect_error(
       createSpatialDDLSobject(
@@ -97,7 +97,7 @@ test_that(
         sc.min.counts = 30,
         sc.min.cells = 440
       ),
-      regexp = "Resulting count matrix after filtering using min.genes"
+      regexp = "Resulting count matrix after filtering"
     )
   }
 )
@@ -290,7 +290,7 @@ test_that(
         sc.gene.ID.column = 2,
         sc.min.counts = 2,
         sc.min.cells = 2
-      ), "- Filtering features by"
+      ), "- Filtering features"
     )
     expect_error(
       createSpatialDDLSobject(
@@ -330,7 +330,7 @@ test_that(
         sc.gene.ID.column = 2,
         sc.min.counts = 2,
         sc.min.cells = 2
-      ), "- Filtering features by"
+      ), "- Filtering features"
     )
     expect_error(
       createSpatialDDLSobject(
@@ -370,7 +370,7 @@ test_that(
         sc.gene.ID.column = 2,
         sc.min.counts = 2,
         sc.min.cells = 2
-      ), "- Filtering features by"
+      ), "- Filtering features"
     )
     expect_error(
       createSpatialDDLSobject(

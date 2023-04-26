@@ -14,8 +14,7 @@ plotSpatialProp(
   limits = NULL,
   size.point = 1,
   title = NULL,
-  theme = NULL,
-  ...
+  theme = NULL
 )
 }
 \arguments{
@@ -32,6 +31,10 @@ can be either a position or a name if a named list was provided.}
 \item{set}{If results were simplified (see \code{?\link{deconvSpatialDDLS}}
 for details), what results to plot (\code{raw} by default).}
 
+\item{limits}{A vector of two elements indicating wanted limits for color
+scale. If \code{NULL} (by default), color scale is adjusted to max and min
+predicted proportions.}
+
 \item{size.point}{Size of points (0.1 by default).}
 
 \item{title}{Title of plot.}
@@ -45,12 +48,6 @@ A ggplot object.
 Color spots on the spatial coordinates according to the predicted proportions
 of a particular cell type. Color scale is adapted depending on the range of
 predicted proportions.
-}
-\examples{
-\dontrun{
-
-}
-
 }
 \seealso{
 \code{\link{plotSpatialPropAll}} \code{\link{deconvSpatialDDLS}}

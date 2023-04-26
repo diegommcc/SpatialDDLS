@@ -11,16 +11,16 @@
 
 <br>
 
-The **SpatialDDLS** R package provides a neural network-based solution for cell type deconvolution from spatial transcriptomics data. The package takes advantage of single-cell RNA sequencing (scRNA-seq) data to simulate mixed transcriptional profiles with known cell composition and train fully-connected neural networks to predict the cell type composition of spatial transcriptomics spots. The resulting trained models can be applied to new spatial transcriptomics data to predict cell type proportions, allowing for more accurate cell type identification and characterization of spatially-resolved transcriptomic data. Overall, SpatialDDLS is a powerful tool for cell type deconvolution in spatial transcriptomics data, providing a reliable, fast and flexible solution for researchers in the field.
+The **SpatialDDLS** R package provides a neural network-based solution for cell type deconvolution of spatial transcriptomics data. The package takes advantage of single-cell RNA sequencing (scRNA-seq) data to simulate mixed transcriptional profiles with known cell composition and train fully-connected neural networks to predict the cell type composition of spatial transcriptomics spots. The resulting trained models can be applied to new spatial transcriptomics data to predict cell type proportions, allowing for more accurate cell type identification and characterization of spatially-resolved transcriptomic data. Overall, SpatialDDLS is a powerful tool for cell type deconvolution in spatial transcriptomics data, providing a reliable, fast and flexible solution for researchers in the field.
 
-For more details about the algorithm and the functionalities implemented in this package, see <https://diegommcc.github.io/SpatialDDLS/>.
+For more details about the algorithm and functionalities implemented in this package, see <https://diegommcc.github.io/SpatialDDLS/>.
 
 
-<!-- <img src="man/figures/summary.png"/> -->
+<img src="man/figures/summary.png"/>
 
 ## Installation
 
-**SpatialDDLS** will be availabnle on CRAN soon!
+**SpatialDDLS** will be available on CRAN soon!
 
 <!-- is available on CRAN and can be installed as follows:
 
@@ -28,7 +28,7 @@ For more details about the algorithm and the functionalities implemented in this
 install.packages("SpatialDDLS")
 ``` -->
 
-The version under developtment is available on GitHub and can be installed as follows:
+The version under development is available on GitHub and can be installed as follows:
 
 ```r
 if (!requireNamespace("devtools", quietly = TRUE))
@@ -36,7 +36,7 @@ if (!requireNamespace("devtools", quietly = TRUE))
 devtools::install_github("diegommcc/SpatialDDLS")
 ```
 
-The package depends on the [tensorflow](https://cran.r-project.org/package=tensorflow) and [keras](https://cran.r-project.org/package=keras) R packages, so a working Python interpreter with the Tensorflow Python library installed is needed. The `installTFpython` function provides an easy way to install a conda environment called `spatialddls-env` with all necessary dependencies covered. We recommend installing the TensorFlow Python library in this way, although a custom installation is possible.
+The package depends on the [tensorflow](https://cran.r-project.org/package=tensorflow) and [keras](https://cran.r-project.org/package=keras) R packages, so a working Python interpreter with the Tensorflow Python library installed is needed. The `installTFpython` function provides an easy way to install a conda environment named `spatialddls-env` with all necessary dependencies covered. We recommend installing the TensorFlow Python library in this way, although a custom installation is possible.
 
 ```r
 library("SpatialDDLS")

@@ -1,0 +1,41 @@
+template:
+  params:
+    bootswatch: cosmo
+
+bslib:
+  font_scale: 1.2
+
+authors:
+  Diego Mañanes:
+    href: https://github.com/diegommcc
+  Carlos Torroja:
+    href: https://www.cnic.es/en/carlos-torroja
+  Fatima Sanchez-Cabo:
+    href: https://www.cnic.es/en/fatima-sanchez-cabo
+
+home:
+  links:
+  - text: "SpatialDDLSdata: example data for SpatialDDLS"
+    href: https://github.com/diegommcc/SpatialDDLSdata
+
+navbar:
+  left:
+   - icon: fa-home fa-lg
+     href: index.html
+   - text: "Vignettes"
+     menu:
+       - text: "Deconvolution of mouse lymph node samples"
+         href: ./articles/realModelExample.html
+   - text: "Functions"
+     href: reference/index.html
+  right:
+   - icon: fa-github
+     href: https://github.com/diegommcc/SpatialDDLS
+  
+repo:
+  url:
+    home: https://github.com/diegommcc/SpatialDDLS/
+    source: https://github.com/diegommcc/SpatialDDLS/
+    issue: https://github.com/diegommcc/SpatialDDLS/issues
+    user: https://github.com/diegommcc/
+    

@@ -137,7 +137,7 @@ NULL
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -1095,7 +1095,7 @@ trainDeconvModel <- function(
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,

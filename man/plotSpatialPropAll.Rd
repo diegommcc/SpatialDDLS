@@ -14,8 +14,7 @@ plotSpatialPropAll(
   title = NULL,
   nrow = NULL,
   ncol = NULL,
-  theme = NULL,
-  ...
+  theme = NULL
 )
 }
 \arguments{
@@ -47,12 +46,6 @@ A ggplot object.
 Color spots on the spatial coordinates plot according to their predicted cell
 type proportions. All cell types are represented together using the same
 color scale from 0 to 1.
-}
-\examples{
-\dontrun{
-
-}
-
 }
 \seealso{
 \code{\link{plotSpatialProp}} \code{\link{deconvSpatialDDLS}}

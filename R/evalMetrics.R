@@ -71,7 +71,7 @@ default.colors <- function() {
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -364,7 +364,7 @@ se <- function(x) sqrt(var(x)/length(x))
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -444,7 +444,7 @@ distErrorPlot <- function(
   } 
   amd <- trained.model(object)@test.deconv.metrics[[1]]
   if (filter.sc) {
-    amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
+    amd <- amd %>% filter(grepl(pattern = "Spot_", x = .data[["Sample"]]))
   }
   if (missing(colors)) colors <- default.colors()
   if (!is.null(color.by)) {
@@ -628,7 +628,7 @@ distErrorPlot <- function(
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -698,7 +698,7 @@ corrExpPredPlot <- function(
   amd <- trained.model(object)@test.deconv.metrics[[1]]
   # TODO: here, prefix should be used rather than Spot_
   if (filter.sc) {
-    amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
+    amd <- amd %>% filter(grepl(pattern = "Spot_", x = .data[["Sample"]]))
   }
   if (missing(colors)) colors <- default.colors()
   
@@ -730,7 +730,7 @@ corrExpPredPlot <- function(
     scale_y_continuous(limits = c(0, 1), labels = c(0, 0.25, 0.5, 0.75, 1)) +
     ggtitle(title.plot) + xlab("Expected") + ylab("Predicted") +
     stat_smooth(
-      method = "lm", colour = "darkblue", alpha = 0.8, size = 0.8, na.rm = TRUE
+      method = "lm", colour = "darkblue", alpha = 0.8, linewidth = 0.8, na.rm = TRUE # here
     ) + guides(colour = guide_legend(override.aes = list(size = 1.5))) +
     SpatialDDLSTheme()
   if (!is.null(facet.by)) {
@@ -884,7 +884,7 @@ corrExpPredPlot <- function(
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -951,7 +951,7 @@ blandAltmanLehPlot <- function(
   }
   amd <- trained.model(object)@test.deconv.metrics[[1]]
   if (filter.sc) {
-    amd <- amd %>% filter(grepl(pattern = "Spot_", x = Sample))
+    amd <- amd %>% filter(grepl(pattern = "Spot_", x = .data[["Sample"]]))
   }
 
   if (log.2) {
@@ -1071,7 +1071,7 @@ blandAltmanLehPlot <- function(
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,

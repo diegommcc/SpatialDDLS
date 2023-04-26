@@ -1,11 +1,11 @@
 ---
-title: "Performance of a real model: deconvolution of colorectal cancer samples"
+title: "Deconvolution of mouse lymph node samples"
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{Performance of a real model: deconvolution of colorectal cancer samples}
+      %\VignetteIndexEntry{Deconvolution of mouse lymph node samples}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -16,67 +16,508 @@ fontsize: 12pt
 
 
 
-In [Building new deconvolution models](newModels.html) was shown the necessary workflow to build new deconvolution models. However, a 'toy' example was used in order to avoid long run times. In this vignette, the performance of a real model is shown in order to serve as a guide on how to assess whether a model has been trained correctly and can be used to deconvolute new bulk RNA-Seq samples.
+<!-- Reference: @Li2017 -->
 
-## Loading and inspection of the model
+In this vignette, we will analyze a spatial transcriptomics dataset (10x Visium) comprising three slides from murine lymph nodes, two of which obtained after a 48-hour infection with _Mycobacterium smegmatis_ (@Lopez2022). As a reference, we will use the paired single-cell RNA-seq (10x Chromium) data from the same study. The raw data is publicly available on GEO ([GSE173778](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE173778)), but for ease of use, we have made it available through the `SpatialDDLSdata` R data package.
 
-The model to be shown has been built with data from @Li2017 ([GSE81861](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE81861)), so it can be used to deconvolute samples from colorectal cancer. It is loaded from **digitalDLSorteRdata** package and the corresponding trained model can be used through the **digitalDLSorteRmodels** package. 
+# Loading data
+
+Firstly, let's load the required packages and data:
 
 
 ```r
-suppressMessages(library(ggplot2))
-suppressMessages(library(digitalDLSorteR))
-if (!requireNamespace("digitalDLSorteRdata", quietly = TRUE)) {
-    install.packages(
-    "digitalDLSorteRdata", 
-    repos = "https://diegommcc.github.io/digitalDLSorteRdataRepo/"
-  )
+library("SpatialDDLS")
+```
+
+```
+## 
+## Attaching package: 'SpatialDDLS'
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     saveRDS
+```
+
+```r
+library("SingleCellExperiment")
+```
+
+```
+## Loading required package: SummarizedExperiment
+```
+
+```
+## Loading required package: MatrixGenerics
+```
+
+```
+## Loading required package: matrixStats
+```
+
+```
+## 
+## Attaching package: 'MatrixGenerics'
+```
+
+```
+## The following objects are masked from 'package:matrixStats':
+## 
+##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+##     colWeightedMeans, colWeightedMedians, colWeightedSds,
+##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+##     rowWeightedSds, rowWeightedVars
+```
+
+```
+## Loading required package: GenomicRanges
+```
+
+```
+## Loading required package: stats4
+```
+
+```
+## Loading required package: BiocGenerics
+```
+
+```
+## 
+## Attaching package: 'BiocGenerics'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     IQR, mad, sd, var, xtabs
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+##     dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+##     grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+##     rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+##     union, unique, unsplit, which.max, which.min
+```
+
+```
+## Loading required package: S4Vectors
+```
+
+```
+## 
+## Attaching package: 'S4Vectors'
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     expand.grid, I, unname
+```
+
+```
+## Loading required package: IRanges
+```
+
+```
+## Loading required package: GenomeInfoDb
+```
+
+```
+## Loading required package: Biobase
+```
+
+```
+## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with
+##     'browseVignettes()'. To cite Bioconductor, see
+##     'citation("Biobase")', and for packages 'citation("pkgname")'.
+```
+
+```
+## 
+## Attaching package: 'Biobase'
+```
+
+```
+## The following object is masked from 'package:MatrixGenerics':
+## 
+##     rowMedians
+```
+
+```
+## The following objects are masked from 'package:matrixStats':
+## 
+##     anyMissing, rowMedians
+```
+
+```r
+library("SpatialExperiment")
+library("ggplot2")
+library("ggpubr")
+
+## in case it is not installed
+if (!requireNamespace("SpatialDDLS", quietly = TRUE)) {
+  if (!requireNamespace("devtools", quietly = TRUE)) {
+    install.packages("devtools")
+  }
+  devtools::install_github("diegommcc/SpatialDDLSdata")
 }
-suppressMessages(library(digitalDLSorteRdata))
-data(DDLSLiComp.list)
-DDLSLiComp <- listToDDLS(DDLSLiComp.list)
-DDLSLiComp
+library("SpatialDDLSdata")
+# SingleCellExperiment with scRNA-seq
+data(MouseDLN.SCE) 
+# SpatialExperiment with spatial transcriptomics data
+data(MouseDLN.ST)
+```
+
+For instance, let's plot the slides contained in the object ny condition:
+
+
+```r
+cbind(spatialCoords(MouseDLN.ST), colData(MouseDLN.ST)) %>% as.data.frame() %>% 
+  ggplot(aes(X0, X1, color = lymph_node)) + 
+  geom_point() + ggtitle("Mouse lymph nodes by condition") + 
+  theme_classic() + coord_fixed()
+```
+
+<img src="spatialdata-cond-1.png" title="plot of chunk spatialdata-cond" alt="plot of chunk spatialdata-cond" style="display: block; margin: auto;" />
+
+With regards to the single-cell RNA-seq data, preprocessing and visualization using non-linear dimensionality reduction algorithms could be performed, but such analysis is outside the scope of this tutorial.
+
+
+## Loading data into a `SpatialDDLS` object
+
+Now, we need to create a `SpatialDDLS` object, which will serve as the central core for all subsequent steps. We suggest including both the spatial and single-cell transcriptomics data to enable filtering and selection of only those genes that are present in both data types for further analysis. Furthermore, we recommend filtering genes based on their expression levels. Please refer to the documentation to review the implemented strategies (`sc.filt.genes.cells` and `sc.filt.genes.cluster` parameters). 
+
+
+```r
+mouseDLN.SDDLS <- createSpatialDDLSobject(
+  sc.data = MouseDLN.SCE, 
+  sc.cell.ID.column = "CellID", 
+  sc.gene.ID.column = "GeneSymbol",
+  sc.cell.type.column = "broad_cell_types",
+  st.data = MouseDLN.ST,
+  sc.filt.genes.cells = TRUE,
+  sc.min.counts = 1, 
+  sc.min.cells = 3,
+  sc.filt.genes.cluster = TRUE,
+  sc.min.mean.counts = 3,
+  st.spot.ID.column = "CellID",
+  st.gene.ID.column = "GeneSymbol"
+)
 ```
 
 ```
-## An object of class DigitalDLSorter 
+## === 1 SpatialExperiment objects provided
+```
+
+```
+##    === Processing spatial transcriptomics data
+```
+
+```
+##       - Filtering features:
+```
+
+```
+##          - Selected features: 13948
+```
+
+```
+##          - Discarded features: 0
+```
+
+```
+## 
+```
+
+```
+## === Processing single-cell data
+```
+
+```
+##       - Removing 16 genes without expression in any cell
+```
+
+```
+##       - Filtering features:
+```
+
+```
+##          - Selected features: 1142
+```
+
+```
+##          - Discarded features: 11696
+```
+
+```
+## 
+## === Number of shared genes between single-cell and spatial transcriptomics datasets: 1140
+```
+
+```
+##     - Original number of genes of single-cell data: 1142
+```
+
+```
+##     - Original number of genes of spatial transcriptomics data (object with more genes): 13948
+```
+
+We can show basic information about the object: 
+
+
+```r
+mouseDLN.SDDLS
+```
+
+```
+## An object of class SpatialDDLS 
 ## Real single-cell profiles:
-##   0 features and 0 cells
-##   rownames: --- 
-##   colnames: --- 
-## Cell type composition matrices:
-##   Cell type matrix for traindata: 13334 bulk samples and 10 cell types 
-##   Cell type matrix for testdata: 6666 bulk samples and 10 cell types 
-## Trained model: 30 epochs
-##   Training metrics (last epoch):
-##     loss: 0.0376
-##     accuracy: 0.9265
-##     mean_absolute_error: 0.0117
-##     categorical_accuracy: 0.9265
-##   Evaluation metrics on test data:
-##     loss: 0.0614
-##     accuracy: 0.9297
-##     mean_absolute_error: 0.0141
-##     categorical_accuracy: 0.9297
-##   Performance evaluation over each sample: MAE MSE 
-## Project: DigitalDLSorterProject
+##   1140 features and 14989 cells
+##   rownames: Iqgap1 Tgfb1 Dnajc8 ... Dnajc8 Ccl22 Cd53 Ndfip1 
+##   colnames: GTGGAGACATCATTTC-1-0 TAAGCCATCTACGGGC-1-2 GTCGTAAAGCGTGAGT-1-3 ... GTCGTAAAGCGTGAGT-1-3 GTAGAAACAATTAGGA-1-2 TCCAGAATCTCGCCTA-1-1 ACTGTCCAGCATGGGT-1-1 
+## Spatial experiments:
+##   1 experiments
+##   1140 features and 1092 cells
+##   rownames: Dynll1 Isg15 Ndufb5 ... Ndufb5 Sf3b6 Tmem258 Csde1 
+##   colnames: CAGGAAGACTTTATAT-1-1 TCTAGTTATCAGAAGA-1-1 AACCAAGACTTCTCTG-1-0 ... AACCAAGACTTCTCTG-1-0 CGTACCTGATAGGCCT-1-1 AATTCTAGAGTTAGGC-1-1 AATAACAACGCTCGGC-1-0 
+## Project: SpatialDDLS-Proj
 ```
 
-As shown above, the model was trained 30 epochs with a total of 20,000 pseudo-bulk samples (13,334 for training and 6,666 for testing). Now, evaluation metrics will be calculated by the `calculateEvalMetrics` function in test data to explore its performance in depth.
+In this case, we are only working with 1 spatial transcriptomics dataset, but an arbitrary number of `SpatialExperiment` objects can be provided. 
+
+## Simulation of mixed transcriptional profiles
+
+Now, we are going to simulate the cell composition matrices that will serve to simulate mixed transcriptional profiles with known cell proportions. This is done by the `genMixedCellProp` function in which we can control different aspects such as the number of mixed transcriptional profiles that will be generated, the number of cells used for each mixed profile, etc. These parameters must be decided depending on the reference and the available computational resources. For this example, and as standard reference, we will use `num.sim.spots = 15000` and `n.cells = 200`. For more information about these parameters, see the documentation. These cell type proportions will be generated by three methods: 
+
+* A random sampling of a Dirichlet distribution. Moreover, in order to make these proportions more sparse, the `prob.sparity` parameter controls the probability of having missing cell types in each simulated spot, as opposed to a mixture of all cell types. 
+* Pure mixed transcriptional profiles composed of `n.cells` cells of the same cell type aggregated.
+* Transcriptional profiles in which a minimum number of missing cell types will be imposed. This is control by the `min.zero.prop` argument. 
+
+The relative abundance of samples generated by these criteria can be control by the `proportion.method` parameter. Finally,`genMixedCellProp` will automatically divide the reference cells contained in the `single.cell.real` slot into training and test subsets, and randomly assign `n.cells` cells to form every mixed transcriptional profile. 
 
 
 ```r
-DDLSLiComp <- calculateEvalMetrics(DDLSLiComp)
+mouseDLN.SDDLS <- genMixedCellProp(
+  mouseDLN.SDDLS,
+  cell.ID.column = "CellID",
+  cell.type.column = "broad_cell_types",
+  num.sim.spots = 15000,
+  n.cells = 200,
+  train.freq.cells = 2/3,
+  train.freq.spots = 2/3,
+  proportion.method = c(0.4, 0.3, 0.3),
+  prob.sparity = 0.5, 
+  min.zero.prop = 9,
+  balanced.type.cells = TRUE,
+  verbose = TRUE
+)
 ```
 
-### How errors are distributed
+```
+## 
+## === The number of mixed profiles that will be generated is equal to 15000
+```
 
-With `distErrorPlot`, we can plot in different ways how errors are distributed. In this case, absolute error (`AbsErr`) by cell type (`CellType`) is shown. CD4 T cell proportions are predicted worse than the other cell types, but still have a median error close to zero. 
+```
+## 
+## === Training set cells by type:
+```
+
+```
+##     - B cells: 5573
+##     - CD4 T cells: 1362
+##     - CD8 T cells: 2179
+##     - cDC1s: 67
+##     - cDC2s: 58
+##     - GD T cells: 59
+##     - Macrophages: 70
+##     - Migratory DCs: 199
+##     - Monocytes: 53
+##     - NK cells: 62
+##     - pDCs: 52
+##     - Tregs: 260
+```
+
+```
+## === Test set cells by type:
+```
+
+```
+##     - B cells: 2786
+##     - CD4 T cells: 681
+##     - CD8 T cells: 1089
+##     - cDC1s: 33
+##     - cDC2s: 29
+##     - GD T cells: 29
+##     - Macrophages: 35
+##     - Migratory DCs: 100
+##     - Monocytes: 26
+##     - NK cells: 31
+##     - pDCs: 26
+##     - Tregs: 130
+```
+
+```
+## === Probability matrix for training data:
+```
+
+```
+##     - Mixed spots: 10000
+##     - Cell types: 12
+```
+
+```
+## === Probability matrix for test data:
+```
+
+```
+##     - Mixed spots: 5000
+##     - Cell types: 12
+```
+
+```
+## DONE
+```
+
+
+Then, we can call the `simMixedProfiles` function which will generate the actual mixed transcriptional profiles using the cell composition matrices generated in the previous step. This step may take a while depending on the number of transcriptional profiles to be simulated, so be patient! In addition, the way the mixed profiles will be generated can be decided. We recommend summing up raw counts, and then normalize samples by log-CPM (`mixing.function = "AddRawCount"`), but other methods are available (see Documentation). 
 
 
 ```r
+mouseDLN.SDDLS <- simMixedProfiles(mouseDLN.SDDLS, threads = 3)
+```
+
+```
+## === Setting parallel environment to 3 thread(s)
+```
+
+```
+## 
+## === Generating train bulk samples:
+```
+
+```
+## 
+## === Generating test bulk samples:
+```
+
+```
+## 
+## DONE
+```
+
+## Training a fully-connected neural network using mixed transcriptional profiles
+
+Having generated a set of mixed transcriptional profiles with known cell composition, we can then train a neural network using the training subset to predict cell type proportions in the test subset. Once trained, the model can make cell type proportion predictions based on the transcriptional profile of new samples, such as each spot in a spatial transcriptomics experiment. The architecture of the network is fully customizable and should be adjusted according to the number of genes used as input and the complexity of the biological context being studied. For this study, we will employ a model with three hidden layers, each consisting of 200 neurons, and a training process involving 40 epochs.
+
+
+```r
+mouseDLN.SDDLS <- trainDeconvModel(
+  mouseDLN.SDDLS,
+  num.epochs = 40,
+  num.hidden.layers = 3, 
+  num.units = c(200, 200, 200)
+) 
+```
+
+```
+## Loaded Tensorflow version 2.5.3
+```
+
+```
+## === Training and test from stored data
+```
+
+```
+##     Using only simulated mixed samples
+## 
+##     Using only simulated mixed samples
+```
+
+```
+## Model: "SpatialDDLS"
+## ________________________________________________________________________________
+## Layer (type)                        Output Shape                    Param #     
+## ================================================================================
+## Dense1 (Dense)                      (None, 200)                     228200      
+## ________________________________________________________________________________
+## Activation1 (Activation)            (None, 200)                     0           
+## ________________________________________________________________________________
+## Dropout1 (Dropout)                  (None, 200)                     0           
+## ________________________________________________________________________________
+## Dense2 (Dense)                      (None, 200)                     40200       
+## ________________________________________________________________________________
+## Activation2 (Activation)            (None, 200)                     0           
+## ________________________________________________________________________________
+## Dropout2 (Dropout)                  (None, 200)                     0           
+## ________________________________________________________________________________
+## Dense3 (Dense)                      (None, 200)                     40200       
+## ________________________________________________________________________________
+## Activation3 (Activation)            (None, 200)                     0           
+## ________________________________________________________________________________
+## Dropout3 (Dropout)                  (None, 200)                     0           
+## ________________________________________________________________________________
+## Dense4 (Dense)                      (None, 12)                      2412        
+## ________________________________________________________________________________
+## ActivationSoftmax (Activation)      (None, 12)                      0           
+## ================================================================================
+## Total params: 311,012
+## Trainable params: 311,012
+## Non-trainable params: 0
+## ________________________________________________________________________________
+```
+
+```
+## 
+## === Training DNN with 10000 samples:
+```
+
+```
+## 
+## === Evaluating DNN in test data (5000 samples)
+```
+
+```
+##    - loss: 0.0445
+##    - accuracy: 0.9068
+##    - mean_absolute_error: 0.0104
+##    - categorical_accuracy: 0.9068
+```
+
+```
+## 
+## === Generating prediction results using test data
+```
+
+```
+## DONE
+```
+
+By default, some metrics about the performance of the model will be displayed. More advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, which can provide insight into the model's performance for each cell type. These metrics can be visualized using various functions:
+
+
+```r
+mouseDLN.SDDLS <- calculateEvalMetrics(mouseDLN.SDDLS)
 distErrorPlot(
-  DDLSLiComp,
+  mouseDLN.SDDLS,
   error = "AbsErr",
   x.by = "CellType",
   color.by = "CellType", 
@@ -86,37 +527,19 @@ distErrorPlot(
 )
 ```
 
-<img src="distErr1_realModelExample-1.png" title="plot of chunk distErr1_realModelExample" alt="plot of chunk distErr1_realModelExample" style="display: block; margin: auto;" />
-
-In order to see mean error values, we can check it with `barErrorPlot`:
+<img src="abserr-celltype-1.png" title="plot of chunk abserr-celltype" alt="plot of chunk abserr-celltype" style="display: block; margin: auto;" />
 
 
 ```r
-barErrorPlot(DDLSLiComp, error = "MAE", by = "CellType")
+barErrorPlot(mouseDLN.SDDLS, error = "MAE", by = "CellType")
 ```
 
-<img src="barError_realModelExample-1.png" title="plot of chunk barError_realModelExample" alt="plot of chunk barError_realModelExample" style="display: block; margin: auto;" />
-
-Now, we can see in which proportions the model is failing most by changing the `x.by` argument to `"pBin"` and optionally setting `facet.by = "CellType"`:
+<img src="abserr-celltype-2-1.png" title="plot of chunk abserr-celltype-2" alt="plot of chunk abserr-celltype-2" style="display: block; margin: auto;" />
 
 
 ```r
 distErrorPlot(
-  DDLSLiComp,
-  x.by = "pBin",
-  error = "AbsErr",
-  color.by = "CellType", 
-  type = "boxplot",
-  size.point = 0.5
-)
-```
-
-<img src="distErr2_realModelExample-1.png" title="plot of chunk distErr2_realModelExample" alt="plot of chunk distErr2_realModelExample" style="display: block; margin: auto;" />
-
-
-```r
-distErrorPlot(
-  DDLSLiComp,
+  mouseDLN.SDDLS,
   x.by = "pBin",
   error = "AbsErr",
   facet.by = "CellType",
@@ -126,18 +549,13 @@ distErrorPlot(
 )
 ```
 
-<img src="distErr3_realModelExample-1.png" title="plot of chunk distErr3_realModelExample" alt="plot of chunk distErr3_realModelExample" style="display: block; margin: auto;" />
+<img src="abserr-celltype-sep-1.png" title="plot of chunk abserr-celltype-sep" alt="plot of chunk abserr-celltype-sep" style="display: block; margin: auto;" />
 
-As can be seen, most of the failures in CD4 T cell proportions occur at high proportions (between 0.5 and 1), and mean absolute errors (`MAbsErr`) shown as annotations in each panel are very low in all cases.
-
-### Correlation between actual and expected proportions
-
-Another way to visualize how the model works is to use the `corrExpPredPlot` function. Like `distErrorPlot`, we can see how proportions are correlated with each other by different variables. Here, we can see the same trend observed above: the model performs worst estimating CD4+ T cell proportions with the lowest concordance correlation and Pearson's coefficients ($R = 0.95$ and $CCC = 0.794$, respectively). In fact, we can observe that the model tends to underestimate these proportions, although these values are still good. For the rest of cell types, the results show a very good performance with high coefficients (between 0.97 and 0.99).
 
 
 ```r
 corrExpPredPlot(
-  DDLSLiComp,
+  mouseDLN.SDDLS,
   color.by = "CellType",
   facet.by = "CellType",
   corr = "both", 
@@ -146,177 +564,125 @@ corrExpPredPlot(
 ```
 
 ```
-## `geom_smooth()` using formula 'y ~ x'
+## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-<img src="corr1_realModelExample-1.png" title="plot of chunk corr1_realModelExample" alt="plot of chunk corr1_realModelExample" style="display: block; margin: auto;" />
+<img src="corr-pred-1.png" title="plot of chunk corr-pred" alt="plot of chunk corr-pred" style="display: block; margin: auto;" />
 
-It is important to note that these results only show the estimated proportions of pseudo-bulk samples. If we don't filter out single-cell profiles, the results improve in general, showing that the model is able to deal with pure samples as well.
+As demonstrated, the overall performance is satisfactory, indicating that the model is capable of comprehending the distinctive features of each cell type to provide precise predictions regarding the cell type composition of the samples.
+
+## Deconvolution of the spatial transcriptomics dataset
+
+Finally, we can use our trained model to deconvolute the signals of each spot! This step is very quick. As we already loaded the spatial transcriptomics experiment we wish to deconvolute, calling the `deconvSpatialDDLS` function is sufficient. However, if additional spatial experiments are to be included, see `loadSTProfiles`. 
 
 
 ```r
-corrExpPredPlot(
-  DDLSLiComp,
-  color.by = "CellType",
-  facet.by = "CellType",
-  size.point = 0.5, 
-  filter.sc = FALSE,
-  corr = "both"
+mouseDLN.SDDLS <- deconvSpatialDDLS(mouseDLN.SDDLS)
+```
+
+```
+##    No 'index.st' provided. Deconvoluting all SpatialExperiment objects contained in the `spatial.experiments` slot
+```
+
+```
+## === Setting 0 features that are not present in trained model to zero
+```
+
+```
+## === Normalizing and scaling data
+```
+
+```
+## === Predicting cell type proportions
+```
+
+```
+## DONE
+```
+
+Now, let's project these predicted proportions in the spatial coordinates:
+
+
+```r
+plotSpatialPropAll(mouseDLN.SDDLS, index.st = 1)
+```
+
+<img src="pred-spatial-1.png" title="plot of chunk pred-spatial" alt="plot of chunk pred-spatial" style="display: block; margin: auto;" />
+
+To reveal hidden patterns in the coordinates caused by using the same color scale, we can utilize the `plotSpatialProp` function to plot each cell type independently:
+
+
+```r
+for (i in mouseDLN.SDDLS@trained.model@cell.types) {
+  print(plotSpatialProp(
+    mouseDLN.SDDLS, index.st = 1, cell.type = i, colors = "spectral") + coord_fixed()
+  )
+}
+```
+
+<img src="pred-spatial-sep-1.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-2.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-3.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-4.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-5.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-6.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-7.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-8.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-9.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-10.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-11.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" /><img src="pred-spatial-sep-12.png" title="plot of chunk pred-spatial-sep" alt="plot of chunk pred-spatial-sep" style="display: block; margin: auto;" />
+
+## Comparing results with general cell markers
+
+Finally, we can check whether there is a collocation between the predicted cell type proportions and the expression of some classic markers for each cell type. 
+
+
+```r
+customMarkers <- list(
+  "B cells" = c("Cd74", "Cd19", "Cd79a", "Cd79b", "Ly6d"),
+  "CD4 T cells" = c("Cd4", "Lef1", "Fyb"),
+  "CD8 T cells" = c("Cd8b1", "Cd8a", "Trac"),
+  cDC1s = c("Xcr1", "Irf8"),
+  cDC2s = c("Irf4", "Cd4"),
+  "GD T cells" = c("Il7r", "Id2"),
+  Macrophages = c("Lyz2", "Lyz1", "Cd86", "Ly6c1"),
+  "Migratory DCs" = c("Ccl5", "Anxa3", "Fscn1"),
+  Monocytes = c("Fcer1g", "Cst3", "Lst1", "Itgam", "Kit", "Fcgr3"),
+  "NK cells" = c("Nkg7", "Il2rb", "Gzma"),
+  pDCs = c("Siglech", "Plac8", "Ly6c2", "Vtsb", "Zeb2", "Siglech"),
+  Tregs = c("Ikzf2", "Il2ra", "Foxp3")
+) %>% lapply(FUN = function(x) x[x %in% rownames(MouseDLN.ST)])
+```
+
+
+```r
+## calculate z-scores
+exprST <- MouseDLN.ST@assays@data[[1]]
+logCPM <- edgeR::cpm(exprST, log = TRUE)
+meanZscoresCustom <- purrr::map(
+  .x = names(customMarkers), 
+  .f = ~{ colMeans(t(scale(t(logCPM[customMarkers[[.x]], , drop = FALSE])))) }
+) %>% do.call(cbind, .) 
+colnames(meanZscoresCustom) <- names(customMarkers)
+```
+
+
+
+```r
+color.z.scores <- rev(colorRampPalette(RColorBrewer::brewer.pal(n = 10, name = "RdBu"))(20))
+st.coor <- SpatialExperiment::spatialCoords(
+  spatial.experiments(object = mouseDLN.SDDLS, index.st = 1)
 )
-```
-
-```
-## `geom_smooth()` using formula 'y ~ x'
-```
-
-<img src="corr2_realModelExample-1.png" title="plot of chunk corr2_realModelExample" alt="plot of chunk corr2_realModelExample" style="display: block; margin: auto;" />
-
-In the end, we can see the overall results without splitting the graph. As can be seen, both coefficients present also high values when all proportions are considered.
-
-
-```r
-corrExpPredPlot(
-  DDLSLiComp,
-  color.by = "CellType",
-  size.point = 0.5,
-  corr = "both"
+colnames(st.coor) <- paste("Spatial", 1:2)
+dfPlotLong <- reshape2::melt(
+  as.data.frame(cbind(st.coor, meanZscoresCustom)), 
+  id.vars = c("Spatial 1", "Spatial 2"), 
+  variable.name = "CellType", value.name = "Zscore"
 )
-```
-
-```
-## `geom_smooth()` using formula 'y ~ x'
-```
-
-<img src="corr3_realModelExample-1.png" title="plot of chunk corr3_realModelExample" alt="plot of chunk corr3_realModelExample" style="display: block; margin: auto;" />
-
-
-### Bland-Altman agreement plots
-
-The last way to graphically represent results is to use `blandAltmanLehPlot`. It generates a Bland-Altman agreement plot, a method for analyzing the level of agreement between two variables, in that case expected vs predicted cell proportions. As shown, most of the proportions fall close to zero (note blue density lines) and the dashed red lines are very close to the mean, although we can observe again the aforementioned problem in the estimate of T CD4 cell proportions. 
-
-
-
-```r
-blandAltmanLehPlot(
-  DDLSLiComp, 
-  color.by = "CellType",
-  size.point = 0.5,
-  filter.sc = TRUE,
-  density = TRUE
-)
-```
-
-<img src="bland1_realModelExample-1.png" title="plot of chunk bland1_realModelExample" alt="plot of chunk bland1_realModelExample" style="display: block; margin: auto;" />
-
-Finally, we can generate the same plot but spliting the information by number of different cell types present in each pseudo-bulk sample. The smaller the number of cell types, the larger the error made by the model. In any case, considering the results from `distErrorPlot` and `corrExpPredPlot`, we can conclude that the model performs well on test data.
-
-
-```r
-blandAltmanLehPlot(
-  DDLSLiComp, 
-  color.by = "nCellTypes",
-  facet.by = "nCellTypes",
-  log.2 = FALSE,
-  size.point = 0.5,
-  filter.sc = TRUE,
-  density = FALSE
-)
-```
-
-<img src="bland2_realModelExample-1.png" title="plot of chunk bland2_realModelExample" alt="plot of chunk bland2_realModelExample" style="display: block; margin: auto;" />
-
-
-## **digitalDLSorteR** dealing with real data from TCGA project
-
-Now, to show the performance of this model on real data, colorectal cancer samples from The Cancer Genome Atlas (TCGA) project [@Koboldt2012; @Ciriello2015] will be used. This dataset consists of 521 samples and includes different subtypes of tumors and healthy samples. 
-
-
-```r
-data(TCGA.colon.se)
-TCGA.colon.se
-```
-
-```
-## class: SummarizedExperiment 
-## dim: 59085 521 
-## metadata(0):
-## assays(1): counts
-## rownames(59085): 5S_RRNA 7SK ... ZZEF1 ZZZ3
-## rowData names(0):
-## colnames(521): X0096f6b3.94f5.49d9.aa43.66d9ab6b2b5c X01f5a228.a2cf.444f.8102.a9d4a2d9a27d ...
-##   ff016e44.7a4d.4423.822e.aa6aa6df0ef2 ffbe7115.06be.4592.91d0.3dad62e3c73a
-## colData names(2): Bulk Tumor_Type
-```
-
-As shown in [Building new deconvolution models](newModels.html), we can load the data into the `DigitalDLSorter` object as follows:
-
-
-```r
-DDLSLiComp <- loadDeconvData(
-  object = DDLSLiComp,
-  data = TCGA.colon.se, 
-  name.data = "TCGA.colon"
-)
-```
-
-Then, with the `deconvDigitalDLSorterObj` function, these new samples can be deconvoluted into the cell types considered by the model and predicted proportions can be represented by the `barPlotCellTypes` function. 
-
-
-```r
-DDLSLiComp <- deconvDigitalDLSorterObj(
-  object = DDLSLiComp, 
-  name.data = "TCGA.colon",
-  verbose = FALSE
-)
-barPlotCellTypes(DDLSLiComp,  name.data = "TCGA.colon", rm.x.text = TRUE)
-```
-
-<img src="barPlotResults_realModelExample-1.png" title="plot of chunk barPlotResults_realModelExample" alt="plot of chunk barPlotResults_realModelExample" style="display: block; margin: auto;" />
-
-As the total number of samples is too high, we can see the results of some samples by taking the matrix with the proportions and plotting 20 random samples with `barPlotCellTypes`:
-
-
-```r
-set.seed(12345)
-resDeconvTCGA <- deconv.results(DDLSLiComp, "TCGA.colon")
-barPlotCellTypes(
-  resDeconvTCGA[sample(1:521, size = 20), ], rm.x.text = TRUE,
-  title = "Results of deconvolution (20 random samples)"
-)
-```
-
-<img src="barPlotResults20_realModelExample-1.png" title="plot of chunk barPlotResults20_realModelExample" alt="plot of chunk barPlotResults20_realModelExample" style="display: block; margin: auto;" />
-
-Finally, to check whether predicted estimates make sense with the type of sample they come from (metastatic, normal, primary, or recurrent), we will inspect predicted proportions of tumor cells, epithelial cells and fibroblasts.
-
-
-```r
-dfProp <- data.frame(
-  Sample = rownames(resDeconvTCGA),
-  CRC = resDeconvTCGA[, "CRC"],
-  Ep = resDeconvTCGA[, "Ep"],
-  Fb = resDeconvTCGA[, "Fb"],
-  TypeSample = TCGA.colon.se@colData$Tumor_Type
-)
-dfProp <- reshape2::melt(dfProp)
-```
-
-```
-## Using Sample, TypeSample as id variables
-```
-
-```r
-ggplot(dfProp, aes(x = TypeSample, y = value, fill = TypeSample)) +
-  geom_boxplot() + facet_wrap(~ variable) + ylab("Estimated proportion") + 
-  ggtitle("Estimated proportions in TCGA data") + theme_bw() + 
+dfPlotLong %>% ggplot(
+  aes(x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], color = Zscore)
+) + geom_point(size = 0.5) + theme_classic()  + 
+  ggtitle("Mean z-score of cell type markers") + 
+  scale_color_gradientn(colors = color.z.scores, limit = c(-2, 2)) + 
   theme(
     plot.title = element_text(face = "bold", hjust = 0.5),
-    legend.title = element_text(face = "bold")
-  )
+    axis.title.x = element_blank(), axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(), axis.title.y = element_blank(),
+    axis.text.y = element_blank(), axis.ticks.y = element_blank()
+  ) + coord_fixed() + facet_wrap(~ CellType)
 ```
 
-<img src="boxplotsTypes_realModelExample-1.png" title="plot of chunk boxplotsTypes_realModelExample" alt="plot of chunk boxplotsTypes_realModelExample" style="display: block; margin: auto;" />
+<img src="unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
 
-**digitalDLSorteR** correctly estimates the proportion of tumor cells (`CRC`) and epithelial/fibroblast cells (`Ep` and `Fb`) according to sample type. Further analysis can be performed to better understand and evaluate the performance of the model on these data (correlation analysis between estimated cell proportions, comparisons with other published tools, etc.).
 
 ## References
