@@ -16,7 +16,7 @@ fontsize: 12pt
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, dpi = 80,
+  echo = TRUE, dpi = 300,
   base.dir = ".", fig.path = "", fig.align = "center"
 )
 ```
@@ -239,7 +239,7 @@ colnames(meanZscoresCustom) <- names(customMarkers)
 ```
 
 
-```{r, fig.height=5.5, fig.width=8}
+```{r, fig.height=6, fig.width=9}
 color.z.scores <- rev(colorRampPalette(RColorBrewer::brewer.pal(n = 10, name = "RdBu"))(20))
 st.coor <- SpatialExperiment::spatialCoords(
   spatial.experiments(object = mouseDLN.SDDLS, index.st = 1)

@@ -195,16 +195,10 @@ jobs:
         continue-on-error: true
         shell: Rscript {0}
 
-      - name: Install digitalDLSorteRdata
+      - name: Install SpatialDDLSdata
         run: |
           ## data digitalDLSorteRdata
-          remotes::install_github("diegommcc/digitalDLSorteRdata")
-        shell: Rscript {0}
-
-      - name: Install digitalDLSorteRmodels
-        run: |
-          ## data digitalDLSorteRmodels
-          remotes::install_github("diegommcc/digitalDLSorteRmodels")
+          remotes::install_github("diegommcc/SpatialDDLSdata")
         shell: Rscript {0}
 
       - name: Install Miniconda
