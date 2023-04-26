@@ -239,7 +239,7 @@ colnames(meanZscoresCustom) <- names(customMarkers)
 ```
 
 
-```{r, fig.height=5.5, fig.width=8}
+```{r, zscores, fig.height=5.5, fig.width=8}
 color.z.scores <- rev(colorRampPalette(RColorBrewer::brewer.pal(n = 10, name = "RdBu"))(20))
 st.coor <- SpatialExperiment::spatialCoords(
   spatial.experiments(object = mouseDLN.SDDLS, index.st = 1)

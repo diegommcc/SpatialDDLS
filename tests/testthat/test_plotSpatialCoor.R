@@ -1,3 +1,11 @@
+context("Functions to plot predicted proportions in spatial coordinates: plotSpatialCoor.R")
+
+skip_if_not(.checkPythonDependencies(alert = "none"))
+
+# to make compatible with any computer: disable eager execution
+tensorflow::tf$compat$v1$disable_eager_execution()
+
+
 # simulating data
 set.seed(123)
 sce <- SingleCellExperiment(
