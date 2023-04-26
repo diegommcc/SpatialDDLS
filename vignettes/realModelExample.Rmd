@@ -27,147 +27,7 @@ Firstly, let's load the required packages and data:
 
 ```r
 library("SpatialDDLS")
-```
-
-```
-## 
-## Attaching package: 'SpatialDDLS'
-```
-
-```
-## The following object is masked from 'package:base':
-## 
-##     saveRDS
-```
-
-```r
 library("SingleCellExperiment")
-```
-
-```
-## Loading required package: SummarizedExperiment
-```
-
-```
-## Loading required package: MatrixGenerics
-```
-
-```
-## Loading required package: matrixStats
-```
-
-```
-## 
-## Attaching package: 'MatrixGenerics'
-```
-
-```
-## The following objects are masked from 'package:matrixStats':
-## 
-##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
-##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
-##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
-##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
-##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
-##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
-##     colWeightedMeans, colWeightedMedians, colWeightedSds,
-##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
-##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
-##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
-##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
-##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
-##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
-##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
-##     rowWeightedSds, rowWeightedVars
-```
-
-```
-## Loading required package: GenomicRanges
-```
-
-```
-## Loading required package: stats4
-```
-
-```
-## Loading required package: BiocGenerics
-```
-
-```
-## 
-## Attaching package: 'BiocGenerics'
-```
-
-```
-## The following objects are masked from 'package:stats':
-## 
-##     IQR, mad, sd, var, xtabs
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     anyDuplicated, append, as.data.frame, basename, cbind, colnames,
-##     dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
-##     grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
-##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
-##     rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
-##     union, unique, unsplit, which.max, which.min
-```
-
-```
-## Loading required package: S4Vectors
-```
-
-```
-## 
-## Attaching package: 'S4Vectors'
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     expand.grid, I, unname
-```
-
-```
-## Loading required package: IRanges
-```
-
-```
-## Loading required package: GenomeInfoDb
-```
-
-```
-## Loading required package: Biobase
-```
-
-```
-## Welcome to Bioconductor
-## 
-##     Vignettes contain introductory material; view with
-##     'browseVignettes()'. To cite Bioconductor, see
-##     'citation("Biobase")', and for packages 'citation("pkgname")'.
-```
-
-```
-## 
-## Attaching package: 'Biobase'
-```
-
-```
-## The following object is masked from 'package:MatrixGenerics':
-## 
-##     rowMedians
-```
-
-```
-## The following objects are masked from 'package:matrixStats':
-## 
-##     anyMissing, rowMedians
-```
-
-```r
 library("SpatialExperiment")
 library("ggplot2")
 library("ggpubr")
@@ -291,13 +151,13 @@ mouseDLN.SDDLS
 ## An object of class SpatialDDLS 
 ## Real single-cell profiles:
 ##   1140 features and 14989 cells
-##   rownames: Iqgap1 Tgfb1 Dnajc8 ... Dnajc8 Ccl22 Cd53 Ndfip1 
-##   colnames: GTGGAGACATCATTTC-1-0 TAAGCCATCTACGGGC-1-2 GTCGTAAAGCGTGAGT-1-3 ... GTCGTAAAGCGTGAGT-1-3 GTAGAAACAATTAGGA-1-2 TCCAGAATCTCGCCTA-1-1 ACTGTCCAGCATGGGT-1-1 
+##   rownames: Rab43 Picalm Ptprc ... Ptprc Baz1a Manf Dap 
+##   colnames: GCAGTTAAGGGCCCTT-1-0 TGCTTGCAGTTGGCGA-1-3 GGTTCTCAGTCGAAAT-1-2 ... GGTTCTCAGTCGAAAT-1-2 TCCATGCGTATGAGCG-1-0 AGACAAACACCCTATC-1-1 TCCATGCAGATCCCAT-1-3 
 ## Spatial experiments:
 ##   1 experiments
 ##   1140 features and 1092 cells
-##   rownames: Dynll1 Isg15 Ndufb5 ... Ndufb5 Sf3b6 Tmem258 Csde1 
-##   colnames: CAGGAAGACTTTATAT-1-1 TCTAGTTATCAGAAGA-1-1 AACCAAGACTTCTCTG-1-0 ... AACCAAGACTTCTCTG-1-0 CGTACCTGATAGGCCT-1-1 AATTCTAGAGTTAGGC-1-1 AATAACAACGCTCGGC-1-0 
+##   rownames: Ccdc12 Rps21 Neurl3 ... Neurl3 Sf3b2 G3bp1 Ctla4 
+##   colnames: AGTGGCGGCAATTTGA-1-1 GAGGTACATCCATCTT-1-1 CAAATTGTCAGCAAGC-1-1 ... CAAATTGTCAGCAAGC-1-1 GATAGGTAACGTTGAC-1-1 GGTTAGGCTTGGAGAA-1-0 CCATTAGCGATAATCC-1-0 
 ## Project: SpatialDDLS-Proj
 ```
 
@@ -439,10 +299,6 @@ mouseDLN.SDDLS <- trainDeconvModel(
 ```
 
 ```
-## Loaded Tensorflow version 2.5.3
-```
-
-```
 ## === Training and test from stored data
 ```
 
@@ -454,35 +310,35 @@ mouseDLN.SDDLS <- trainDeconvModel(
 
 ```
 ## Model: "SpatialDDLS"
-## ________________________________________________________________________________
-## Layer (type)                        Output Shape                    Param #     
-## ================================================================================
-## Dense1 (Dense)                      (None, 200)                     228200      
-## ________________________________________________________________________________
-## Activation1 (Activation)            (None, 200)                     0           
-## ________________________________________________________________________________
-## Dropout1 (Dropout)                  (None, 200)                     0           
-## ________________________________________________________________________________
-## Dense2 (Dense)                      (None, 200)                     40200       
-## ________________________________________________________________________________
-## Activation2 (Activation)            (None, 200)                     0           
-## ________________________________________________________________________________
-## Dropout2 (Dropout)                  (None, 200)                     0           
-## ________________________________________________________________________________
-## Dense3 (Dense)                      (None, 200)                     40200       
-## ________________________________________________________________________________
-## Activation3 (Activation)            (None, 200)                     0           
-## ________________________________________________________________________________
-## Dropout3 (Dropout)                  (None, 200)                     0           
-## ________________________________________________________________________________
-## Dense4 (Dense)                      (None, 12)                      2412        
-## ________________________________________________________________________________
-## ActivationSoftmax (Activation)      (None, 12)                      0           
-## ================================================================================
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Layer (type)                                                                                                              Output Shape                                                                                                  Param #                                  
+## =================================================================================================================================================================================================================================================================================
+## Dense1 (Dense)                                                                                                            (None, 200)                                                                                                   228200                                   
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Activation1 (Activation)                                                                                                  (None, 200)                                                                                                   0                                        
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Dropout1 (Dropout)                                                                                                        (None, 200)                                                                                                   0                                        
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Dense2 (Dense)                                                                                                            (None, 200)                                                                                                   40200                                    
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Activation2 (Activation)                                                                                                  (None, 200)                                                                                                   0                                        
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Dropout2 (Dropout)                                                                                                        (None, 200)                                                                                                   0                                        
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Dense3 (Dense)                                                                                                            (None, 200)                                                                                                   40200                                    
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Activation3 (Activation)                                                                                                  (None, 200)                                                                                                   0                                        
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Dropout3 (Dropout)                                                                                                        (None, 200)                                                                                                   0                                        
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Dense4 (Dense)                                                                                                            (None, 12)                                                                                                    2412                                     
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## ActivationSoftmax (Activation)                                                                                            (None, 12)                                                                                                    0                                        
+## =================================================================================================================================================================================================================================================================================
 ## Total params: 311,012
 ## Trainable params: 311,012
 ## Non-trainable params: 0
-## ________________________________________________________________________________
+## _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 ```
 
 ```
@@ -496,10 +352,10 @@ mouseDLN.SDDLS <- trainDeconvModel(
 ```
 
 ```
-##    - loss: 0.0445
-##    - accuracy: 0.9068
-##    - mean_absolute_error: 0.0104
-##    - categorical_accuracy: 0.9068
+##    - loss: 0.0528
+##    - accuracy: 0.8954
+##    - mean_absolute_error: 0.0117
+##    - categorical_accuracy: 0.8954
 ```
 
 ```
