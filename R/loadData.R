@@ -325,21 +325,17 @@ NULL
       verbose = verbose
     )  
   } else {
-    if (filt.genes.cluster) {
-      warning(
-        paste(
-          "filt.genes.cluster is not available yet when working with HDF5",
-          "files as backend"
-        ), call. = FALSE, immediate. = TRUE
-      )
-    }
-    # TODO: implement filt.genes.cluster: not available
     filtered.genes <- .filterGenesHDF5(
       counts = counts,
       genes.metadata = genes.metadata,
       gene.ID.column = gene.ID.column,
+      cells.metadata = cells.metadata,
+      cell.type.column = cell.type.column,
+      filt.genes.cells = filt.genes.cells,
       min.counts = min.counts,
       min.cells = min.cells,
+      filt.genes.cluster = filt.genes.cluster,
+      min.mean.counts = min.mean.counts,
       verbose = verbose
     )
   }
@@ -348,7 +344,7 @@ NULL
 
 ## solution for large sparse matrices (only works on sparse matrices)
 .logicalFiltSparse <- function(counts, min.counts, min.cells) {
-  counts <- as(counts, "dgTMatrix")
+  counts <- as(counts, "dgTMatrix") # TsparseMatrix
   dfSumm <- data.frame(
     i = counts@i,
     j = counts@j,
@@ -401,14 +397,19 @@ NULL
   min.mean.counts
 ) {
   ## mean counts per cluster: with big matrices, this will be problematic
-  mean.cluster <- aggregate(
-    x = t(as.matrix(counts)), 
-    by = list(cells.metadata[[cell.type.column]]), 
-    FUN = mean
+  # mean.cluster <- aggregate(
+  #   x = t(as.matrix(counts)), 
+  #   by = list(cells.metadata[[cell.type.column]]), 
+  #   FUN = mean
+  # )
+  # rownames(mean.cluster) <- mean.cluster[, 1]
+  # mean.cluster[, 1] <- NULL
+  ## this part has been changed using the same implementation as Matrix.utils
+  mean.cluster <- .aggregate.Matrix.sparse(
+    x = Matrix::t(counts), 
+    groupings = list(cells.metadata[[cell.type.column]]), 
+    fun = "mean"
   )
-  rownames(mean.cluster) <- mean.cluster[, 1]
-  mean.cluster[, 1] <- NULL
-  
   ## using cutoffs
   sel.genes <- unlist(
     apply(
@@ -501,8 +502,13 @@ NULL
   counts,
   genes.metadata,
   gene.ID.column,
+  cells.metadata,
+  cell.type.column,
+  filt.genes.cells,
   min.counts,
   min.cells,
+  filt.genes.cluster,
+  min.mean.counts,
   verbose
 ) { 
   if (verbose) {
@@ -513,7 +519,7 @@ NULL
     if (verbose) {
       message("    - Aggregating ", sum(dup.genes), " duplicated genes\n") 
     }
-    counts.r <- DelayedArray::rowsum(x = counts, group = factor(rownames(counts)))
+    counts <- DelayedArray::rowsum(x = counts, group = factor(rownames(counts)))
     genes.metadata <- genes.metadata[match(
       x = rownames(counts), table = genes.metadata[, gene.ID.column]
     ), ]
@@ -533,30 +539,53 @@ NULL
                                          rownames(counts), , drop = FALSE]  
     }
   }
-  
-  # filtered genes
-  if (min.counts == 0 && min.cells == 0) {
-    return(list(counts, genes.metadata))
-  } else if (min.counts < 0 || min.cells < 0) {
-    stop("min.counts and min.cells must be greater than or equal to zero")
+  # filtered genes by cells
+  ori.features <- nrow(counts)
+  if (filt.genes.cells) {
+    if (min.counts < 0 || min.cells < 0) {
+      stop("min.counts and min.cells must be greater than or equal to zero")
+    } else if (min.counts != 0 && min.cells != 0) {
+      remove.genes <- DelayedArray::rowSums(counts > min.counts) >= min.cells
+      counts <- counts[remove.genes, ]
+      if (dim(counts)[1] == 0) {
+        stop(paste("Resulting count matrix after filtering using min.genes =",
+                   min.counts, "and min.cells =", min.cells,
+                   "does not have entries"))
+      }
+      if (is.null(rownames(counts))) {
+        genes.metadata <- genes.metadata[remove.genes, , drop = FALSE]
+      } else {
+        genes.metadata <- genes.metadata[genes.metadata[, gene.ID.column] %in%
+                                           rownames(counts), , drop = FALSE]  
+      }  
+    }
   }
-  remove.genes <- DelayedArray::rowSums(counts > min.counts) >= min.cells
-  counts <- counts[remove.genes, ]
-  if (dim(counts)[1] == 0) {
-    stop(paste("Resulting count matrix after filtering using min.genes =",
-               min.counts, "and min.cells =", min.cells,
-               "does not have entries"))
+  # filter genes by cluster
+  if (filt.genes.cluster) {
+    sum.cluster <- DelayedArray::rowsum(
+      x = DelayedArray::t(counts), group = factor(cells.metadata[[cell.type.column]])
+    )
+    n.cluster <- data.frame(table(cells.metadata[[cell.type.column]]))
+    mean.cluster <- sum.cluster[n.cluster$Var1,] / n.cluster$Freq
+    
+    ## using cutoffs
+    sel.genes <- unlist(
+      apply(
+        X = mean.cluster >= min.mean.counts, 
+        MARGIN = 2, 
+        FUN = function(x) if(any(x)) return(TRUE)
+      )
+    )  
+    if (any(sel.genes)) {
+      counts <- counts[names(sel.genes), ]
+      genes.metadata <- genes.metadata[names(sel.genes), ]
+    }
   }
+  final.features <- nrow(counts)
   if (verbose) {
-    message("\n    - Filtering features by min.counts and min.cells:")
-    message(paste("       - Selected features:",  sum(remove.genes)))
-    message(paste("       - Discarded features:", sum(!remove.genes))) 
-  }
-  if (is.null(rownames(counts))) {
-    genes.metadata <- genes.metadata[remove.genes, , drop = FALSE]
-  } else {
-    genes.metadata <- genes.metadata[genes.metadata[, gene.ID.column] %in%
-                                       rownames(counts), , drop = FALSE]  
+    message("\n    - Filtering features:")
+    message(paste("       - Selected features:",  final.features))
+    message(paste("       - Discarded features:", ori.features - final.features)) 
   }
   return(list(counts, genes.metadata))
 }
@@ -1283,9 +1312,34 @@ createSpatialDDLSobject <- function(
 #' @seealso \code{\link{createSpatialDDLSobject}} \code{\link{trainDeconvModel}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' set.seed(123)
+#' sce <- SingleCellExperiment::SingleCellExperiment(
+#'   assays = list(
+#'     counts = matrix(
+#'       rpois(100, lambda = 5), nrow = 40, ncol = 30,
+#'       dimnames = list(paste0("Gene", seq(40)), paste0("RHC", seq(30)))
+#'     )
+#'   ),
+#'   colData = data.frame(
+#'     Cell_ID = paste0("RHC", seq(30)),
+#'     Cell_Type = sample(x = paste0("CellType", seq(4)), size = 30,
+#'                        replace = TRUE)
+#'   ),
+#'   rowData = data.frame(
+#'     Gene_ID = paste0("Gene", seq(40))
+#'   )
+#' )
+#' SDDLS <- createSpatialDDLSobject(
+#'   sc.data = sce,
+#'   sc.cell.ID.column = "Cell_ID",
+#'   sc.gene.ID.column = "Gene_ID"
+#' )
+#' 
 #' ## simulating a SpatialExperiment object
 #' counts <- matrix(rpois(30, lambda = 5), ncol = 6)
+#' rownames(counts) <- paste0("Gene", 1:5)
+#' colnames(counts) <- paste0("Spot", 1:6)
 #' coordinates <- matrix(
 #'   c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), ncol = 2
 #' )
@@ -1298,13 +1352,12 @@ createSpatialDDLSobject <- function(
 #'
 #' ## previous SpatialDDLS object
 #' SDDLS <- loadSTProfiles(
-#'   object = SSLD,
+#'   object = SDDLS,
 #'   st.data = ste,
 #'   st.spot.ID.column = "Cell_ID",
 #'   st.gene.ID.column = "Gene_ID",
 #' )
 #' }
-#'
 #'   
 loadSTProfiles <- function(
     object,

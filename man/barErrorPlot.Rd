@@ -48,7 +48,7 @@ different cell types (\code{nCellTypes}) on test mixed transcriptional
 profiles.
 }
 \examples{
-\dontrun{
+\donttest{
 set.seed(123)
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
@@ -78,11 +78,10 @@ SDDLS <- genMixedCellProp(
   num.sim.spots = 50,
   verbose = TRUE
 )
+SDDLS <- simMixedProfiles(SDDLS)
 # training of DDLS model
-tensorflow::tf$compat$v1$disable_eager_execution()
 SDDLS <- trainDeconvModel(
   object = SDDLS,
-  on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )

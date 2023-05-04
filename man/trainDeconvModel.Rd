@@ -158,7 +158,7 @@ features/genes, and the number of output neurons is equal to the number of
 considered cell types.
 }
 \examples{
-\dontrun{
+\donttest{
 set.seed(123)
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
@@ -185,11 +185,10 @@ SDDLS <- genMixedCellProp(
   object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  num.sim.spots = 30,
+  num.sim.spots = 50,
   verbose = TRUE
 )
-# training of SDDLS model
-tensorflow::tf$compat$v1$disable_eager_execution()
+SDDLS <- simMixedProfiles(SDDLS)
 SDDLS <- trainDeconvModel(
   object = SDDLS,
   on.the.fly = TRUE,

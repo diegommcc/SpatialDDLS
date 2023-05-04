@@ -62,9 +62,34 @@ gene identifiers used the spatial and single-cell transcriptomics data are
 consistent.
 }
 \examples{
-\dontrun{
+\donttest{
+set.seed(123)
+sce <- SingleCellExperiment::SingleCellExperiment(
+  assays = list(
+    counts = matrix(
+      rpois(100, lambda = 5), nrow = 40, ncol = 30,
+      dimnames = list(paste0("Gene", seq(40)), paste0("RHC", seq(30)))
+    )
+  ),
+  colData = data.frame(
+    Cell_ID = paste0("RHC", seq(30)),
+    Cell_Type = sample(x = paste0("CellType", seq(4)), size = 30,
+                       replace = TRUE)
+  ),
+  rowData = data.frame(
+    Gene_ID = paste0("Gene", seq(40))
+  )
+)
+SDDLS <- createSpatialDDLSobject(
+  sc.data = sce,
+  sc.cell.ID.column = "Cell_ID",
+  sc.gene.ID.column = "Gene_ID"
+)
+
 ## simulating a SpatialExperiment object
 counts <- matrix(rpois(30, lambda = 5), ncol = 6)
+rownames(counts) <- paste0("Gene", 1:5)
+colnames(counts) <- paste0("Spot", 1:6)
 coordinates <- matrix(
   c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3), ncol = 2
 )
@@ -77,13 +102,12 @@ ste <- SpatialExperiment::SpatialExperiment(
 
 ## previous SpatialDDLS object
 SDDLS <- loadSTProfiles(
-  object = SSLD,
+  object = SDDLS,
   st.data = ste,
   st.spot.ID.column = "Cell_ID",
   st.gene.ID.column = "Gene_ID",
 )
 }
-
   
 }
 \seealso{

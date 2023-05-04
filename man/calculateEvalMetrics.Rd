@@ -26,50 +26,6 @@ addition, each of these metrics is aggregated according to three criteria:
 cell type (\code{CellType}), probability bins in ranges of 0.1 (\code{pBin}),
 and number of different cell types present in the spot (\code{nCellTypes}).
 }
-\examples{
-\dontrun{
-set.seed(123)
-sce <- SingleCellExperiment::SingleCellExperiment(
-  assays = list(
-    counts = matrix(
-      rpois(30, lambda = 5), nrow = 15, ncol = 20,
-      dimnames = list(paste0("Gene", seq(15)), paste0("RHC", seq(20)))
-    )
-  ),
-  colData = data.frame(
-    Cell_ID = paste0("RHC", seq(20)),
-    Cell_Type = sample(x = paste0("CellType", seq(6)), size = 20,
-                       replace = TRUE)
-  ),
-  rowData = data.frame(
-    Gene_ID = paste0("Gene", seq(15))
-  )
-)
-SDDLS <- createSpatialDDLSobject(
-  sc.data = sce,
-  sc.cell.ID.column = "Cell_ID",
-  sc.gene.ID.column = "Gene_ID",
-)
-SDDLS <- genMixedCellProp(
-  object = SDDLS,
-  cell.ID.column = "Cell_ID",
-  cell.type.column = "Cell_Type",
-  num.sim.spots = 50,
-  verbose = TRUE
-)
-# training of DDLS model
-tensorflow::tf$compat$v1$disable_eager_execution()
-SDDLS <- trainDeconvModel(
-  object = SDDLS,
-  on.the.fly = TRUE,
-  batch.size = 15,
-  num.epochs = 5
-)
-# evaluation using test data
-SDDLS <- calculateEvalMetrics(object = SDDLS)
-}
-
-}
 \seealso{
 \code{\link{distErrorPlot}} \code{\link{corrExpPredPlot}}
 \code{\link{blandAltmanLehPlot}} \code{\link{barErrorPlot}}

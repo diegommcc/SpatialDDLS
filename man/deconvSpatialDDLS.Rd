@@ -72,12 +72,12 @@ spatial transcriptomics datasets to be deconvoluted in the
 or \code{?\link{loadSTProfiles}} for more details.
 }
 \examples{
-\dontrun{
+\donttest{
 set.seed(123)
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
-      rpois(30, lambda = 5), nrow = 15, ncol = 20,
+     rpois(30, lambda = 5), nrow = 15, ncol = 20,
       dimnames = list(paste0("Gene", seq(15)), paste0("RHC", seq(20)))
     )
   ),
@@ -99,35 +99,44 @@ SDDLS <- genMixedCellProp(
   object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  num.sim.spots = 50,
+ num.sim.spots = 50,
   verbose = TRUE
-)
+) 
+SDDLS <- simMixedProfiles(SDDLS)
 # training of SDDLS model
-tensorflow::tf$compat$v1$disable_eager_execution()
 SDDLS <- trainDeconvModel(
   object = SDDLS,
-  on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )
 # simulating mixed profiles
+ngenes <- sample(3:40, size = 1)
+ncells <- sample(3:40, size = 1)
 counts <- matrix(
-  stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)),
-  nrow = 40, ncol = 15,
-  dimnames = list(paste0("Gene", seq(40)), paste0("Mixed", seq(15)))
+  rpois(ngenes * ncells, lambda = 5), ncol = ncells,
+  dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
 )
-se <- SummarizedExperiment(assay = list(counts = counts))
+coordinates <- matrix(
+  rep(c(1, 2), ncells), ncol = 2
+)
+st <- SpatialExperiment::SpatialExperiment(
+  assays = list(counts = as.matrix(counts)),
+  rowData = data.frame(Gene_ID = paste0("Gene", seq(ngenes))),
+  colData = data.frame(Cell_ID = paste0("Spot", seq(ncells))),
+  spatialCoords = coordinates
+)
 SDDLS <- loadSTProfiles(
   object = SDDLS,
-  data = se,
-  index.st = "Example"
+  st.data = st,
+  st.spot.ID.column = "Cell_ID",
+  st.gene.ID.column = "Gene_ID"
 )
 # simplify arguments
 simplify <- list(CellGroup1 = c("CellType1", "CellType2", "CellType4"),
                  CellGroup2 = c("CellType3", "CellType5"))
 SDDLS <- deconvSpatialDDLS(
   object = SDDLS,
-  index.st = "Example",
+  index.st = 1,
   simplify.set = simplify,
   simplify.majority = simplify
 )

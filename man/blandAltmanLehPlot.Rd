@@ -78,7 +78,7 @@ types present in spots (\code{nCellTypes}). See the \code{facet.by} argument
 and examples for more information.
 }
 \examples{
-\dontrun{
+\donttest{
 set.seed(123)
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
@@ -108,11 +108,10 @@ SDDLS <- genMixedCellProp(
   num.sim.spots = 50,
   verbose = TRUE
 )
+SDDLS <- simMixedProfiles(SDDLS)
 # training of DDLS model
-tensorflow::tf$compat$v1$disable_eager_execution()
 SDDLS <- trainDeconvModel(
   object = SDDLS,
-  on.the.fly = TRUE,
   batch.size = 15,
   num.epochs = 5
 )

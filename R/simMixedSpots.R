@@ -951,7 +951,7 @@ simMixedProfiles <- function(
       X = c("train", "test"),
       FUN = function(x) {
         if (verbose) {
-          message(paste("\n=== Generating", x, "bulk samples:"))
+          message(paste("\n=== Generating", x, "mixed profiles:"))
         }
         .generateBulkProfiles(
           object = object,
@@ -982,7 +982,7 @@ simMixedProfiles <- function(
       )
     }
     if (verbose) {
-      message(paste("\n=== Generating", type.data, "bulk samples:"))
+      message(paste("\n=== Generating", type.data, "mixed profiles:"))
     }
     bulk.counts <- .generateBulkProfiles(
       object = object,

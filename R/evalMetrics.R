@@ -49,49 +49,6 @@ default.colors <- function() {
 #' @seealso \code{\link{distErrorPlot}} \code{\link{corrExpPredPlot}}
 #'   \code{\link{blandAltmanLehPlot}} \code{\link{barErrorPlot}}
 #'
-#' @examples
-#' \dontrun{
-#' set.seed(123)
-#' sce <- SingleCellExperiment::SingleCellExperiment(
-#'   assays = list(
-#'     counts = matrix(
-#'       rpois(30, lambda = 5), nrow = 15, ncol = 20,
-#'       dimnames = list(paste0("Gene", seq(15)), paste0("RHC", seq(20)))
-#'     )
-#'   ),
-#'   colData = data.frame(
-#'     Cell_ID = paste0("RHC", seq(20)),
-#'     Cell_Type = sample(x = paste0("CellType", seq(6)), size = 20,
-#'                        replace = TRUE)
-#'   ),
-#'   rowData = data.frame(
-#'     Gene_ID = paste0("Gene", seq(15))
-#'   )
-#' )
-#' SDDLS <- createSpatialDDLSobject(
-#'   sc.data = sce,
-#'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID",
-#' )
-#' SDDLS <- genMixedCellProp(
-#'   object = SDDLS,
-#'   cell.ID.column = "Cell_ID",
-#'   cell.type.column = "Cell_Type",
-#'   num.sim.spots = 50,
-#'   verbose = TRUE
-#' )
-#' # training of DDLS model
-#' tensorflow::tf$compat$v1$disable_eager_execution()
-#' SDDLS <- trainDeconvModel(
-#'   object = SDDLS,
-#'   on.the.fly = TRUE,
-#'   batch.size = 15,
-#'   num.epochs = 5
-#' )
-#' # evaluation using test data
-#' SDDLS <- calculateEvalMetrics(object = SDDLS)
-#' }
-#' 
 calculateEvalMetrics <- function(object) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of SpatialDDLS class")
@@ -343,7 +300,7 @@ se <- function(x) sqrt(var(x)/length(x))
 #'   \code{\link{blandAltmanLehPlot}} \code{\link{barErrorPlot}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
@@ -354,8 +311,9 @@ se <- function(x) sqrt(var(x)/length(x))
 #'   ),
 #'   colData = data.frame(
 #'     Cell_ID = paste0("RHC", seq(20)),
-#'     Cell_Type = sample(x = paste0("CellType", seq(6)), size = 20,
-#'                        replace = TRUE)
+#'     Cell_Type = sample(
+#'       x = paste0("CellType", seq(6)), size = 20, replace = TRUE
+#'     )
 #'   ),
 #'   rowData = data.frame(
 #'     Gene_ID = paste0("Gene", seq(15))
@@ -373,11 +331,10 @@ se <- function(x) sqrt(var(x)/length(x))
 #'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
+#' SDDLS <- simMixedProfiles(SDDLS)
 #' # training of DDLS model
-#' tensorflow::tf$compat$v1$disable_eager_execution()
 #' SDDLS <- trainDeconvModel(
 #'   object = SDDLS,
-#'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
@@ -607,7 +564,8 @@ distErrorPlot <- function(
 #'   \code{\link{blandAltmanLehPlot}} \code{\link{barErrorPlot}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' set.seed(123)
 #' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
@@ -637,11 +595,10 @@ distErrorPlot <- function(
 #'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
+#' SDDLS <- simMixedProfiles(SDDLS)
 #' # training of DDLS model
-#' tensorflow::tf$compat$v1$disable_eager_execution()
 #' SDDLS <- trainDeconvModel(
 #'   object = SDDLS,
-#'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
@@ -863,7 +820,7 @@ corrExpPredPlot <- function(
 #'   \code{\link{distErrorPlot}} \code{\link{barErrorPlot}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
@@ -893,11 +850,10 @@ corrExpPredPlot <- function(
 #'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
+#' SDDLS <- simMixedProfiles(SDDLS)
 #' # training of DDLS model
-#' tensorflow::tf$compat$v1$disable_eager_execution()
 #' SDDLS <- trainDeconvModel(
 #'   object = SDDLS,
-#'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
@@ -1050,7 +1006,7 @@ blandAltmanLehPlot <- function(
 #'   \code{\link{distErrorPlot}} \code{\link{blandAltmanLehPlot}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set.seed(123)
 #' sce <- SingleCellExperiment::SingleCellExperiment(
 #'   assays = list(
@@ -1080,11 +1036,10 @@ blandAltmanLehPlot <- function(
 #'   num.sim.spots = 50,
 #'   verbose = TRUE
 #' )
+#' SDDLS <- simMixedProfiles(SDDLS)
 #' # training of DDLS model
-#' tensorflow::tf$compat$v1$disable_eager_execution()
 #' SDDLS <- trainDeconvModel(
 #'   object = SDDLS,
-#'   on.the.fly = TRUE,
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
