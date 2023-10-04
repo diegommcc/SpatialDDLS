@@ -16,6 +16,7 @@ trainDeconvModel(
   dropout.rate = 0.25,
   loss = "kullback_leibler_divergence",
   metrics = c("accuracy", "mean_absolute_error", "categorical_accuracy"),
+  normalize = TRUE,
   scaling = "rescale",
   norm.batch.layers = FALSE,
   custom.model = NULL,
@@ -23,7 +24,7 @@ trainDeconvModel(
   sc.downsampling = NULL,
   use.generator = FALSE,
   on.the.fly = FALSE,
-  agg.function = "MeanCPM",
+  agg.function = "AddRawCount",
   threads = 1,
   view.metrics.plot = TRUE,
   verbose = TRUE
@@ -75,10 +76,17 @@ training and evaluation (\code{c("accuracy", "mean_absolute_error",
 \href{https://tensorflow.rstudio.com/reference/keras/metric_binary_accuracy.html}{keras
 documentation} to know available performance metrics.}
 
-\item{scaling}{How to scale data before training. It may be:
+\item{normalize}{Whether normalized data using loCPM (\code{TRUE} by
+default). This parameter is only considered when the method used to
+simulate the mixed transcriptional profiles (\code{simMixedProfiles}
+function) was \code{"AddRawCount"}. Otherwise, data were already
+normalized.}
+
+\item{scaling}{How to scale data before training. It can be:
 \code{"standarize"} (values are centered around the mean with a unit
-standard deviation) or \code{"rescale"} (values are shifted and rescaled so
-that they end up ranging between 0 and 1, by default).}
+standard deviation), \code{"rescale"} (values are shifted and rescaled so
+that they end up ranging between 0 and 1, by default) or \code{"none"} (no
+scaling is performed).}
 
 \item{norm.batch.layers}{Whether to include batch normalization layers
 between each hidden dense layer (\code{FALSE} by default).}
@@ -191,7 +199,6 @@ SDDLS <- genMixedCellProp(
 SDDLS <- simMixedProfiles(SDDLS)
 SDDLS <- trainDeconvModel(
   object = SDDLS,
-  on.the.fly = TRUE,
   batch.size = 12,
   num.epochs = 5
 )

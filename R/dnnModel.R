@@ -65,10 +65,16 @@ NULL
 #'   "categorical_accuracy")} by default). See the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/metric_binary_accuracy.html}{keras
 #'    documentation} to know available performance metrics.
-#' @param scaling How to scale data before training. It may be:
+#' @param normalize Whether normalized data using loCPM (\code{TRUE} by 
+#'   default). This parameter is only considered when the method used to 
+#'   simulate the mixed transcriptional profiles (\code{simMixedProfiles} 
+#'   function) was \code{"AddRawCount"}. Otherwise, data were already 
+#'   normalized.
+#' @param scaling How to scale data before training. It can be:
 #'   \code{"standarize"} (values are centered around the mean with a unit
-#'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
-#'   that they end up ranging between 0 and 1, by default).
+#'   standard deviation), \code{"rescale"} (values are shifted and rescaled so
+#'   that they end up ranging between 0 and 1, by default) or \code{"none"} (no
+#'   scaling is performed).
 #' @param norm.batch.layers Whether to include batch normalization layers
 #'   between each hidden dense layer (\code{FALSE} by default).
 #' @param custom.model It allows to use a custom neural network. It must be a
@@ -149,7 +155,6 @@ NULL
 #' SDDLS <- simMixedProfiles(SDDLS)
 #' SDDLS <- trainDeconvModel(
 #'   object = SDDLS,
-#'   on.the.fly = TRUE,
 #'   batch.size = 12,
 #'   num.epochs = 5
 #' )
@@ -168,6 +173,7 @@ trainDeconvModel <- function(
   loss = "kullback_leibler_divergence",
   metrics = c("accuracy", "mean_absolute_error",
               "categorical_accuracy"),
+  normalize = TRUE,
   scaling = "rescale",
   norm.batch.layers = FALSE,
   custom.model = NULL,
@@ -175,7 +181,7 @@ trainDeconvModel <- function(
   sc.downsampling = NULL,
   use.generator = FALSE,
   on.the.fly = FALSE,
-  agg.function = "MeanCPM",
+  agg.function = "AddRawCount",
   threads = 1,
   view.metrics.plot = TRUE,
   verbose = TRUE
@@ -202,13 +208,15 @@ trainDeconvModel <- function(
   #        "or 'single.cell.simul') as trainDeconvModel evaluates ", 
   #        "DNN model on both types of profiles: mixed and single-cell")
   # }
-  if (!scaling %in% c("standarize", "rescale")) {
-    stop("'scaling' argument must be one of the following options: 'standarize', 'rescale'")
+  if (!scaling %in% c("standarize", "rescale", "none")) {
+    stop("'scaling' argument must be one of the following options: 'standarize', 'rescale' or 'none'")
   } else {
     if (scaling == "standarize") {
       scaling.fun <- base::scale
     } else if (scaling == "rescale") {
       scaling.fun <- rescale.function
+    } else if (scaling == "none") {
+      scaling.fun <- function(x) return(x)
     }
   }
   if (!on.the.fly) {
@@ -285,7 +293,7 @@ trainDeconvModel <- function(
   } 
   if (n.test < batch.size) {
     stop(
-      paste0("The number of samples used for training (", n.train, ") is too ",
+      paste0("The number of samples used for test (", n.test, ") is too ",
              "small compared with 'batch.size' (", batch.size, "). Please, ",
              "increase the number of samples or consider reducing 'batch.size'")
     )
@@ -395,15 +403,19 @@ trainDeconvModel <- function(
   if (verbose) 
     message(paste("\n=== Training DNN with", n.train, "samples:\n"))
   
-  
-  
   if (use.generator | isTRUE(on.the.fly) | checkingClass) {
     gen.train <- .trainGenerator(
       object = object, 
       funGen = .dataForDNN,
       prob.matrix = prob.matrix.train,
       type.data = "train",
+      mixing.fun = ifelse(
+        any(type.data.train %in% c("mixed", "both")) & on.the.fly == FALSE,
+        yes = mixed.profiles(object, "train")@metadata[["mixing.fun"]],
+        no = agg.function
+      ),
       fun.aggregation = .agg.fun,
+      normalize = normalize,
       scaling = scaling.fun,
       batch.size = batch.size,
       combine = type.data.train,
@@ -430,7 +442,13 @@ trainDeconvModel <- function(
       funGen = .dataForDNN,
       target = TRUE,
       prob.matrix = prob.matrix.test,
+      mixing.fun = ifelse(
+        any(type.data.test %in% c("mixed", "both")) & on.the.fly == FALSE,
+        yes = mixed.profiles(object, "test")@metadata[["mixing.fun"]],
+        no = agg.function
+      ),
       fun.aggregation = .agg.fun,
+      normalize = normalize,
       scaling = scaling.fun,
       batch.size = batch.size,
       pattern = pattern,
@@ -452,7 +470,13 @@ trainDeconvModel <- function(
       funGen = .dataForDNN,
       target = FALSE,
       prob.matrix = prob.matrix.test,
+      mixing.fun = ifelse(
+        any(type.data.test %in% c("mixed", "both")) & on.the.fly == FALSE,
+        yes = mixed.profiles(object, "test")@metadata[["mixing.fun"]],
+        no = agg.function
+      ),
       fun.aggregation = .agg.fun,
+      normalize = normalize,
       scaling = scaling.fun,
       batch.size = batch.size,
       pattern = pattern,
@@ -472,7 +496,13 @@ trainDeconvModel <- function(
       sel.data = prob.matrix.train,
       pattern = pattern,
       type.data = "train",
+      mixing.fun = ifelse(
+        any(type.data.train %in% c("mixed", "both")) & on.the.fly == FALSE,
+        yes = mixed.profiles(object, "train")@metadata[["mixing.fun"]],
+        no = agg.function
+      ),
       fun.aggregation = .agg.fun,
+      normalize = normalize,
       scaling = scaling.fun,
       threads = threads
     )
@@ -493,7 +523,13 @@ trainDeconvModel <- function(
       sel.data = prob.matrix.test,
       pattern = pattern,
       type.data = "test",
+      mixing.fun = ifelse(
+        any(type.data.test %in% c("mixed", "both")) & on.the.fly == FALSE,
+        yes = mixed.profiles(object, "test")@metadata[["mixing.fun"]],
+        no = agg.function
+      ),
       fun.aggregation = .agg.fun,
+      normalize = normalize,
       scaling = scaling.fun,
       threads = threads
     )
@@ -535,7 +571,9 @@ trainDeconvModel <- function(
   funGen,
   prob.matrix,
   type.data,
+  mixing.fun,
   fun.aggregation,
+  normalize,
   scaling,
   batch.size,
   combine,
@@ -572,7 +610,9 @@ trainDeconvModel <- function(
         sel.data = sel.data, 
         pattern = pattern,
         type.data = type.data,
+        mixing.fun = mixing.fun,
         fun.aggregation = fun.aggregation,
+        normalize = normalize,
         scaling = scaling,
         threads = threads
       )
@@ -587,7 +627,9 @@ trainDeconvModel <- function(
         sel.data = sel.data, 
         pattern = pattern,
         type.data = type.data,
+        mixing.fun = mixing.fun,
         fun.aggregation = fun.aggregation,
+        normalize = normalize,
         scaling = scaling,
         threads = threads
       )
@@ -601,7 +643,9 @@ trainDeconvModel <- function(
   funGen,
   prob.matrix,
   target,
+  mixing.fun,
   fun.aggregation,
+  normalize,
   scaling,
   batch.size,
   pattern,
@@ -623,7 +667,9 @@ trainDeconvModel <- function(
       sel.data = sel.data, 
       pattern = pattern,
       type.data = "test",
+      mixing.fun = mixing.fun,
       fun.aggregation = fun.aggregation,
+      normalize = normalize,
       scaling = scaling,
       threads = threads
     )
@@ -631,13 +677,15 @@ trainDeconvModel <- function(
     else return(list(counts))
   }
 }
-
+## in this funciton, I have to normalize the raw counts
 .dataForDNN.file <- function(
   object,
   sel.data,
   pattern,
   type.data,
+  mixing.fun,
   fun.aggregation,
+  normalize,
   scaling,
   threads
 ) {
@@ -677,8 +725,14 @@ trainDeconvModel <- function(
   # return final matrix counts
   if (any(bulk.data) && any(!bulk.data)) {
     cell.samples <- log2(.cpmCalculate(x = cell.samples + 1))
+    if (normalize & mixing.fun == "AddRawCount") {
+      bulk.samples <- log2(.cpmCalculate(x = bulk.samples + 1))
+    }
     counts <- cbind(bulk.samples, cell.samples)[, rownames(sel.data), drop = FALSE]
   } else if (any(bulk.data)) {
+    if (normalize & mixing.fun == "AddRawCount") {
+      bulk.samples <- log2(.cpmCalculate(x = bulk.samples + 1))
+    }
     counts <- bulk.samples[, rownames(sel.data), drop = FALSE]
   } else if (any(!bulk.data)) {
     counts <- log2(
@@ -693,7 +747,9 @@ trainDeconvModel <- function(
   sel.data,
   pattern,
   type.data,
+  mixing.fun,
   fun.aggregation,
+  normalize,
   scaling,
   threads
 ) {
@@ -739,8 +795,14 @@ trainDeconvModel <- function(
   # return final matrix counts
   if (any(bulk.data) && any(!bulk.data)) {
     cell.samples <- log2(.cpmCalculate(x = cell.samples + 1))
+    if (normalize & mixing.fun == "AddRawCount") {
+      bulk.samples <- log2(.cpmCalculate(x = bulk.samples + 1))
+    }
     counts <- cbind(bulk.samples, cell.samples)[, rownames(sel.data), drop = FALSE]
   } else if (any(bulk.data)) {
+    if (normalize & mixing.fun == "AddRawCount") {
+      bulk.samples <- log2(.cpmCalculate(x = bulk.samples + 1))
+    }
     counts <- bulk.samples[, rownames(sel.data), drop = FALSE]
   } else if (any(!bulk.data)) {
     counts <- log2(
@@ -1039,8 +1101,8 @@ trainDeconvModel <- function(
 #' @param index.st Name or index of the dataset/slide stored in the
 #'   \code{SpatialDDLS} object (\code{spatial.experiments} slot) to be
 #'   deconvolute. If missing, all datasets will be deconvoluted.
-#' @param normalize Normalize data before deconvolution (\code{TRUE} by
-#'   default).
+#' @param normalize Normalize data (logCPM) before deconvolution (\code{TRUE} by
+#'   default). 
 #' @param scaling How to scale data before training. It may be:
 #'   \code{"standarize"} (values are centered around the mean with a unit
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
@@ -1163,13 +1225,15 @@ deconvSpatialDDLS <- function(
   } else if (is.null(spatial.experiments(object))) {
     stop("No spatial transcriptomics data provided. See ?createSpatialDDLSobject or ?loadSTProfiles")
   }
-  if (!scaling %in% c("standarize", "rescale")) {
+  if (!scaling %in% c("standarize", "rescale", "none")) {
     stop("'scaling' argument must be one of the following options: 'standarize' or 'rescale'")
   } else {
     if (scaling == "standarize") {
       scaling.fun <- base::scale
     } else if (scaling == "rescale") {
       scaling.fun <- rescale.function
+    } else if (scaling == "none") {
+      scaling.fun <- function(x) return(x)
     }
   }
   # checking if DNN model is json format or compiled
@@ -1265,8 +1329,6 @@ deconvSpatialDDLS <- function(
   # filtering features missing in training data
   filter.features <- rownames(deconv.counts) %in% features(model)
   deconv.counts <- deconv.counts[filter.features, ]
-  # TODO: remove messages when there are 0 missed genes
-  # set features missing in spatial.experiments
   fill.features <- !features(model) %in% rownames(deconv.counts)
   if (any(fill.features)) {
     m.new <- matrix(0L, nrow = sum(fill.features), ncol = ncol(deconv.counts))
@@ -1293,11 +1355,16 @@ deconvSpatialDDLS <- function(
     }
   }
   if (normalize) {
-    if (verbose) message("=== Normalizing and scaling data\n")
+    if (verbose) message("=== Normalizing data (LogCPM)\n")
+    
     deconv.counts <- log2(.cpmCalculate(x = deconv.counts + 1))
-    # TODO: here is the problem, check if just in case
+    deconv.counts <- scaling(t(deconv.counts))
+  } else {
+    deconv.counts <- as.matrix(deconv.counts)
     deconv.counts <- scaling(t(deconv.counts))
   }
+  
+
   if (verbose) {
     verbose.model <- 1
     message("=== Predicting cell type proportions\n")

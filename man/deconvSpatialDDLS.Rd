@@ -24,7 +24,7 @@ deconvSpatialDDLS(
 \code{SpatialDDLS} object (\code{spatial.experiments} slot) to be
 deconvolute. If missing, all datasets will be deconvoluted.}
 
-\item{normalize}{Normalize data before deconvolution (\code{TRUE} by
+\item{normalize}{Normalize data (logCPM) before deconvolution (\code{TRUE} by
 default).}
 
 \item{scaling}{How to scale data before training. It may be:

@@ -419,8 +419,12 @@ setMethod(
   )
 }
 
-.sceShow <- function(sce) {
-  cat(" ", dim(sce)[1], "features and", dim(sce)[2], "cells\n")
+.sceShow <- function(sce, type) {
+  if (type == "spatial") {
+    cat(" ", dim(sce)[1], "features and", dim(sce)[2], "spots\n")
+  } else {
+    cat(" ", dim(sce)[1], "features and", dim(sce)[2], "cells\n")
+  }
   if (is.null(rownames(sce))) rownames.sce <- "---"
   else rownames.sce <- .selectSome(vec = rownames(sce), num = 6)
   if (identical(colnames(sce), character(0))) colnames.sce <- "---"
@@ -430,7 +434,7 @@ setMethod(
 }
 
 .bulkShow <- function(se) {
-  cat("   ", dim(se)[1], "features and", dim(se)[2], "samples\n")
+  cat("   ", dim(se)[1], "features and", dim(se)[2], "spots\n")
   if (dim(rowData(se))[2] == 0) rownames.se <- "---" 
   else rownames.se <- .selectSome(vec = rownames(rowData(se)), num = 6)
   if (identical(colnames(se), character(0))) colnames.se <- "---"
@@ -494,26 +498,26 @@ setMethod(
     }
     if (!is.null(object@single.cell.real)) {
       cat("Real single-cell profiles:\n")
-      .sceShow(object@single.cell.real)
+      .sceShow(object@single.cell.real, type = "single-cell")
     } else {
       cat("Real single-cell profiles:\n")
-      .sceShow(S4Vectors::DataFrame())
+      .sceShow(S4Vectors::DataFrame(), type = "single-cell")
     }
     if (!is.null(object@spatial.experiments)) {
       cat("Spatial experiments:\n")
       cat(" ", length(object@spatial.experiments), "experiments\n")
       if (length(object@spatial.experiments) < 3)
-        sapply(object@spatial.experiments, .sceShow)
+        sapply(object@spatial.experiments, .sceShow, type = "spatial")
     } else {
       cat("Spatial experiments:\n")
-      .sceShow(S4Vectors::DataFrame())
+      .sceShow(S4Vectors::DataFrame(), type = "spatial")
     }
     if (!is.null(object@zinb.params)) {
       .zinbModelShow(object@zinb.params@zinbwave.model)
     }
     if (!is.null(object@single.cell.simul)) {
       cat("Simulated single-cell profiles:\n")
-      .sceShow(object@single.cell.simul)
+      .sceShow(object@single.cell.simul, type = "single-cell")
     }
     if (!is.null(object@prob.cell.types)) {
       cat("Cell type composition matrices:\n")
@@ -554,7 +558,7 @@ setMethod(
 .onLoad <- function(libname, pkgname) {
   if (.isConda()) {
     tryCatch(
-      expr = reticulate::use_condaenv("spatialddls-env", required = TRUE),
+      expr = reticulate::use_condaenv("SpatialDDLS-env", required = TRUE),
       error = function(e) NULL
     )
   }

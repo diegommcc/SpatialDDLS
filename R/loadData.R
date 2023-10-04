@@ -247,8 +247,8 @@ NULL
     diff <- abs(dim(counts)[2] - length(common.cells))
     disc <- abs(length(cells.metadata[, cell.ID.column]) - length(common.cells))
     if (length(common.cells) < min(dim(counts)[2], dim(cells.metadata)[1])) {
-      stop(paste("There are", diff,
-                 "cells that don't match between count matrix and metadata"))
+      stop(paste("There are ", diff,
+                 " cells that don't match between count matrix and metadata"))
     } else if (diff != 0) { # this check includes the previous one
       warning("There are", diff, "cells that don't match between counts ", 
               "matrix and metadata")
@@ -405,22 +405,31 @@ NULL
   # rownames(mean.cluster) <- mean.cluster[, 1]
   # mean.cluster[, 1] <- NULL
   ## this part has been changed using the same implementation as Matrix.utils
-  mean.cluster <- .aggregate.Matrix.sparse(
-    x = Matrix::t(counts), 
-    groupings = list(cells.metadata[[cell.type.column]]), 
-    fun = "mean"
-  )
+  mean.cluster <- round(
+    x = .aggregate.Matrix.sparse(
+      x = Matrix::t(counts), 
+      groupings = list(cells.metadata[[cell.type.column]]), 
+      fun = "mean"
+    ), digits = 2
+  ) 
+  ## why this round here??
   ## using cutoffs
   sel.genes <- unlist(
     apply(
-      X = mean.cluster >= min.mean.counts, MARGIN = 2, 
+      X = mean.cluster >= min.mean.counts, 
+      MARGIN = 2, 
       FUN = function(x) if(any(x)) return(TRUE)
     )
   )
   if (!any(sel.genes)) {
     return(list(counts, genes.metadata))
   } else {
-    return(list(counts[names(sel.genes), ], genes.metadata[names(sel.genes), ]))
+    return(
+      list(
+        counts[names(sel.genes), ], 
+        genes.metadata[names(sel.genes), , drop = FALSE]
+      )
+    )
   }
 }
 
@@ -1044,12 +1053,13 @@ NULL
 #'   corresponding to the names used for features/genes (spatial transcriptomics
 #'   data).
 #' @param sc.filt.genes.cluster Whether to filter single-cell RNA-seq genes
-#'   according to a minimum threshold of mean counts per cell type
+#'   according to a minimum threshold of non-zero average counts per cell type
 #'   \code{sc.min.mean.counts}.
-#' @param sc.min.mean.counts Minimum mean counts per cluster to filter genes.
-#' @param sc.filt.genes.cells Whether to filter single-cell RNA-seq genes
-#'   according to a minimum number of counts \code{sc.min.counts} in a minimum
-#'   number of cells \code{sc.min.cells}.
+#' @param sc.min.mean.counts Minimum non-zero average counts per cluster to
+#'   filter genes.
+#' @param sc.filt.genes.cells Whether to filter genes from the single-cell
+#'   RNA-seq data according to a minimum number of counts \code{sc.min.counts}
+#'   in a minimum number of cells \code{sc.min.cells}.
 #' @param sc.min.counts Minimum gene counts to filter (0 by default; single-cell
 #'   RNA-seq data).
 #' @param sc.min.cells Minimum of cells with more than \code{min.counts} (0 by

@@ -574,7 +574,7 @@ genMixedCellProp <- function(
   return(plot.list)
 }
 
-# TODO: there is something wrong??
+# TODO: is there something wrong??
 setCount <- function(
   x, 
   setList, 
@@ -596,8 +596,7 @@ setCount <- function(
   return(sc[seq(n.cells)])
 }
 
-# introduce zeros in selected proportions. when these samples will be 
-# simulated, they will have zero for these cell types
+# introduce zeros in selected proportions
 .cellExcluder <- function(vec, index.ex) {
   # sel <- sample(x = index.ex, size = length(index.ex)) # -1
   vec[index.ex] <- 0
@@ -907,13 +906,15 @@ simMixedProfiles <- function(
   } else if (!any(type.data == c("train", "test", "both"))) {
     stop("'type.data' argument must be one of the following options: 'train', 'test' or 'both'")
   }
-  if (!mixing.function %in% c("MeanCPM", "AddCPM", "AddRawCount")) {
-    stop("'mixing.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCount'")
+  if (!mixing.function %in% c("MeanCPM", "AddCPM", "AddRawCount", "AddRawCountLogCPM")) {
+    stop("'mixing.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCountLogCPM', 'AddRawCount'")
   } else {
     if (mixing.function == "MeanCPM") {
       .agg.fun <- aggregation.fun.mean.cpm
     } else if (mixing.function == "AddCPM") {
       .agg.fun <- aggregation.fun.add.cpm
+    } else if (mixing.function == "AddRawCountLogCPM") {
+      .agg.fun <- aggregation.fun.add.raw.counts.cpm
     } else if (mixing.function == "AddRawCount") {
       .agg.fun <- aggregation.fun.add.raw.counts
     }
@@ -1119,6 +1120,7 @@ simMixedProfiles <- function(
         object, type.data
       )@prob.matrix[rownames(sel.bulk.cells), ],
       genes.metadata = rownames(assay(single.cell.real(object))),
+      mixing.fun = unit,
       file.backend = file.backend,
       compression.level = compression.level,
       block.processing = block.processing,
@@ -1132,6 +1134,7 @@ simMixedProfiles <- function(
   counts, 
   samples.metadata, 
   genes.metadata,
+  mixing.fun,
   file.backend,
   compression.level,
   block.processing,
@@ -1153,14 +1156,15 @@ simMixedProfiles <- function(
     SummarizedExperiment::SummarizedExperiment(
       assays = list(counts = counts),
       colData = samples.metadata,
-      rowData = genes.metadata
+      rowData = genes.metadata,
+      metadata = list(mixing.fun = mixing.fun)
     )
   )
 }
 
-.cpmCalculate <- function(x) {
-  if (is.null(dim(x))) return((x / sum(x)) * 1e6)
-  else return(apply(X = x, MARGIN = 2, FUN = function(x) (x / sum(x)) * 1e6))
+.cpmCalculate <- function(x, fact = 10000) {
+  if (is.null(dim(x))) return((x / sum(x)) * fact)
+  else return(apply(X = x, MARGIN = 2, FUN = function(x) (x / sum(x)) * fact))
 }
 
 aggregation.fun.mean.cpm <- function(x) {
@@ -1171,8 +1175,12 @@ aggregation.fun.add.cpm <- function(x) {
   .cpmCalculate(x = rowSums(log2(.cpmCalculate(x = x + 1))))
 }
 
-aggregation.fun.add.raw.counts <- function(x) {
+aggregation.fun.add.raw.counts.cpm <- function(x) {
   log2(.cpmCalculate(x = rowSums(x) + 1))
+}
+
+aggregation.fun.add.raw.counts <- function(x) {
+  rowSums(x)
 }
 
 .setBulk <- function(x, object, pattern, fun.pseudobulk) {

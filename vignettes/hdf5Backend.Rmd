@@ -1,0 +1,42 @@
+---
+title: "Using HFD5 files as back-end"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+    vignette: >
+      %\VignetteIndexEntry{HDF5 files as back-end}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
+geometry: margin=3cm
+fontsize: 12pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+The Hierarchical Data Format version 5 (HDF5) is an open source file format that supports large, complex, heterogeneous data. This format has different advantages that make it very suitable to store large datasets together with their metadata in a way that allows a quick access to them from disk. For most of the situations, **SpatialDDLS** does not require them, but the package implements the possibility to use them in case of working with RAM-constrained computers. The functions in which this functionality can be used are: 
+
+* `createSpatialDDLSobject`: when single-cell RNA-seq data are loaded. 
+* `simSCProfiles`: when new single-cell profiles are simulated.
+* `simMixedProfiles`: mixed transcriptional profiles can be simulated and written to HDF5 files in batches so that it is avoided a peak in RAM usage.
+
+To use this format, **SpatialDDLS** mainly uses the [HDF5Array](https://bioconductor.org/packages/release/bioc/html/HDF5Array.html) and [DelayedArray](https://bioconductor.org/packages/release/bioc/html/DelayedArray.html) packages, although some functions have been implemented using [rhdf5](https://www.bioconductor.org/packages/release/bioc/html/rhdf5.html). For more information about these packages, we recommend their corresponding vignettes and this workshop by Peter Hickey: [Effectively using the DelayedArray framework to support the analysis of large datasets](https://petehaitch.github.io/BioC2020_DelayedArray_workshop/articles/Effectively_using_the_DelayedArray_framework_for_users.html).
+
+## General usage
+
+The important parameters that must be considered are:
+
+* `file.backend`: file path in which the HDF5 file will be stored.
+* `name.dataset.backend`: as HDF5 files use a "file directory"-like structure, it is possible to store more than one dataset in a single file. To do so, changing the name of the dataset is needed. If it is not provided, a random dataset name will be used.
+* `compression.level`: it allows to change the level of compression of HDF5 files. It is an integer value between 0 and 9. Note that the greater the compression level, the slower the processes and the longer the runtime. 
+* `chunk.dims`: as HDF5 files are created as sets of chunks, this parameter specifies the dimensions that they will have.
+* `block.processing`: when it is available, it indicates if data should be treated as blocks in order to avoid loading all data into RAM. 
+* `block.size`: specific for `simSCProfiles` and `simMixedProfiles`. It sets the number of samples that will be simulated in each iteration.
+
+The simplest way to use it is by setting the `file.backend` parameter. 
+
+## Disclaimer
+
+HDF5 files are a very useful tool which allows working on large datasets that would otherwise be impossible. However, it is important to note that running times may be longer, as accessing data from RAM is always faster than from disk. Therefore, we recommend using this functionality only in case of very large datasets and limited computational resources. As the [HDF5Array](https://bioconductor.org/packages/release/bioc/html/HDF5Array.html) and [DelayedArray](https://bioconductor.org/packages/release/bioc/html/DelayedArray.html) authors point out: **If you can load your data into memory and still compute on it, then you’re always going to have a better time doing it that way**.

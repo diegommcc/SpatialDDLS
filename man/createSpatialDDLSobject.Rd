@@ -63,14 +63,15 @@ corresponding to the names used for features/genes (spatial transcriptomics
 data).}
 
 \item{sc.filt.genes.cluster}{Whether to filter single-cell RNA-seq genes
-according to a minimum threshold of mean counts per cell type
+according to a minimum threshold of non-zero average counts per cell type
 \code{sc.min.mean.counts}.}
 
-\item{sc.min.mean.counts}{Minimum mean counts per cluster to filter genes.}
+\item{sc.min.mean.counts}{Minimum non-zero average counts per cluster to
+filter genes.}
 
-\item{sc.filt.genes.cells}{Whether to filter single-cell RNA-seq genes
-according to a minimum number of counts \code{sc.min.counts} in a minimum
-number of cells \code{sc.min.cells}.}
+\item{sc.filt.genes.cells}{Whether to filter genes from the single-cell
+RNA-seq data according to a minimum number of counts \code{sc.min.counts}
+in a minimum number of cells \code{sc.min.cells}.}
 
 \item{sc.min.counts}{Minimum gene counts to filter (0 by default; single-cell
 RNA-seq data).}
