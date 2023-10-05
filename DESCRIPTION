@@ -46,7 +46,9 @@ Suggests:
     DelayedArray,
     DelayedMatrixStats,
     HDF5Array,
-    testthat
+    testthat,
+    ComplexHeatmap,
+    grid
 SystemRequirements: Python (>= 2.7.0), TensorFlow (https://www.tensorflow.org/)
 RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
@@ -56,6 +58,7 @@ Collate:
     'SpatialDDLS.R'
     'dnnModel.R'
     'evalMetrics.R'
+    'interGradientsDL.R'
     'loadData.R'
     'plotSpatialCoor.R'
     'simMixedSpots.R'

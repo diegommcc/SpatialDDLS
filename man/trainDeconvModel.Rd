@@ -76,7 +76,7 @@ training and evaluation (\code{c("accuracy", "mean_absolute_error",
 \href{https://tensorflow.rstudio.com/reference/keras/metric_binary_accuracy.html}{keras
 documentation} to know available performance metrics.}
 
-\item{normalize}{Whether normalized data using loCPM (\code{TRUE} by
+\item{normalize}{Whether normalize data using logCPM (\code{TRUE} by
 default). This parameter is only considered when the method used to
 simulate the mixed transcriptional profiles (\code{simMixedProfiles}
 function) was \code{"AddRawCount"}. Otherwise, data were already

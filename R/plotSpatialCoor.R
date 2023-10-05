@@ -211,3 +211,88 @@ plotSpatialProp <- function(
   return(plot)
 }
 
+
+################################################################################
+########################### Plot gene expression ###############################
+################################################################################
+
+#' Plot normalized gene expression data (logCPM) in spatial coordinates
+#'
+#' Color spots on the spatial coordinates according to the logCPM values of a 
+#' particular gene.
+#'
+#' @param object A \code{\linkS4class{SpatialDDLS}} object.
+#' @param index.st Index of the spatial transcriptomics data to be plotted. It
+#'   can be either a position or a name if a named list was provided.
+#' @param gene Gene to color spots by.
+#' @param colors Color scale to be used. It can be \code{"blues"} or
+#'   \code{"spectral"} (the latter by default).
+#' @param size.point Size of points (0.1 by default).
+#' @param title Title of plot.
+#' @param theme \pkg{ggplot2} theme.
+#'
+#' @return A ggplot object.
+#'
+#' @export
+#'
+#' @seealso \code{\link{interGradientsDL}} \code{\link{topGradientsCellType}}
+#'   
+plotSpatialGeneExpr <- function(
+    object,
+    index.st,
+    gene,
+    colors = "spectral", 
+    size.point = 1,
+    title = NULL,
+    theme = NULL
+) {
+  if (!is(object, "SpatialDDLS")) {
+    stop("The provided object is not of class SpatialDDLS")
+  } 
+  ## getting data
+  st.coor <- SpatialExperiment::spatialCoords(
+    spatial.experiments(object = object, index.st = index.st)
+  )[, 1:2]
+  colnames(st.coor) <- paste("Spatial", 1:2)
+  ## checking if gene is in data
+  if (!any(gene %in% rownames(assays(
+    spatial.experiments(object = object, index.st = index.st)
+  )[[1]]))) {
+    stop("Provided gene is not in spatial data")
+  }
+  gene.expr <- assays(
+    spatial.experiments(object = object, index.st = index.st)
+  )[[1]][gene, , drop = FALSE] %>% as.matrix()
+  
+  gene.expr.norm <- log2(.cpmCalculate(x = t(gene.expr) + 1))
+  
+  gene.expr.norm <- gene.expr.norm[rownames(st.coor), , drop = FALSE]
+  dfPlot <- as.data.frame(cbind(st.coor, gene.expr.norm))
+  if (colors == "blues")  {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.blues
+    )  
+    # colors <- scale_color_gradient(low = "white", high = "blue")
+  } else if (colors == "spectral") {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.spectral
+    )  
+  } else {
+    scale_colors <- scale_color_gradientn(
+      colors = color.prop.scale.blues
+    )
+  }
+  
+  if (is.null(title)) title.plot <- paste0("Normalized gene expression (", gene, ")")
+  
+  plot <- ggplot(
+    dfPlot, aes(
+      x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], 
+      color = .data[[gene]]
+    )
+  ) + geom_point(size = size.point) + scale_colors + 
+    ggtitle(title.plot) + SpatialDDLSTheme() 
+  
+  return(plot)
+}
+

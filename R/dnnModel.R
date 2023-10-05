@@ -65,7 +65,7 @@ NULL
 #'   "categorical_accuracy")} by default). See the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/metric_binary_accuracy.html}{keras
 #'    documentation} to know available performance metrics.
-#' @param normalize Whether normalized data using loCPM (\code{TRUE} by 
+#' @param normalize Whether normalize data using logCPM (\code{TRUE} by 
 #'   default). This parameter is only considered when the method used to 
 #'   simulate the mixed transcriptional profiles (\code{simMixedProfiles} 
 #'   function) was \code{"AddRawCount"}. Otherwise, data were already 

@@ -377,7 +377,7 @@ genMixedCellProp <- function(
   # if (is.null(colnames(train.prob.matrix)))
   #   colnames(train.prob.matrix) <- prob.design[, cell.type.column]
   
-  rownames(train.prob.matrix) <- paste("Spot", seq(dim(train.prob.matrix)[1]),
+  rownames(train.prob.matrix) <- paste("Spot", "train", seq(dim(train.prob.matrix)[1]),
                                        sep = "_")
   train.plots <- train.plots[!unlist(lapply(train.plots, is.null))]
   train.method <- unlist(
@@ -387,7 +387,7 @@ genMixedCellProp <- function(
       num.samp = nums.train
     )
   )
-  names(train.method) <- paste0("Spot_", seq(sum(nums.train)))
+  names(train.method) <- paste0("Spot_train_", seq(sum(nums.train)))
   if (verbose) {
     message("=== Probability matrix for training data:")
     message(paste(c("    - Mixed spots:", "    - Cell types:"),
@@ -445,7 +445,7 @@ genMixedCellProp <- function(
   if (is.null(colnames(test.prob.matrix)))
     colnames(test.prob.matrix) <- cell.type.test
   
-  rownames(test.prob.matrix) <- paste("Spot", seq(dim(test.prob.matrix)[1]),
+  rownames(test.prob.matrix) <- paste("Spot", "test", seq(dim(test.prob.matrix)[1]),
                                       sep = "_")
   test.plots <- test.plots[!unlist(lapply(test.plots, is.null))]
   test.method <- unlist(
@@ -455,7 +455,7 @@ genMixedCellProp <- function(
       num.samp = nums.test
     )
   )
-  names(test.method) <- paste0("Spot_", seq(sum(nums.test)))
+  names(test.method) <- paste0("Spot_test_", seq(sum(nums.test)))
   if (verbose) {
     message("=== Probability matrix for test data:")
     message(

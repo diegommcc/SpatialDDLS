@@ -258,8 +258,8 @@ saveTrainedModelAsH5 <- function(
   } else if (is.null(trained.model(object))) {
     stop("'trained.model' slot is empty")
   } else if (length(trained.model(object)@model) == 0) {
-    stop("There is not a model to save on disk. First, train a model with ",
-         "'trainSpatialDDLSModel' function")
+    stop("There is no model to be saved on disk. First, train a model with ",
+         "the 'trainSpatialDDLSModel' function")
   }
   if (file.exists(file.path)) {
     if (overwrite) {
@@ -345,7 +345,7 @@ loadTrainedModelFromH5 <- function(
       loaded.model <- load_model_hdf5(filepath = file.path, compile = FALSE)
     }, 
     error = function(cond) {
-      message(paste("\n", file.path, "file provided is not a valid Keras model:"))
+      message(paste("\n", file.path, "file provided is not a valid keras model:"))
       stop(cond)
     }
   )
@@ -671,7 +671,7 @@ installTFpython <- function(
          see ?tensorflow::use_condaenv"))
 }
 
-# these functions are not original, come from the Matrix.utils R package
+# functions from the Matrix.utils R package
 .aggregate.Matrix.sparse <- function(
     x, groupings = NULL, form = NULL, fun = 'sum', ...
 ) {
