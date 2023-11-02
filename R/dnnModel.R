@@ -71,7 +71,7 @@ NULL
 #'   function) was \code{"AddRawCount"}. Otherwise, data were already 
 #'   normalized.
 #' @param scaling How to scale data before training. It can be:
-#'   \code{"standarize"} (values are centered around the mean with a unit
+#'   \code{"standardize"} (values are centered around the mean with a unit
 #'   standard deviation), \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1, by default) or \code{"none"} (no
 #'   scaling is performed).
@@ -208,10 +208,10 @@ trainDeconvModel <- function(
   #        "or 'single.cell.simul') as trainDeconvModel evaluates ", 
   #        "DNN model on both types of profiles: mixed and single-cell")
   # }
-  if (!scaling %in% c("standarize", "rescale", "none")) {
-    stop("'scaling' argument must be one of the following options: 'standarize', 'rescale' or 'none'")
+  if (!scaling %in% c("standardize", "rescale", "none")) {
+    stop("'scaling' argument must be one of the following options: 'standardize', 'rescale' or 'none'")
   } else {
-    if (scaling == "standarize") {
+    if (scaling == "standardize") {
       scaling.fun <- base::scale
     } else if (scaling == "rescale") {
       scaling.fun <- rescale.function
@@ -1104,7 +1104,7 @@ trainDeconvModel <- function(
 #' @param normalize Normalize data (logCPM) before deconvolution (\code{TRUE} by
 #'   default). 
 #' @param scaling How to scale data before training. It may be:
-#'   \code{"standarize"} (values are centered around the mean with a unit
+#'   \code{"standardize"} (values are centered around the mean with a unit
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 #'   data are not scaled.
@@ -1210,6 +1210,12 @@ deconvSpatialDDLS <- function(
   index.st,
   normalize = TRUE,
   scaling = "rescale",
+  k.spots = 4, 
+  pca.space = TRUE,
+  pca.var = 0.8,
+  metric = "euclidean",
+  alpha.cutoff = "mean",
+  alpha.quantile = 0.5,
   simplify.set = NULL,
   simplify.majority = NULL,
   use.generator = FALSE,
@@ -1225,10 +1231,10 @@ deconvSpatialDDLS <- function(
   } else if (is.null(spatial.experiments(object))) {
     stop("No spatial transcriptomics data provided. See ?createSpatialDDLSobject or ?loadSTProfiles")
   }
-  if (!scaling %in% c("standarize", "rescale", "none")) {
-    stop("'scaling' argument must be one of the following options: 'standarize' or 'rescale'")
+  if (!scaling %in% c("standardize", "rescale", "none")) {
+    stop("'scaling' argument must be one of the following options: 'standardize' or 'rescale'")
   } else {
-    if (scaling == "standarize") {
+    if (scaling == "standardize") {
       scaling.fun <- base::scale
     } else if (scaling == "rescale") {
       scaling.fun <- rescale.function
@@ -1236,6 +1242,17 @@ deconvSpatialDDLS <- function(
       scaling.fun <- function(x) return(x)
     }
   }
+  ## checking parameters for regularization
+  if (pca.var > 1 | pca.var <= 0.2) {
+    stop("pca.var must be a doublet between 0.2 and 1")
+  }
+  if (!any(metric %in% c("euclidean", "cosine", "pearson"))) {
+    stop("metric only can be one of the following options: 'euclidean', 'cosine', 'pearson'")
+  }
+  if (!any(alpha.cutoff %in% c("mean", "quantile"))) {
+    stop("alpha.cutoff only can be 'mean' or 'quantile'")
+  }
+    
   # checking if DNN model is json format or compiled
   if (is.list(trained.model(object)@model)) {
     model.comp <- .loadModelFromJSON(trained.model(object))
@@ -1276,15 +1293,36 @@ deconvSpatialDDLS <- function(
         use.generator = use.generator,
         verbose = verbose
       )
+      ## spatial consistency: add here the function (with a conditional I guess)
+      list.res.post <- .spatialRegularization(
+        spatial.experiments(object, index.st = index), 
+        prop.intrinsic = results,
+        model = trained.model(object),
+        batch.size = batch.size,
+        normalize = normalize,
+        scaling = scaling.fun,
+        use.generator = use.generator,
+        k = k.spots, 
+        pca = pca.space,
+        pca.var = pca.var,
+        metric = metric,
+        alpha.cutoff = alpha.cutoff,
+        alpha.quantile = alpha.quantile,
+        verbose = verbose
+      )
+      list.res.post[["Instrinsic.Proportions"]] <- results
+      ## simplfy: not very used to be honest, let's keep it just for convenience 
       if (!is.null(simplify.set) || !is.null(simplify.majority)) {
-        list.res <- list(raw = results)
+        if (verbose) message("=== Note that only regularized proportions will be simplified")
+        
+        list.res <- list(raw = list.res.post)
         if (!is.null(simplify.set)) {
           if (!is(simplify.set, "list")) {
             stop("'simplify.set' must be a list in which each element is a ", 
                  "cell type considered by the model")
           }
           results.set <- .simplifySetGeneral(
-            results = results,
+            results = list.res.post[["Regularized"]],
             simplify.set = simplify.set
           )
           list.res[["simpli.set"]] <- results.set
@@ -1295,18 +1333,17 @@ deconvSpatialDDLS <- function(
                  "cell type considered by the model")
           }
           results.maj <- .simplifyMajorityGeneral(
-            results = results,
+            results = list.res.post[["Regularized"]],
             simplify.majority = simplify.majority
           )
           list.res[["simpli.majority"]] <- results.maj
         }
         return(list.res)
       } 
-      return(results)
+      return(list.res.post)
     }
   ) %>% setNames(namesList)
   deconv.spots(object) <- deconv.st
-  
   if (verbose) message("DONE")
   
   return(object)
@@ -1364,7 +1401,6 @@ deconvSpatialDDLS <- function(
     deconv.counts <- scaling(t(deconv.counts))
   }
   
-
   if (verbose) {
     verbose.model <- 1
     message("=== Predicting cell type proportions\n")
@@ -1420,6 +1456,160 @@ deconvSpatialDDLS <- function(
                        ncol = n.features,
                        nrow = length(data.index))))
   }
+}
+
+.spatialRegularization <- function(
+    st.data, 
+    prop.intrinsic,
+    model = trained.model(object),
+    batch.size = batch.size,
+    normalize = normalize,
+    scaling = scaling.fun,
+    use.generator = use.generator,
+    k = k, 
+    pca = pca,
+    pca.var = pca.var,
+    metric = metric,
+    alpha.cutoff = alpha.cutoff,
+    alpha.quantile = alpha.quantile,
+    verbose = verbose
+) {
+  ## calculating kNN spots per spot
+  distances <- as.matrix(dist(SpatialExperiment::spatialCoords(st.data)))
+  knn.indexes <- FNN::get.knn(distances, k = k)[[1]]
+  # print(knn.indexes)
+  rownames(knn.indexes) <- rownames(SpatialExperiment::spatialCoords(st.data))
+  
+  ## generating mixed transcriptional profiles using kNN spots
+  summ.nn.expr <- apply(
+    X = knn.indexes, MARGIN = 1, 
+    FUN = \(idx) Matrix::rowSums(SummarizedExperiment::assay(st.data)[, idx])
+  )
+  colnames(summ.nn.expr) <- colnames(SummarizedExperiment::assay(st.data))
+  ## prediction of cell proportions on extrinsic signals
+  prop.nn <-.deconvCore(
+    deconv.counts = summ.nn.expr,
+    model = model,
+    batch.size = batch.size,
+    normalize = normalize,
+    scaling = scaling,
+    use.generator = use.generator,
+    verbose = FALSE
+  )
+  ## normalizing both data in order to calculate distances 
+  logcpm.nn.expr <- log2(.cpmCalculate(summ.nn.expr + 1))
+  logcpm.spot.expr <- log2(
+    .cpmCalculate(
+      SummarizedExperiment::assay(st.data) + 1
+    )
+  )
+  ## calculating distances between actual and contextual matrices
+  if (isTRUE(pca)) {
+    if (verbose) message("\n=== Calculating distances in PCA space")
+    
+    logcpm.nn.expr.2 <- logcpm.nn.expr
+    colnames(logcpm.nn.expr.2) <- paste0(colnames(logcpm.nn.expr), "_NN")
+    
+    ## I should use faster alternatives, but for the moment let's keep prcomp
+    pca.space <- stats::prcomp(
+      t(cbind(logcpm.spot.expr, logcpm.nn.expr.2)), center = TRUE, scale. = TRUE
+    )
+    eigs <- pca.space$sdev^2
+    n.pcs <- sum(cumsum(eigs / sum(eigs)) <= pca.var)
+    
+    if (verbose) 
+      message(paste0("        - Using ", n.pcs, " PCs (variance cutoff: ", pca.var, ")\n"))
+    
+    pca.nn <- pca.space$x[grep("_NN$", rownames(pca.space$x)), 1:n.pcs]
+    pca.ori <- pca.space$x[grep("_NN$", rownames(pca.space$x), invert = T), 1:n.pcs]
+    dist.mm <- .distCalc(x = pca.ori, y = pca.nn, metric = metric)
+  } else {
+    if (verbose) message("\n=== Calculating distances in transcriptome space\n")
+    
+    dist.mm <- .distCalc(x = logcpm.spot.expr, y = logcpm.nn.expr, metric = metric)
+  }
+  ## calculating alpha regularization based on distances
+  if (verbose) message("=== Calculating alpha factors based on distances\n")
+  
+  if (alpha.cutoff == "mean") {
+    dist.mod <- as.vector(dist.mm) <= mean(as.vector(dist.mm))
+    dist.rescaled <- rescale.function.2(
+      as.vector(dist.mm)[dist.mod], 
+      to = c(0, 0.5)
+    )  
+  } else if (alpha.cutoff == "quantile") {
+    if (alpha.quantile > 0.99 | alpha.quantile < 0.01) {
+      stop("alpha.quantile only can be a number between 0.99 and 0.01")
+    }
+    dist.mod <- as.vector(dist.mm) <= stats::quantile(
+      x = as.vector(dist.mm), probs = alpha.quantile
+    )
+    dist.rescaled <- rescale.function.2(
+      as.vector(dist.mm)[dist.mod], 
+      to = c(0, 0.5)
+    ) 
+  }
+  alpha.extrin <- ifelse(test = dist.mod, yes = dist.rescaled, no = 0)
+  alpha.intric <- 1 - alpha.extrin 
+  
+  ## probably, this part can be solved using matrix multiplication, check in the future
+  regulaized.prop <- matrix(0, nrow = nrow(prop.intrinsic), ncol = ncol(prop.intrinsic))
+  for (spot in seq(nrow(prop.intrinsic))) {
+    regulaized.prop[spot, ] <- sapply(
+      X = colnames(prop.intrinsic), 
+      FUN = \(x) {
+        stats::weighted.mean(
+          c(prop.intrinsic[spot, x], prop.nn[spot, x]), 
+          w = c(alpha.intric[spot], alpha.extrin[spot])
+        )
+      }
+    )  
+  }
+  colnames(regulaized.prop) <- colnames(prop.intrinsic)
+  rownames(regulaized.prop) <- rownames(prop.intrinsic)
+  return(
+    list(
+      regulaized.prop, prop.intrinsic, prop.nn, as.vector(dist.mm), alpha.extrin
+    ) %>% setNames(
+        c("Regularized", "Intrinsic", 
+          "Extrinsic", "Distances", "Alpha.Factors")
+      )
+  )
+}
+
+.distCalc <- function(x, y, metric) {
+  dist.mm <- matrix(0, ncol = 1, nrow = nrow(x))
+  if (metric == "euclidean") {
+    for (i in seq(nrow(x))) {
+      dist.mm[i, 1] <- stats::dist(
+        t(cbind(x[i, ], y[i, ])), method = "euclidean"
+      )
+    }  
+  } else if (metric == "cosine") {
+    for (i in seq(nrow(x))) {
+      if (!requireNamespace("lsa", quietly = TRUE)) {
+        stop("lsa R package is required but not available")
+      }
+      dist.mm[i, 1] <- lsa::cosine(x = x[i, ], y = y[i, ])
+    } 
+    dist.mm <- 1 - dist.mm ## from similarity to distance
+  } else if (metric == "pearson") {
+    for (i in seq(nrow(x))) {
+      dist.mm[i, 1] <- stats::cor(
+        x = x[i, ], y = y[i, ], method = "pearson"
+      )
+    } 
+    dist.mm[dist.mm < 0] <- 0
+    dist.mm <- 1 - dist.mm 
+  }
+  
+  return(dist.mm)
+}
+
+rescale.function.2 <- function(
+    x, to = c(0, 1), from = range(x, na.rm = TRUE, finite = TRUE)
+) {
+  (x - from[1]) / diff(from) * diff(to) + to[1]
 }
 
 rescale.function <- function(x) {

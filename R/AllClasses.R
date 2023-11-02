@@ -293,7 +293,7 @@ setMethod(
                  collapse = "\n"))
       if (!is.null(test.deconv.metrics(object)) ||
           length(test.deconv.metrics(object)) > 0) {
-        cat("\n  Performance evaluation over each sample: ")
+        cat("\n  Performance evaluation of each sample: ")
         cat(paste(names(test.deconv.metrics(object)[[2]]), collapse = " "))
       }
     }

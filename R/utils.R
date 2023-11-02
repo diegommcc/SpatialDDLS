@@ -448,7 +448,8 @@ SpatialDDLSTheme <- function() {
 barPlotCellTypes <- function(
   data,
   colors = NULL,
-  simplify = NULL,
+  set = NULL,
+  prediction = "Regularized",
   color.line = NA,
   x.label = "Spots",
   rm.x.text = FALSE,
@@ -467,25 +468,34 @@ barPlotCellTypes <- function(
              !any(index.st %in% seq_along(deconv.spots(data)))) {
     stop("Provided 'index.st' does not exist")
   }
-  if (!is.null(simplify) && !is.na(simplify)) {
-    if (!is(deconv.spots(data)[[index.st]], "list")) {
+  if (!is.null(set) && !is.na(set)) {
+    if (!any(names(deconv.spots(data)[[index.st]]) %in% c("simpli.set", "simpli.majority"))) {
       stop("No simplified results available")
     } else {
-      if (simplify != "simpli.set" && simplify != "simpli.majority") {
-        stop("simplify argument must be one of the following options: ",
+      if (set != "simpli.set" && set != "simpli.majority") {
+        stop("set argument must be one of the following options: ",
              "'simpli.set' or 'simpli.majority'")
-      } else if (!any(simplify == names(deconv.spots(data)[[index.st]]))) {
-        stop(paste(simplify, "data are not present in DeconvDLModel object"))
+      } else if (!any(set == names(deconv.spots(data)[[index.st]]))) {
+        stop(paste(set, "data are not present in DeconvDLModel object"))
       }
-      res <- deconv.spots(data)[[index.st]][[simplify]]
+      res <- deconv.spots(data)[[index.st]][[set]]
     }
   } else {
-    if (is(deconv.spots(data)[[index.st]], "list")) {
+    if (
+      is(deconv.spots(data)[[index.st]], "list") & 
+      any(names(deconv.spots(data)[[index.st]]) %in% c("simpli.set", "simpli.majority"))
+    ) {
       res <- deconv.spots(data)[[index.st]][[1]]
     } else {
       res <- deconv.spots(data)[[index.st]]
     }
   }
+  
+  if (!any(prediction %in% c("Regularized", "Intrinsic", "Extrinsic"))) {
+    stop("prediction can only be one of the following options: 'Regularized', 'Intrinsic', 'Extrinsic'")
+  }
+  res <- res[[prediction]]
+  
   if (is.null(colnames(res))) {
     stop(
       "'data' must have colnames (corresponding cell types). Please run deconvSpatialDDLS"

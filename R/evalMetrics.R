@@ -406,7 +406,7 @@ distErrorPlot <- function(
   if (missing(colors)) colors <- default.colors()
   if (!is.null(color.by)) {
     if (length(colors) < length(unique(amd[[color.by]]))) 
-      stop("Number of provided colors not enough")
+      stop("Number of provided colors is not large enough")
   } 
   if (is.null(title))
     title.plot <- paste(error, "by", x.by)
