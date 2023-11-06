@@ -22,13 +22,14 @@ color.prop.scale.spectral <- grDevices::colorRampPalette(
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
-#'   can be either a position or a name if a named list was provided.
+#'   can be either a position or a name if a named list of 
+#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
 #' @param colors Color scale to be used. It can be \code{"blues"} or
 #'   \code{"spectral"} (the former by default).
 #' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}}
-#'   for details), what results to plot (\code{raw} by default).
+#'   for details), which results to plot (\code{raw} by default).
 #' @param prediction It can be \code{"Regularized"}, \code{"Intrinsic"} or 
-#'   \code{"Extrinsic"} 
+#'   \code{"Extrinsic"} (\code{"Regularized"} by default).
 #' @param size.point Size of points (0.1 by default).
 #' @param title Title of plot.
 #' @param nrow Number of rows in the split plot.
@@ -135,13 +136,15 @@ plotSpatialPropAll <- function(
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
-#'   can be either a position or a name if a named list was provided.
+#'   can be either a position or a name if a named list of 
+#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
 #' @param cell.type Cell type predicted proportions to color spots by.
 #' @param colors Color scale to be used. It can be \code{"blues"} or
 #'   \code{"spectral"} (the former by default).
 #' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}}
 #'   for details), what results to plot (\code{raw} by default).
-#' @param prediction 
+#' @param prediction It can be \code{"Regularized"}, \code{"Intrinsic"} or 
+#'   \code{"Extrinsic"} (\code{"Regularized"} by default).
 #' @param limits A vector of two elements indicating wanted limits for color
 #'   scale. If \code{NULL} (by default), color scale is adjusted to max and min
 #'   predicted proportions.
@@ -240,7 +243,8 @@ plotSpatialProp <- function(
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
-#'   can be either a position or a name if a named list was provided.
+#'   can be either a position or a name if a named list of 
+#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
 #' @param gene Gene to color spots by.
 #' @param colors Color scale to be used. It can be \code{"blues"} or
 #'   \code{"spectral"} (the latter by default).
@@ -336,20 +340,19 @@ plotSpatialGeneExpr <- function(
 
 #' Plot spatial clustering based on predicted cell proportions
 #'
-#' Color spots on the spatial coordinates according to clustering basedd on 
+#' Color spots on the spatial coordinates according to clustering based on 
 #' predicted proportions. 
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
-#'   can be either a position or a name if a named list was provided.
-#' @param method Cell type predicted proportions to color spots by.
-#' @param k.nn Color scale to be used. It can be \code{"blues"} or
-#'   \code{"spectral"} (the former by default).
-#' @param k.centers If results were simplified (see \code{?\link{deconvSpatialDDLS}}
-#'   for details), what results to plot (\code{raw} by default).
-#' @param colors A vector of two elements indicating wanted limits for color
-#'   scale. If \code{NULL} (by default), color scale is adjusted to max and min
-#'   predicted proportions.
+#'   can be either a position or a name if a named list of 
+#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
+#' @param method CLustering method results to plot. It can be \code{"graph"} or
+#'   \code{"k.means"}. If missing, the first configuration found in the object 
+#'   fill be plotted. 
+#' @param k.nn Number of nearest neighbors used if \code{ method == "graph"}. 
+#' @param k.centers Number of k centers used if \code{ method == "k.means"}. 
+#' @param colors Vector of colors to be used.
 #' @param size.point Size of points (0.1 by default).
 #' @param title Title of plot.
 #' @param theme \pkg{ggplot2} theme.
@@ -358,8 +361,7 @@ plotSpatialGeneExpr <- function(
 #'
 #' @export
 #'
-#' @seealso \code{\link{plotSpatialPropAll}} \code{\link{deconvSpatialDDLS}}
-#'   \code{\link{trainDeconvModel}}
+#' @seealso \code{\link{spatialPropClustering}} \code{\link{deconvSpatialDDLS}}
 #'   
 plotSpatialClustering <- function(
     object,
@@ -455,23 +457,15 @@ plotSpatialClustering <- function(
 ################################ Plot distances ################################
 ################################################################################
 
-#' Plot distances between intrinsic and extrinsic transcriptomes used for calculating
-#'  regularized proportions
+#' Plot distances between intrinsic and extrinsic profiles
 #'
-#' Color spots on the spatial coordinates according to clustering basedd on
-#' predicted proportions.
+#' Color spots on the spatial coordinates according to distances between 
+#' intrinsic and extrinsic profiles. 
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list was provided.
-#' @param method Cell type predicted proportions to color spots by.
-#' @param k.nn Color scale to be used. It can be \code{"blues"} or
-#'   \code{"spectral"} (the former by default).
-#' @param k.centers If results were simplified (see \code{?\link{deconvSpatialDDLS}}
-#'   for details), what results to plot (\code{raw} by default).
-#' @param colors A vector of two elements indicating wanted limits for color
-#'   scale. If \code{NULL} (by default), color scale is adjusted to max and min
-#'   predicted proportions.
+#' @param mid.scale Cell type predicted proportions to color spots by.
 #' @param size.point Size of points (0.1 by default).
 #' @param title Title of plot.
 #' @param theme \pkg{ggplot2} theme.
@@ -480,16 +474,12 @@ plotSpatialClustering <- function(
 #'
 #' @export
 #'
-#' @seealso \code{\link{plotSpatialPropAll}} \code{\link{deconvSpatialDDLS}}
-#'   \code{\link{trainDeconvModel}}
+#' @seealso \code{\link{deconvSpatialDDLS}} \code{\link{trainDeconvModel}}
 #'
-plotSpatialDistances <- function(
+plotDistances <- function(
     object,
     index.st,
-    method,
-    k.nn,
-    k.centers,
-    colors,
+    mid.scale = "mean",
     size.point = 1,
     title = NULL,
     theme = NULL,
@@ -522,53 +512,31 @@ plotSpatialDistances <- function(
     spatial.experiments(object = object, index.st = index.st)
   )[, 1:2]
   colnames(st.coor) <- paste("Spatial", 1:2)
-  st.clusternig <- SummarizedExperiment::colData(
-    spatial.experiments(object = object, index.st = index.st)
-  )
-  if (missing(method)) {
-    cls <- grep(pattern = "^Clustering\\.", x = colnames(st.clusternig), value = TRUE)[1]
-    message(paste0("=== Plotting first clustering configuration ", cls, "\n"))
-  } else if (method == "graph") {
-    if (missing(k.nn)) {
-      cls <- grep(
-        pattern = "^Clustering\\.graph\\.", x = colnames(st.clusternig), value = TRUE
-      )[1]
-      message(paste0("=== Plotting first graph clustering configuration ", cls, "\n"))
-    } else {
-      cls <- paste0("Clustering.graph.k.", k.nn)
-    }
-  } else if (method == "k.means") {
-    if (missing(k.centers)) {
-      cls <- grep(
-        pattern = "^Clustering\\.k.means\\.", x = colnames(st.clusternig), value = TRUE
-      )[1]
-      message(paste0("=== Plotting first k-means clustering configuration ", cls, "\n"))
-    } else {
-      cls <- paste0("Clustering.k.means.k.", k.centers)
-    }
-  }
-  ## check if selected config exists
-  if (is.null(st.clusternig[[cls]])) {
-    stop("Selected clustering configuration does not exist")
-  }
-  st.pred <- st.clusternig[, cls, drop = FALSE]
-  dfPlot <- as.data.frame(cbind(st.coor, st.pred))
+  st.distances <- deconv.spots(object, index.st = index.st)[["Distances"]]
+  dfPlot <- as.data.frame(cbind(st.coor, Distances = st.distances))
   ## colors
-  if (missing(colors)) colors <- default.colors()
-  if (length(colors) < length(unique(st.pred[[cls]])))
-    stop("Number of provided colors is not large enough")
-
-  if (is.null(title)) title <- paste0("Clustering results (", cls, ")")
-
+  if (is.null(title)) 
+    title <- paste0("Distances between intrinsic and extrinsic profiles")
+  
+  if (mid.scale == "mean") {
+    midpoint <- mean(dfPlot[["Distances"]])
+  } else if (mid.scale == "median") {
+    midpoint <- median(dfPlot[["Distances"]])
+  } else {
+    warning("Usin mean as mean distances as mid point")
+    midpoint <- mean(dfPlot[["Distances"]])
+  }
   plot <- ggplot(
     dfPlot, aes(
-      x = .data[["Spatial.1"]], y = .data[["Spatial.2"]],
-      color = .data[[cls]]
+      x = .data[["Spatial 1"]], y = .data[["Spatial 2"]],
+      color = .data[["Distances"]]
     )
   ) + geom_point(size = size.point) +
-    scale_color_manual(values = colors, name = cls) +
-    ggtitle(title) + SpatialDDLSTheme()
+    scale_color_gradient2(
+      midpoint =  midpoint, 
+      low = "blue", mid = "white",
+      high = "red", space = "Lab" 
+    ) + ggtitle(title) + SpatialDDLSTheme()
 
   return(plot)
 }
-

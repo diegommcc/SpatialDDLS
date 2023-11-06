@@ -31,7 +31,7 @@ NULL
   } else if (grepl(pattern = ".rds$", x = file)) {
     file.obj <- readRDS(file = file)
   } else {
-    stop("File format is not recognizable. Please, look at allowed data",
+    stop("File format is not recognizable. Please, look at allowed formats",
          " in ?loadSCProfiles")
   }
   return(file.obj)
@@ -138,7 +138,7 @@ NULL
       counts <- rhdf5::h5read(file = counts.file, name = name.h5)
     }
   } else {
-    stop("File format is not recognizable. Please, look at allowed data",
+    stop("File format is not recognizable. Please, look at allowed formats",
          " in ?loadSCProfiles")
   }
   return(counts)

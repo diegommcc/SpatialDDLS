@@ -181,7 +181,7 @@ test_that(
     trained.model(SDDLSCompBad)@model <- list()
     expect_error(
       saveTrainedModelAsH5(object = SDDLSCompBad, file.path = fileTMP), 
-      regexp = "There is not a model to save on disk"
+      regexp = "There is no model to save on disk"
     )
     # save a DNN model from JSON-like character object
     trained.model(SDDLSComp) <- .saveModelToJSON(trained.model(SDDLSComp))

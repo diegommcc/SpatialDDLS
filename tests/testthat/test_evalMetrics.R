@@ -176,7 +176,7 @@ test_that(
       distErrorPlot(
         object = SDDLSComp, error = "AbsErr", colors = c("red", "blue")
       ), 
-      regexp = "Number of provided colors not enough"
+      regexp = "Number of provided colors is not large enough"
     )
     # incorrect X variable (x.by parameter)
     expect_error(
@@ -233,7 +233,7 @@ test_that(
       corrExpPredPlot(
         object = SDDLSComp, colors = c("red", "blue")
       ), 
-      regexp = "The number of provided colors is not enough"
+      regexp = "The number of provided colors is not large enough"
     )
     # incorrect facet.by parameter
     expect_error(
@@ -279,7 +279,7 @@ test_that(
       blandAltmanLehPlot(
         object = SDDLSComp, colors = c("red", "blue")
       ), 
-      regexp = "The number of provided colors is not enough"
+      regexp = "The number of provided colors is not large enough"
     )
     # incorrect facet.by parameter
     expect_error(

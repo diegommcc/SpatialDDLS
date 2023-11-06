@@ -12,15 +12,15 @@ trainDeconvModel(
   num.epochs = 10,
   num.hidden.layers = 2,
   num.units = c(200, 200),
-  activation.fun = "sigmoid",
+  activation.fun = "relu",
   dropout.rate = 0.25,
   loss = "kullback_leibler_divergence",
   metrics = c("accuracy", "mean_absolute_error", "categorical_accuracy"),
   normalize = TRUE,
-  scaling = "rescale",
-  norm.batch.layers = FALSE,
+  scaling = "standardize",
+  norm.batch.layers = TRUE,
   custom.model = NULL,
-  shuffle = FALSE,
+  shuffle = TRUE,
   sc.downsampling = NULL,
   use.generator = FALSE,
   on.the.fly = FALSE,
@@ -54,14 +54,14 @@ argument.}
 
 \item{num.units}{Vector indicating the number of neurons per hidden layer
 (\code{c(200, 200)} by default). The length of this vector must be equal to
-\code{num.hidden.layers} argument.}
+the \code{num.hidden.layers} argument.}
 
-\item{activation.fun}{Activation function (\code{'sigmoid'} by default). See
+\item{activation.fun}{Activation function (\code{'relu'} by default). See
 the
 \href{https://tensorflow.rstudio.com/reference/keras/activation_relu.html}{keras
 documentation} to know available activation functions.}
 
-\item{dropout.rate}{Float between 0 and 1 indicating the fraction of the
+\item{dropout.rate}{Float between 0 and 1 indicating the fraction of
 input neurons to be dropped in layer dropouts (0.25 by default). By
 default, \pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.}
 
@@ -76,34 +76,34 @@ training and evaluation (\code{c("accuracy", "mean_absolute_error",
 \href{https://tensorflow.rstudio.com/reference/keras/metric_binary_accuracy.html}{keras
 documentation} to know available performance metrics.}
 
-\item{normalize}{Whether normalize data using logCPM (\code{TRUE} by
+\item{normalize}{Whether to normalize data using logCPM (\code{TRUE} by
 default). This parameter is only considered when the method used to
-simulate the mixed transcriptional profiles (\code{simMixedProfiles}
+simulate mixed transcriptional profiles (\code{simMixedProfiles}
 function) was \code{"AddRawCount"}. Otherwise, data were already
 normalized.}
 
 \item{scaling}{How to scale data before training. It can be:
-\code{"standarize"} (values are centered around the mean with a unit
+\code{"standardize"} (values are centered around the mean with a unit
 standard deviation), \code{"rescale"} (values are shifted and rescaled so
 that they end up ranging between 0 and 1, by default) or \code{"none"} (no
-scaling is performed).}
+scaling is performed). \code{"standardize"} by default.}
 
 \item{norm.batch.layers}{Whether to include batch normalization layers
-between each hidden dense layer (\code{FALSE} by default).}
+between each hidden dense layer (\code{TRUE} by default).}
 
-\item{custom.model}{It allows to use a custom neural network. It must be a
-\code{keras.engine.sequential.Sequential} object in which the number of
-input neurons is equal to the number of considered features/genes, and the
-number of output neurons is equal to the number of cell types considered
-(\code{NULL} by default). If provided, the arguments related to the neural
-network architecture will be ignored.}
+\item{custom.model}{It allows to use a custom neural network architecture. It
+must be a \code{keras.engine.sequential.Sequential} object in which the
+number of input neurons is equal to the number of considered
+features/genes, and the number of output neurons is equal to the number of
+cell types considered (\code{NULL} by default). If provided, the arguments
+related to the neural network architecture will be ignored.}
 
 \item{shuffle}{Boolean indicating whether data will be shuffled (\code{TRUE}
 by default).}
 
 \item{sc.downsampling}{It is only used if \code{type.data.train} is equal to
 \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
-single-cell profiles from a specific cell type  used for training to avoid
+single-cell profiles of a specific cell type used for training to avoid
 an unbalanced representation of cell types (\code{NULL} by default).}
 
 \item{use.generator}{Boolean indicating whether to use generators during
@@ -118,10 +118,9 @@ demand (\code{FALSE} by default).}
 may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
 profiles (raw counts) are added up across cells. Then, log-CPMs are
 calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-transformed into CPMs and cross-cell averages are calculated. Then,
-\code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
-profiles (raw counts) are transformed into CPMs and are added up across
-cells. Then, log-CPMs are calculated.}}
+transformed into logCPM and cross-cell averages are calculated.
+\item \code{"AddCPM"}: single-cell profiles (raw counts) are transformed
+into CPMs and are added up across cells. Then, log-CPMs are calculated.}}
 
 \item{threads}{Number of threads used during simulation of mixed
 transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).}

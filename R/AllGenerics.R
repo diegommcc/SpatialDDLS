@@ -988,7 +988,7 @@ setMethod(
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Name or index of predicted cell proportions (same as for the
-#'   \code{spatial.experiments} slot). If \code{NULL} (by default), all the
+#'   \code{spatial.experiments} slot). If \code{NULL} (by default), all
 #'   results are returned.
 #'
 #' @export deconv.spots
@@ -1023,7 +1023,7 @@ setMethod(
 #' @rdname deconv.spots
 #' @aliases deconv.spots<-,SpatialDDLS-method
 #'
-#' @param value List with predicted cell type proportions for the experiments
+#' @param value List of predicted cell type proportions for the experiments
 #'   stored in the \code{spatial.experiments} slot.
 #'
 #' @export deconv.spots<-
@@ -1146,10 +1146,10 @@ setMethod(
 #' Save \code{\linkS4class{SpatialDDLS}} and \code{\linkS4class{DeconvDLModel}}
 #' objects as RDS files. \pkg{keras} models cannot be stored natively as R
 #' objects (e.g. RData or RDS files). By saving the architecture as a JSON-like
-#' character object and the weights as a list, it is possible to retrieve the
-#' model and make new predictions. If the \code{trained.model} slot is empty,
-#' the function will behave as normal. \strong{Note:} with this option, the
-#' state of optimizer is not saved, only the model's architecture and weights.
+#' character object and the weights as a list, it is possible to retrieve a
+#' functional model and make new predictions. If the \code{trained.model} slot 
+#' is empty, the function will behave as usual. \strong{Note:} with this option, 
+#' the state of optimizer is not saved, only model's architecture and weights.
 #' It is possible to save the entire model as an HDF5 file with the
 #' \code{\link{saveTrainedModelAsH5}} function and load it into a
 #' \code{\linkS4class{SpatialDDLS}} object with the

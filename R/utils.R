@@ -258,7 +258,7 @@ saveTrainedModelAsH5 <- function(
   } else if (is.null(trained.model(object))) {
     stop("'trained.model' slot is empty")
   } else if (length(trained.model(object)@model) == 0) {
-    stop("There is no model to be saved on disk. First, train a model with ",
+    stop("There is no model to save on disk. First, train a model with ",
          "the 'trainSpatialDDLSModel' function")
   }
   if (file.exists(file.path)) {
@@ -423,7 +423,7 @@ SpatialDDLSTheme <- function() {
 #' @param data \code{\linkS4class{SpatialDDLS}} object with the
 #'   \code{deconv.spots} slot containing predicted cell type proportions.
 #' @param colors Vector of colors to be used.
-#' @param simplify Type of simplification performed during deconvolution. It can
+#' @param set Type of simplification performed during deconvolution. It can
 #'   be \code{simpli.set} or \code{simpli.maj} (\code{NULL} by default).
 #' @param color.line Color of the border bars.
 #' @param x.label Label of x-axis.
@@ -493,9 +493,9 @@ barPlotCellTypes <- function(
   
   if (!any(prediction %in% c("Regularized", "Intrinsic", "Extrinsic"))) {
     stop("prediction can only be one of the following options: 'Regularized', 'Intrinsic', 'Extrinsic'")
+  } else if (is.null(set) | missing(set)) {
+    res <- res[[prediction]]
   }
-  res <- res[[prediction]]
-  
   if (is.null(colnames(res))) {
     stop(
       "'data' must have colnames (corresponding cell types). Please run deconvSpatialDDLS"

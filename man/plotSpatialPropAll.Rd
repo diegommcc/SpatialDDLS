@@ -10,6 +10,7 @@ plotSpatialPropAll(
   index.st,
   colors = "blues",
   set = "raw",
+  prediction = "Regularized",
   size.point = 0.1,
   title = NULL,
   nrow = NULL,
@@ -21,13 +22,17 @@ plotSpatialPropAll(
 \item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
-can be either a position or a name if a named list was provided.}
+can be either a position or a name if a named list of
+\code{\linkS4class{SpatialExperiment}} objects was provided.}
 
 \item{colors}{Color scale to be used. It can be \code{"blues"} or
 \code{"spectral"} (the former by default).}
 
 \item{set}{If results were simplified (see \code{?\link{deconvSpatialDDLS}}
-for details), what results to plot (\code{raw} by default).}
+for details), which results to plot (\code{raw} by default).}
+
+\item{prediction}{It can be \code{"Regularized"}, \code{"Intrinsic"} or
+\code{"Extrinsic"} (\code{"Regularized"} by default).}
 
 \item{size.point}{Size of points (0.1 by default).}
 

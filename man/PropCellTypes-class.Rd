@@ -7,14 +7,14 @@
 \title{The PropCellTypes Class}
 \description{
 The \code{\linkS4class{PropCellTypes}} class is a data storage class which
-contains information related to the cell type composition matrices used to
+contains information related to cell type composition matrices used to
 simulate mixed transcriptional profiles. This matrix is stored in the
-\code{prob.matrix} slot while the rest contains additional information
-generated during the process and required in subsequent steps.
+\code{prob.matrix} slot while the other slots contain additional information
+generated during the process and required for subsequent steps.
 }
 \details{
 See \code{?\link{genMixedCellProp}} function for information about how cell
-type composition matrices are generated. Plots about the cell type proportion
+type composition matrices are generated. Plots of cell type proportion
 distributions can be accessed using the \code{\link{showProbPlot}} function
 (see \code{?\link{showProbPlot}} for more details).
 }
@@ -24,21 +24,20 @@ distributions can be accessed using the \code{\link{showProbPlot}} function
 \item{\code{prob.matrix}}{Matrix of cell type proportions to simulate mixed
 transcriptional profiles.}
 
-\item{\code{cell.names}}{Matrix containing the name of cells to be used to generate
-the simulated mixed transcriptional profiles.}
+\item{\code{cell.names}}{Matrix containing cells used to generate the simulated
+mixed transcriptional profiles.}
 
-\item{\code{set.list}}{List of cells ordered according to the cell type they belong
-to.}
+\item{\code{set.list}}{List of cells sorted by cell type.}
 
 \item{\code{set}}{Vector containing cell names present in the object.}
 
-\item{\code{method}}{Vector containing the method by which cell type proportions were
+\item{\code{method}}{Vector indicating the method by which cell type proportions were
 generated.}
 
-\item{\code{plots}}{Plots showing the distribution of the cell type proportions. See
+\item{\code{plots}}{Plots showing cell type proportion distributions. See
 \code{?\link{showProbPlot}} for more details.}
 
-\item{\code{type.data}}{Character indicating the type of data contained: train or
-test.}
+\item{\code{type.data}}{Character indicating the type of data contained:
+\code{'train'} or \code{'test'}.}
 }}
 

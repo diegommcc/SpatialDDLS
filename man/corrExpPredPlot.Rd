@@ -77,9 +77,9 @@ A ggplot object.
 }
 \description{
 Generate correlation plots between predicted and expected cell type
-proportions of test data. Correlation plots can be shown all mixed or split
-by cell type (\code{CellType}) or the number of different cell types present
-in the spots (\code{nCellTypes}).
+proportions of test data. Correlation plots can be shown all mixed or either
+split by cell type (\code{CellType}) or the number of different cell types
+present in the spots (\code{nCellTypes}).
 }
 \examples{
 \donttest{

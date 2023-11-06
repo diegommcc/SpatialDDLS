@@ -1,40 +1,32 @@
-#' @importFrom bluster clusterRows NNGraphParam KmeansParam
-NULL
-
 ################################################################################
 ############# Graph-based clustering using predicted proportions ###############
 ################################################################################
 
-#' Calculate gradients with respect to predicted cell types/loss for 
-#' interpreting a trained deconvolution model
+#' Cluster spatial data based on predicted cell proportions
 #'
-#' Train a deep neural network model using training data from the
-#' \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
-#' evaluated using test data, and prediction results are obtained to determine
-#' its performance (see \code{?\link{calculateEvalMetrics}}).
+#' Cluster spatial transcriptomics data according to the cell proportions 
+#' predicted in each spot. It allows to segregate data into niches with 
+#' similar cell compositions. 
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a trained 
 #'    deconvolution model (\code{trained.model} slot) and pure mixed 
 #'    transcriptional profiles (\code{mixed.profiles} slot).
-#' @param index.st Clustering method. It can be \code{graph} () or \code{k.centers} ()
-#' @param method Clustering method. It can be \code{graph} () or \code{k.centers} ()
-#' @param k.nn Whether normalize data using logCPM (\code{TRUE} by 
-#'   default). This parameter is only considered when the method used to 
-#'   simulate the mixed transcriptional profiles (\code{simMixedProfiles} 
-#'   function) was \code{"AddRawCount"}. Otherwise, data were already 
-#'   normalized. This parameter should be set according to the transformation 
-#'   used to train the model. 
-#' @param k.centers How to scale data. It can be:
-#'   \code{"standarize"} (values are centered around the mean with a unit
-#'   standard deviation), \code{"rescale"} (values are shifted and rescaled so
-#'   that they end up ranging between 0 and 1, by default) or \code{"none"} (no
-#'   scaling is performed). This parameter should be set according to the 
-#'   transformation used to train the model. 
+#' @param index.st Name or index of the dataset/slide already deconvoluted to be
+#'   clustered. If missing, all datasets already deconvoluted will be clustered.
+#' @param method Clustering method. It can be \code{graph} (a nearest neighbor 
+#'   graph is created and louvain algorithm is used to detect communities) or 
+#'   \code{k.means} (k-means algorithm is run with the specified number of 
+#'   centers (\code{k.centers} parameter)).
+#' @param k.nn An integer specifying the number of nearest neighbors to during 
+#'   graph construction (10 by default). Only if \code{method == "graph"}.
+#' @param k.centers An integer specifying the number of centers for k-means 
+#' algorithm. Only if \code{method == "k.means"}.
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
 #'
-#' @return Object containing gradients in the \code{interpret.gradients} slot of
-#'   the \code{DeconvDLModel} object (\code{trained.model} slot).
+#' @return A \code{\linkS4class{SpatialDDLS}} object containing calculated 
+#'   clusters as a column in the slot \code{colData} of the 
+#'   \code{\linkS4class{SpatialExperiment}} objects. 
 #'
 #' @export
 #'
@@ -63,22 +55,21 @@ NULL
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
-#' )
-#' SDDLS <- genMixedCellProp(
+#' ) %>% genMixedCellProp(
 #'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 50,
 #'   verbose = TRUE
-#' )
-#' SDDLS <- simMixedProfiles(SDDLS)
-#' SDDLS <- trainDeconvModel(
+#' ) %>%simMixedProfiles(SDDLS) %>% 
+#' trainDeconvModel(
 #'   object = SDDLS,
 #'   batch.size = 12,
 #'   num.epochs = 5
-#' )
-#' ## calculating gradients
-#' SDDLS <- interGradientsDL(SDDLS)
+#' ) %>% deconvSpatialDDLS(
+#'   object = SDDLS,
+#'   index.st = 1
+#' ) %>% spatialPropClustering(index.st = 1)
 #' }
 #'   
 spatialPropClustering <- function(
@@ -131,10 +122,10 @@ spatialPropClustering <- function(
   }
   ## clustering method
   if (method == "graph") {
-    method.clustering <- NNGraphParam(k = k.nn, cluster.fun = "louvain")
+    method.clustering <- bluster::NNGraphParam(k = k.nn, cluster.fun = "louvain")
     if (verbose) message("=== Selected graph-based clustering\n")
   } else if (method == "k.means") {
-    method.clustering <- KmeansParam(centers = k.centers)
+    method.clustering <- bluster::KmeansParam(centers = k.centers)
     if (verbose) message("=== Selected k-means clustering\n")
   } else {
     stop("method for clustering not available. Possible options are 'graph' and 'k.means'")
@@ -144,7 +135,7 @@ spatialPropClustering <- function(
     index.st, 
     FUN = \(index.pointer) {
       if (verbose) message(paste("=== Running clustering for slide", index.pointer))
-      res <- clusterRows(
+      res <- bluster::clusterRows(
         x = deconv.spots(object, index.st = index.pointer)[["Regularized"]], 
         BLUSPARAM = method.clustering
       )    
@@ -166,5 +157,3 @@ spatialPropClustering <- function(
   
   return(object)
 }
-
-

@@ -2,7 +2,7 @@
 % Please edit documentation in R/evalMetrics.R
 \name{calculateEvalMetrics}
 \alias{calculateEvalMetrics}
-\title{Calculate evaluation metrics of test mixed transcriptional profiles}
+\title{Calculate evaluation metrics on test mixed transcriptional profiles}
 \usage{
 calculateEvalMetrics(object)
 }
@@ -18,7 +18,7 @@ stored in the \code{test.deconv.metrics} slot of the
 \code{\linkS4class{DeconvDLModel}} object.
 }
 \description{
-Calculate evaluation metrics of test mixed transcriptional profiles. By
+Calculate evaluation metrics on test mixed transcriptional profiles. By
 default, absolute error (\code{AbsErr}), proportional absolute error
 (\code{ppAbsErr}), squared error (\code{SqrErr}), and proportional squared
 error (\code{ppSqrErr}) are calculated for each test mixed profile. In

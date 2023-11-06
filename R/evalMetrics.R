@@ -25,9 +25,9 @@ default.colors <- function() {
 ######################## Calculate evaluation metrics ##########################
 ################################################################################
 
-#' Calculate evaluation metrics of test mixed transcriptional profiles
+#' Calculate evaluation metrics on test mixed transcriptional profiles
 #'
-#' Calculate evaluation metrics of test mixed transcriptional profiles. By
+#' Calculate evaluation metrics on test mixed transcriptional profiles. By
 #' default, absolute error (\code{AbsErr}), proportional absolute error
 #' (\code{ppAbsErr}), squared error (\code{SqrErr}), and proportional squared
 #' error (\code{ppSqrErr}) are calculated for each test mixed profile. In
@@ -250,17 +250,17 @@ se <- function(x) sqrt(var(x)/length(x))
 #' Generate box or violin plots showing error distribution
 #'
 #' Generate box or violin plots to show how errors are distributed. Errors can
-#' be shown all mixed or split by cell type (\code{CellType}) or number of cell
-#' types present in the spots (\code{nCellTypes}). See the \code{facet.by}
-#' argument and examples for more details.
+#' be shown all mixed or either split by cell type (\code{CellType}) or number 
+#' of cell types present in the spots (\code{nCellTypes}). See the 
+#' \code{facet.by} argument and examples for more details.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
 #'   \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
 #'   object.
-#' @param error Error to be represented. Available errors are: absolute error
-#'   (\code{'AbsErr'}), proportional absolute error (\code{'ppAbsErr'}), squared
-#'   error (\code{'SqrErr'}), and proportional squared error
+#' @param error Error to be represented. Available metric errors are: absolute 
+#'   error (\code{'AbsErr'}), proportional absolute error (\code{'ppAbsErr'}), 
+#'   squared error (\code{'SqrErr'}), and proportional squared error 
 #'   (\code{'ppSqrErr'}).
 #' @param colors Vector of colors to be used.
 #' @param x.by Variable used for the X-axis. When \code{facet.by} is not
@@ -520,9 +520,9 @@ distErrorPlot <- function(
 #' proportions of test data
 #'
 #' Generate correlation plots between predicted and expected cell type
-#' proportions of test data. Correlation plots can be shown all mixed or split
-#' by cell type (\code{CellType}) or the number of different cell types present
-#' in the spots (\code{nCellTypes}).
+#' proportions of test data. Correlation plots can be shown all mixed or either 
+#' split by cell type (\code{CellType}) or the number of different cell types 
+#' present in the spots (\code{nCellTypes}).
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
@@ -661,7 +661,7 @@ corrExpPredPlot <- function(
   
   if (!is.null(color.by)) {
     if (length(colors) < length(unique(amd[[color.by]]))) {
-      stop("The number of provided colors is not enough")
+      stop("The number of provided colors is not large enough")
     }  
   }
   if (is.null(title))
@@ -779,9 +779,9 @@ corrExpPredPlot <- function(
 #'
 #' Generate Bland-Altman agreement plots between predicted and expected cell
 #' type proportions from test data. The Bland-Altman agreement plots can be
-#' shown all mixed or split by cell type (\code{CellType}) or the number of cell
-#' types present in spots (\code{nCellTypes}). See the \code{facet.by} argument
-#' and examples for more information.
+#' shown all mixed or split by either cell type (\code{CellType}) or the number 
+#' of cell types present in spots (\code{nCellTypes}). See the \code{facet.by}
+#' argument and examples for more information.
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{trained.model} slot containing metrics in the
@@ -934,7 +934,7 @@ blandAltmanLehPlot <- function(
   if (missing(colors)) colors <- default.colors()
   if (!is.null(color.by)) {
     if (length(colors) < length(unique(amd[[color.by]]))) {
-      stop("The number of provided colors is not enough")
+      stop("The number of provided colors is not large enough")
     }
     plot <- ggplot(amd, aes(x = .data[["Mean"]], y = .data[["Diff"]], 
                             colour = .data[[color.by]])) +

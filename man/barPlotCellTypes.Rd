@@ -7,7 +7,8 @@
 barPlotCellTypes(
   data,
   colors = NULL,
-  simplify = NULL,
+  set = NULL,
+  prediction = "Regularized",
   color.line = NA,
   x.label = "Spots",
   rm.x.text = FALSE,
@@ -24,7 +25,7 @@ barPlotCellTypes(
 
 \item{colors}{Vector of colors to be used.}
 
-\item{simplify}{Type of simplification performed during deconvolution. It can
+\item{set}{Type of simplification performed during deconvolution. It can
 be \code{simpli.set} or \code{simpli.maj} (\code{NULL} by default).}
 
 \item{color.line}{Color of the border bars.}

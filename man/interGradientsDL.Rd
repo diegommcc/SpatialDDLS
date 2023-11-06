@@ -2,17 +2,14 @@
 % Please edit documentation in R/interGradientsDL.R
 \name{interGradientsDL}
 \alias{interGradientsDL}
-\title{Calculate gradients with respect to predicted cell types/loss for
-interpreting a trained deconvolution model}
+\title{Calculate gradients of features with respect to predicted cell types/loss for
+interpreting trained deconvolution models}
 \usage{
 interGradientsDL(
   object,
   method = "class",
   normalize = TRUE,
   scaling = "rescale",
-  on.the.fly = FALSE,
-  agg.function = "AddRawCount",
-  threads = 1,
   verbose = TRUE
 )
 }
@@ -25,33 +22,19 @@ transcriptional profiles (\code{mixed.profiles} slot).}
 \code{'class'} (gradients of predicted classes w.r.t. inputs),
 \code{'loss'} (gradients of loss w.r.t. inputs) or \code{'both'}.}
 
-\item{normalize}{Whether normalize data using logCPM (\code{TRUE} by
+\item{normalize}{Whether to normalize data using logCPM (\code{TRUE} by
 default). This parameter is only considered when the method used to
 simulate the mixed transcriptional profiles (\code{simMixedProfiles}
 function) was \code{"AddRawCount"}. Otherwise, data were already
 normalized. This parameter should be set according to the transformation
 used to train the model.}
 
-\item{scaling}{How to scale data. It can be:
-\code{"standarize"} (values are centered around the mean with a unit
-standard deviation), \code{"rescale"} (values are shifted and rescaled so
-that they end up ranging between 0 and 1, by default) or \code{"none"} (no
-scaling is performed). This parameter should be set according to the
-transformation used to train the model.}
-
-\item{on.the.fly}{Not available.}
-
-\item{agg.function}{Function used to build mixed transcriptional profiles. It
-may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
-profiles (raw counts) are added up across cells. Then, log-CPMs are
-calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-transformed into CPMs and cross-cell averages are calculated. Then,
-\code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
-profiles (raw counts) are transformed into CPMs and are added up across
-cells. Then, log-CPMs are calculated.}}
-
-\item{threads}{Number of threads used during simulation of mixed
-transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).}
+\item{scaling}{How to scale data. It can be: \code{"standardize"}
+(values are centered around the mean with a unit standard deviation),
+\code{"rescale"} (values are shifted and rescaled so that they end up
+ranging between 0 and 1, by default) or \code{"none"} (no scaling is
+performed). This parameter should be set according to the transformation
+used to train the model.}
 
 \item{verbose}{Show informative messages during the execution (\code{TRUE} by
 default).}
@@ -61,10 +44,19 @@ Object containing gradients in the \code{interpret.gradients} slot of
 the \code{DeconvDLModel} object (\code{trained.model} slot).
 }
 \description{
-Train a deep neural network model using training data from the
-\code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
-evaluated using test data, and prediction results are obtained to determine
-its performance (see \code{?\link{calculateEvalMetrics}}).
+This function allows the user to get insights on the interpretability of the
+deconvolution model. It calculates the gradients of features with respect to
+predicted classes / loss function. This numeric values are calculated per
+gene and cell type and can be interpreted as to what extent each feature is
+used by the model to predict the cell proportions of each cell type.
+}
+\details{
+Gradients of features with respect to classes / loss funciton are calculated
+only with pure mixed transcriptional profiles composed of only one cell type.
+For this reason, these numbers can be interpreted as the extent of
+each feature to predict each cell type proportion. In particular, gradients
+are calculated at the sample level for each gene, but only mean gradients
+by cell type are reported. For more information, see Mañanes et al., 2023.
 }
 \examples{
 \donttest{

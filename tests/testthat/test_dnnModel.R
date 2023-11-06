@@ -54,8 +54,8 @@ SDDLS <- simSCProfiles(
 # simulating spatial data
 simSpatialExperiment <- function(n = 1) {
   sim.samples <- function() {
-    ngenes <- sample(3:40, size = 1)
-    ncells <- sample(3:40, size = 1)
+    ngenes <- sample(5:40, size = 1)
+    ncells <- sample(5:40, size = 1)
     counts <- matrix(
       rpois(ngenes * ncells, lambda = 5), ncol = ncells,
       dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
@@ -282,10 +282,10 @@ test_that(
       )
       # check behaviour
       SDDLS@trained.model <- NULL
-      SDDLS.standarize <- trainDeconvModel(
+      SDDLS.standardize <- trainDeconvModel(
         object = SDDLS,
         batch.size = 28,
-        scaling = "standarize",
+        scaling = "standardize",
         verbose = FALSE
       )
       SDDLS.rescale <- trainDeconvModel(
@@ -294,17 +294,19 @@ test_that(
         scaling = "rescale",
         verbose = FALSE
       )
-      samp.stand <- as.numeric(gsub(
-        pattern = "Spot_|CellType\\d\\_Simul|RH|C", 
-        replacement = "", 
-        x = rownames(SDDLS.standarize@trained.model@test.pred)
-      )) %>% order()
+      samp.stand <- as.numeric(
+        gsub(
+          pattern = "test_|Spot_|CellType\\d\\_Simul|RH|C", 
+          replacement = "", 
+          x = rownames(SDDLS.standardize@trained.model@test.pred)
+        )
+      ) %>% order()
       samp.rescale <- as.numeric(gsub(
-        pattern = "Spot_|CellType\\d\\_Simul|RH|C", 
+        pattern = "test_|Spot_|CellType\\d\\_Simul|RH|C", 
         replacement = "", 
         x = rownames(SDDLS.rescale@trained.model@test.pred)
       )) %>% order()
-      stand <- SDDLS.standarize@trained.model@test.pred[samp.stand, ]
+      stand <- SDDLS.standardize@trained.model@test.pred[samp.stand, ]
       rescale <- SDDLS.rescale@trained.model@test.pred[samp.rescale, ]
       expect_false(object = all(stand == rescale))
     }
@@ -486,10 +488,10 @@ test_that(
     SDDLS <- deconvSpatialDDLS(object = SDDLS, index.st = 1)
     # expect_true(names(deconv.spots(SDDLS)) == names(spatial.experiments(SDDLS)))
     expect_true(
-      nrow(deconv.spots(SDDLS, 1)) == ncol(spatial.experiments(SDDLS, 1))
+      nrow(deconv.spots(SDDLS, 1)[["Regularized"]]) == ncol(spatial.experiments(SDDLS, 1))
     )
     expect_true(
-      all(rownames(deconv.spots(SDDLS, 1)) == 
+      all(rownames(deconv.spots(SDDLS, 1)[["Regularized"]]) == 
             colnames(spatial.experiments(SDDLS, 1)))
     )
     # index.st does not exist
@@ -521,11 +523,11 @@ test_that(
     expect_type(deconv.spots(SDDLS, 1), type = "list")
     expect_identical(names(deconv.spots(SDDLS, 1)), c("raw", "simpli.set"))
     expect_true(
-      any(colnames(deconv.spots(SDDLS, index.st = 1)$simpli.set) == 
+      any(colnames(deconv.spots(SDDLS, index.st = 1)[["simpli.set"]]) == 
             "CellTypesNew")
     )
     expect_false(
-      any(colnames(deconv.spots(SDDLS, index.st = 1)$raw) == 
+      any(colnames(deconv.spots(SDDLS, index.st = 1)[["raw"]][["Regularized"]]) == 
             "CellTypesNew")
     )
     deconv.spots(SDDLS) <- NULL
@@ -554,13 +556,13 @@ test_that(
     )
     expect_true(
       all(colnames(deconv.spots(SDDLS, index.st = 1)$simpli.maj) == 
-            colnames(deconv.spots(SDDLS, index.st = 1)$raw))
+            colnames(deconv.spots(SDDLS, index.st = 1)[["raw"]][["Regularized"]]))
     )
     expect_true(
       all(
         names(which(apply(
           X = deconv.spots(SDDLS, index.st = 1)$simpli.maj != 
-            deconv.spots(SDDLS, index.st = 1)$raw,
+            deconv.spots(SDDLS, index.st = 1)[["raw"]][["Regularized"]],
           MARGIN = 2,
           FUN = sum) > 0)
         ) %in% c("CellType2", "CellType4", "CellType3", "CellType1")
@@ -584,7 +586,10 @@ test_that(
             c("raw", "simpli.set", "simpli.majority"))
     )
     barPlotCellTypes(
-      data = SDDLS, index.st = 1, colors = default.colors(), simplify = "simpli.majority"
+      data = SDDLS, index.st = 1, colors = default.colors(), set = "simpli.majority"
+    )
+    barPlotCellTypes(
+      data = SDDLS, index.st = 1, colors = default.colors(), set = NULL
     )
     
     ## deconvolution of more than 1 SpatialExperiment object
@@ -596,15 +601,16 @@ test_that(
       st.gene.ID.column = "Gene_ID",
       st.n.slides = 1
     )
-    SDDLS <- deconvSpatialDDLS(object = SDDLS)
+    ## pca.space == FALSE because sometimes var is only explained by 1 PC in fake data
+    SDDLS <- deconvSpatialDDLS(object = SDDLS, pca.space = FALSE) 
     expect_true(
       all(names(deconv.spots(SDDLS)) == names(spatial.experiments(SDDLS)))
     )
     expect_true(
-      nrow(deconv.spots(SDDLS, 4)) == ncol(spatial.experiments(SDDLS, 4))
+      nrow(deconv.spots(SDDLS, 4)[["Regularized"]]) == ncol(spatial.experiments(SDDLS, 4))
     )
     expect_true(
-      all(rownames(deconv.spots(SDDLS, 1)) == 
+      all(rownames(deconv.spots(SDDLS, 1)[["Regularized"]]) == 
             colnames(spatial.experiments(SDDLS, 1)))
     )
     # index.st does not exist
@@ -749,7 +755,7 @@ test_that(
     )
     # No results available 
     expect_error(
-      barPlotCellTypes(data = SDDLS, simplify = "no_res", index.st = 1),
+      barPlotCellTypes(data = SDDLS, set = "no_res", index.st = 1),
       regexp = "No simplified results available"
     )
     # invalid simplify argument 
@@ -764,8 +770,8 @@ test_that(
                                c("CellType3", "CellType1"))
     )
     expect_error(
-      barPlotCellTypes(data = SDDLS, simplify = "no_res", index.st = 1),
-      regexp = "simplify argument must be one of the following options: 'simpli.set' or 'simpli.majority'"
+      barPlotCellTypes(data = SDDLS, set = "no_res", index.st = 1),
+      regexp = "set argument must be one of the following options: 'simpli.set' or 'simpli.majority'"
     )
     # not enough colors
     expect_error(
@@ -790,11 +796,11 @@ test_that(
       class = "gg"
     )
     expect_s3_class(
-      barPlotCellTypes(data = SDDLS, simplify = "simpli.set", index.st = 1), 
+      barPlotCellTypes(data = SDDLS, set = "simpli.set", index.st = 1), 
       class = "gg"
     )
     expect_s3_class(
-      barPlotCellTypes(data = SDDLS, simplify = "simpli.majority", index.st = 1), 
+      barPlotCellTypes(data = SDDLS, set = "simpli.majority", index.st = 1), 
       class = "gg"
     )
   }

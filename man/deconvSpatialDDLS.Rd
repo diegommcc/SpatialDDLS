@@ -9,6 +9,12 @@ deconvSpatialDDLS(
   index.st,
   normalize = TRUE,
   scaling = "rescale",
+  k.spots = 4,
+  pca.space = TRUE,
+  pca.var = 0.8,
+  metric = "euclidean",
+  alpha.cutoff = "mean",
+  alpha.quantile = 0.5,
   simplify.set = NULL,
   simplify.majority = NULL,
   use.generator = FALSE,
@@ -28,10 +34,35 @@ deconvolute. If missing, all datasets will be deconvoluted.}
 default).}
 
 \item{scaling}{How to scale data before training. It may be:
-\code{"standarize"} (values are centered around the mean with a unit
+\code{"standardize"} (values are centered around the mean with a unit
 standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 data are not scaled.}
+
+\item{k.spots}{Number of nearest spots considered for each spot during
+regularization of predicted cell proportions and creation of extrinsic
+transcriptional profiles. The greater, the smoother proportions will be.
+4 by default.}
+
+\item{pca.space}{Whether to use PCA space to calculate distances between
+intrinsic and extrinsic transcriptional profiles. \code{TRUE} by default.}
+
+\item{pca.var}{Number between 0.2 and 1 indicating the cutoff of explained
+variance used to choose the number of PCs used if \code{pca.space == TRUE}.}
+
+\item{metric}{Metric used to calculate distances between intrinsic and
+extrinsic transcriptional profiles. It may be \code{'euclidean'},
+\code{'cosine'} or \code{'pearson'} (\code{'euclidean'} by default).}
+
+\item{alpha.cutoff}{It determines the minimum distance by which the intrinsic
+proportions will start being regularized according to the extrinsic ones.
+It may be \code{'mean'} (distances lower than the mean distance are used)
+or \code{'quantile'} (distances lower than the \code{alpha.quantile}
+quantile are used). \code{'mean'} by default. See Mañanes et al., 2023 for
+details.}
+
+\item{alpha.quantile}{Quantile used if \code{alpha.cutoff == 'quantile'}.
+0.5 by default.}
 
 \item{simplify.set}{List specifying which cell types should be compressed
 into a new label with the name of the list item. See examples for details.
@@ -62,7 +93,27 @@ contain a list with raw and simplified results.
 }
 \description{
 Deconvolute spatial transcriptomics data using the trained model contained in
-the \code{\linkS4class{SpatialDDLS}} object.
+the \code{\linkS4class{SpatialDDLS}} object. After model prediction,
+proportions of every spot are regularized according to its spatial location
+in order to keep their spatial consistency. In particular, nearest spots for
+every spot are calculated, and their profiles are added up so that a counter
+transcriptional profile for each spot composed of its nearest spots is
+created. We refer to these profiles as 'extrinsic' profiles, whereas the
+original profiles are called 'intrinsic'. Extrinsic profiles are used as
+input for the trained deconvolution model, thus having two matrices of
+predicted cell proportions: the intrinsic based on the intrinsic
+transcriptome of each spot and the extrinsic based on their nearby spots.
+Then, distances between intrinsic and extrinsic transcriptional profiles are
+calculated and used create a new set of regularized predicted proportions
+under the following hypothesis: if extrinsic profiles are very dissimilar to
+their intrinsic counterparts, intrinsic proportions will be used. On the
+other hand, if extrinsic profiles are similar to their intrinsic
+counterparts, a weighted mean between extrinsic and intrinsic proportions
+is calculated. Weights are calculated according to transcriptome distances
+between intrinsic nd extrinsic transcriptional profiles (see \code{metrics}
+parameter). In this way, we leverage the spatial information contained in
+spatial transcriptomics data while use the transcriptional information to
+deconvolute the data. For details, see Mañanes et al., 2023.
 }
 \details{
 This function requires a \code{\linkS4class{SpatialDDLS}} object with a
@@ -141,7 +192,12 @@ SDDLS <- deconvSpatialDDLS(
   simplify.majority = simplify
 )
 }
-  
+}
+\references{
+Mañanes, D., Rivero-García, I., Jimenez-Carretero, D.,
+Torres, M., Sancho, D., Torroja, C., Sánchez-Cabo, F. (2023). SpatialDDLS:
+An R package to deconvolute spatial transcriptomics data using neural
+networks. biorxiv. doi: \doi{10.1101/2023.08.31.555677}.
 }
 \seealso{
 \code{\link{trainDeconvModel}} \code{\linkS4class{SpatialDDLS}}

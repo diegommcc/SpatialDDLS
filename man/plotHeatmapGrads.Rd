@@ -12,24 +12,26 @@ plotHeatmapGrads(
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object with a trained
-deconvolution model (\code{trained.model} slot) and pure mixed
-transcriptional profiles (\code{mixed.profiles} slot).}
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with a
+\code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+\code{interpret.gradients} slot.}
 
 \item{method}{Method to calculate gradients with respect to inputs. It can be
 \code{'class'} (gradients of predicted classes w.r.t. inputs) or
-\code{'loss'} (gradients of loss w.r.t. inputs) (\code{'class'} by default).}
+\code{'loss'} (gradients of loss w.r.t. inputs) (\code{'class'} by
+default).}
 
 \item{top.n.genes}{Top n genes (positive and negative) taken per cell type.}
+
+\item{scale.gradients}{Wheter to calculate feature-wise z-scores of gradients
+(\code{TRUE} by default).}
 }
 \value{
-Object containing gradients in the \code{interpret.gradients} slot of
-the \code{DeconvDLModel} object (\code{trained.model} slot).
+A list of \code{\linkS4class{Heatmap-class}} objects, one for top
+positive and another one for top negative gradients.
 }
 \description{
-Get feature names of top features with largest/smallest gradients per cell type.
-These genes can be used as input to visualize how they are spatially expressed
-(\code{plotGeneSpatial} function) or to plot gradients a a heatmap (\code{plotGradHeatmap} function).
+Plot a heatmap showing the top positive and negative gradients per cell type.
 }
 \examples{
 \donttest{

@@ -11,6 +11,7 @@ plotSpatialProp(
   cell.type,
   colors = "blues",
   set = "raw",
+  prediction = "Regularized",
   limits = NULL,
   size.point = 1,
   title = NULL,
@@ -21,7 +22,8 @@ plotSpatialProp(
 \item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
-can be either a position or a name if a named list was provided.}
+can be either a position or a name if a named list of
+\code{\linkS4class{SpatialExperiment}} objects was provided.}
 
 \item{cell.type}{Cell type predicted proportions to color spots by.}
 
@@ -30,6 +32,9 @@ can be either a position or a name if a named list was provided.}
 
 \item{set}{If results were simplified (see \code{?\link{deconvSpatialDDLS}}
 for details), what results to plot (\code{raw} by default).}
+
+\item{prediction}{It can be \code{"Regularized"}, \code{"Intrinsic"} or
+\code{"Extrinsic"} (\code{"Regularized"} by default).}
 
 \item{limits}{A vector of two elements indicating wanted limits for color
 scale. If \code{NULL} (by default), color scale is adjusted to max and min

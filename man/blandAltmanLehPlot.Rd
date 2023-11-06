@@ -73,9 +73,9 @@ A ggplot object.
 \description{
 Generate Bland-Altman agreement plots between predicted and expected cell
 type proportions from test data. The Bland-Altman agreement plots can be
-shown all mixed or split by cell type (\code{CellType}) or the number of cell
-types present in spots (\code{nCellTypes}). See the \code{facet.by} argument
-and examples for more information.
+shown all mixed or split by either cell type (\code{CellType}) or the number
+of cell types present in spots (\code{nCellTypes}). See the \code{facet.by}
+argument and examples for more information.
 }
 \examples{
 \donttest{

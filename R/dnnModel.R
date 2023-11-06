@@ -48,12 +48,12 @@ NULL
 #'   argument.
 #' @param num.units Vector indicating the number of neurons per hidden layer
 #'   (\code{c(200, 200)} by default). The length of this vector must be equal to
-#'   \code{num.hidden.layers} argument.
-#' @param activation.fun Activation function (\code{'sigmoid'} by default). See
+#'   the \code{num.hidden.layers} argument.
+#' @param activation.fun Activation function (\code{'relu'} by default). See
 #'   the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/activation_relu.html}{keras
 #'    documentation} to know available activation functions.
-#' @param dropout.rate Float between 0 and 1 indicating the fraction of the
+#' @param dropout.rate Float between 0 and 1 indicating the fraction of
 #'   input neurons to be dropped in layer dropouts (0.25 by default). By
 #'   default, \pkg{SpatialDDLS} implements 1 dropout layer per hidden layer.
 #' @param loss Character indicating loss function selected for model training
@@ -65,29 +65,29 @@ NULL
 #'   "categorical_accuracy")} by default). See the
 #'   \href{https://tensorflow.rstudio.com/reference/keras/metric_binary_accuracy.html}{keras
 #'    documentation} to know available performance metrics.
-#' @param normalize Whether normalize data using logCPM (\code{TRUE} by 
+#' @param normalize Whether to normalize data using logCPM (\code{TRUE} by 
 #'   default). This parameter is only considered when the method used to 
-#'   simulate the mixed transcriptional profiles (\code{simMixedProfiles} 
+#'   simulate mixed transcriptional profiles (\code{simMixedProfiles} 
 #'   function) was \code{"AddRawCount"}. Otherwise, data were already 
 #'   normalized.
 #' @param scaling How to scale data before training. It can be:
 #'   \code{"standardize"} (values are centered around the mean with a unit
 #'   standard deviation), \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1, by default) or \code{"none"} (no
-#'   scaling is performed).
+#'   scaling is performed). \code{"standardize"} by default. 
 #' @param norm.batch.layers Whether to include batch normalization layers
-#'   between each hidden dense layer (\code{FALSE} by default).
-#' @param custom.model It allows to use a custom neural network. It must be a
-#'   \code{keras.engine.sequential.Sequential} object in which the number of
-#'   input neurons is equal to the number of considered features/genes, and the
-#'   number of output neurons is equal to the number of cell types considered
-#'   (\code{NULL} by default). If provided, the arguments related to the neural
-#'   network architecture will be ignored.
+#'   between each hidden dense layer (\code{TRUE} by default).
+#' @param custom.model It allows to use a custom neural network architecture. It 
+#'   must be a \code{keras.engine.sequential.Sequential} object in which the 
+#'   number of input neurons is equal to the number of considered 
+#'   features/genes, and the number of output neurons is equal to the number of 
+#'   cell types considered (\code{NULL} by default). If provided, the arguments 
+#'   related to the neural network architecture will be ignored.
 #' @param shuffle Boolean indicating whether data will be shuffled (\code{TRUE}
 #'   by default).
 #' @param sc.downsampling It is only used if \code{type.data.train} is equal to
 #'   \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
-#'   single-cell profiles from a specific cell type  used for training to avoid
+#'   single-cell profiles of a specific cell type used for training to avoid
 #'   an unbalanced representation of cell types (\code{NULL} by default).
 #' @param use.generator Boolean indicating whether to use generators during
 #'   training and test. Generators are automatically used when \code{on.the.fly
@@ -99,10 +99,9 @@ NULL
 #'   may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
 #'   profiles (raw counts) are added up across cells. Then, log-CPMs are
 #'   calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-#'   transformed into CPMs and cross-cell averages are calculated. Then,
-#'   \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
-#'   profiles (raw counts) are transformed into CPMs and are added up across
-#'   cells. Then, log-CPMs are calculated.}
+#'   transformed into logCPM and cross-cell averages are calculated. 
+#'   \item \code{"AddCPM"}: single-cell profiles (raw counts) are transformed 
+#'   into CPMs and are added up across cells. Then, log-CPMs are calculated.}
 #' @param threads Number of threads used during simulation of mixed
 #'   transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).
 #' @param view.metrics.plot Boolean indicating whether to show plots of loss and
@@ -168,16 +167,16 @@ trainDeconvModel <- function(
   num.epochs = 10,
   num.hidden.layers = 2,
   num.units = c(200, 200),
-  activation.fun = "sigmoid",
+  activation.fun = "relu",
   dropout.rate = 0.25,
   loss = "kullback_leibler_divergence",
   metrics = c("accuracy", "mean_absolute_error",
               "categorical_accuracy"),
   normalize = TRUE,
-  scaling = "rescale",
-  norm.batch.layers = FALSE,
+  scaling = "standardize",
+  norm.batch.layers = TRUE,
   custom.model = NULL,
-  shuffle = FALSE,
+  shuffle = TRUE,
   sc.downsampling = NULL,
   use.generator = FALSE,
   on.the.fly = FALSE,
@@ -677,7 +676,7 @@ trainDeconvModel <- function(
     else return(list(counts))
   }
 }
-## in this funciton, I have to normalize the raw counts
+## in this function, I have to normalize raw counts
 .dataForDNN.file <- function(
   object,
   sel.data,
@@ -1088,7 +1087,27 @@ trainDeconvModel <- function(
 #' Deconvolute spatial transcriptomics data
 #'
 #' Deconvolute spatial transcriptomics data using the trained model contained in
-#' the \code{\linkS4class{SpatialDDLS}} object.
+#' the \code{\linkS4class{SpatialDDLS}} object. After model prediction, 
+#' proportions of every spot are regularized according to its spatial location 
+#' in order to keep their spatial consistency. In particular, nearest spots for 
+#' every spot are calculated, and their profiles are added up so that a counter 
+#' transcriptional profile for each spot composed of its nearest spots is 
+#' created. We refer to these profiles as 'extrinsic' profiles, whereas the
+#' original profiles are called 'intrinsic'. Extrinsic profiles are used as 
+#' input for the trained deconvolution model, thus having two matrices of 
+#' predicted cell proportions: the intrinsic based on the intrinsic 
+#' transcriptome of each spot and the extrinsic based on their nearby spots. 
+#' Then, distances between intrinsic and extrinsic transcriptional profiles are
+#' calculated and used create a new set of regularized predicted proportions 
+#' under the following hypothesis: if extrinsic profiles are very dissimilar to 
+#' their intrinsic counterparts, intrinsic proportions will be used. On the 
+#' other hand, if extrinsic profiles are similar to their intrinsic 
+#' counterparts, a weighted mean between extrinsic and intrinsic proportions 
+#' is calculated. Weights are calculated according to transcriptome distances 
+#' between intrinsic nd extrinsic transcriptional profiles (see \code{metrics} 
+#' parameter). In this way, we leverage the spatial information contained in 
+#' spatial transcriptomics data while use the transcriptional information to 
+#' deconvolute the data. For details, see Mañanes et al., 2023.
 #'
 #' This function requires a \code{\linkS4class{SpatialDDLS}} object with a
 #' trained deep neural network model (\code{\link{trained.model}} slot, and the
@@ -1108,6 +1127,25 @@ trainDeconvModel <- function(
 #'   standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 #'   that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 #'   data are not scaled.
+#' @param k.spots Number of nearest spots considered for each spot during 
+#'   regularization of predicted cell proportions and creation of extrinsic 
+#'   transcriptional profiles. The greater, the smoother proportions will be. 
+#'   4 by default. 
+#' @param pca.space Whether to use PCA space to calculate distances between 
+#'   intrinsic and extrinsic transcriptional profiles. \code{TRUE} by default. 
+#' @param pca.var Number between 0.2 and 1 indicating the cutoff of explained 
+#'   variance used to choose the number of PCs used if \code{pca.space == TRUE}. 
+#' @param metric Metric used to calculate distances between intrinsic and 
+#'   extrinsic transcriptional profiles. It may be \code{'euclidean'}, 
+#'   \code{'cosine'} or \code{'pearson'} (\code{'euclidean'} by default).
+#' @param alpha.cutoff It determines the minimum distance by which the intrinsic 
+#'   proportions will start being regularized according to the extrinsic ones. 
+#'   It may be \code{'mean'} (distances lower than the mean distance are used) 
+#'   or \code{'quantile'} (distances lower than the \code{alpha.quantile} 
+#'   quantile are used). \code{'mean'} by default. See Mañanes et al., 2023 for
+#'   details. 
+#' @param alpha.quantile Quantile used if \code{alpha.cutoff == 'quantile'}. 
+#'   0.5 by default.  
 #' @param simplify.set List specifying which cell types should be compressed
 #'   into a new label with the name of the list item. See examples for details.
 #'   If provided, results are stored in a list with \code{'raw'} and
@@ -1204,6 +1242,10 @@ trainDeconvModel <- function(
 #'   simplify.majority = simplify
 #' )
 #' }
+#' @references Mañanes, D., Rivero-García, I., Jimenez-Carretero, D., 
+#'   Torres, M., Sancho, D., Torroja, C., Sánchez-Cabo, F. (2023). SpatialDDLS: 
+#'   An R package to deconvolute spatial transcriptomics data using neural 
+#'   networks. biorxiv. doi: \doi{10.1101/2023.08.31.555677}.
 #'   
 deconvSpatialDDLS <- function(
   object,

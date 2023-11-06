@@ -32,9 +32,9 @@ distErrorPlot(
 \code{test.deconv.metrics} slot of a \code{\linkS4class{DeconvDLModel}}
 object.}
 
-\item{error}{Error to be represented. Available errors are: absolute error
-(\code{'AbsErr'}), proportional absolute error (\code{'ppAbsErr'}), squared
-error (\code{'SqrErr'}), and proportional squared error
+\item{error}{Error to be represented. Available metric errors are: absolute
+error (\code{'AbsErr'}), proportional absolute error (\code{'ppAbsErr'}),
+squared error (\code{'SqrErr'}), and proportional squared error
 (\code{'ppSqrErr'}).}
 
 \item{colors}{Vector of colors to be used.}
@@ -88,9 +88,9 @@ A ggplot object.
 }
 \description{
 Generate box or violin plots to show how errors are distributed. Errors can
-be shown all mixed or split by cell type (\code{CellType}) or number of cell
-types present in the spots (\code{nCellTypes}). See the \code{facet.by}
-argument and examples for more details.
+be shown all mixed or either split by cell type (\code{CellType}) or number
+of cell types present in the spots (\code{nCellTypes}). See the
+\code{facet.by} argument and examples for more details.
 }
 \examples{
 \donttest{

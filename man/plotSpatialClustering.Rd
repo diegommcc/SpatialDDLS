@@ -13,26 +13,26 @@ plotSpatialClustering(
   colors,
   size.point = 1,
   title = NULL,
-  theme = NULL
+  theme = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
-can be either a position or a name if a named list was provided.}
+can be either a position or a name if a named list of
+\code{\linkS4class{SpatialExperiment}} objects was provided.}
 
-\item{method}{Cell type predicted proportions to color spots by.}
+\item{method}{CLustering method results to plot. It can be \code{"graph"} or
+\code{"k.means"}. If missing, the first configuration found in the object
+fill be plotted.}
 
-\item{k.nn}{Color scale to be used. It can be \code{"blues"} or
-\code{"spectral"} (the former by default).}
+\item{k.nn}{Number of nearest neighbors used if \code{ method == "graph"}.}
 
-\item{k.centers}{If results were simplified (see \code{?\link{deconvSpatialDDLS}}
-for details), what results to plot (\code{raw} by default).}
+\item{k.centers}{Number of k centers used if \code{ method == "k.means"}.}
 
-\item{colors}{A vector of two elements indicating wanted limits for color
-scale. If \code{NULL} (by default), color scale is adjusted to max and min
-predicted proportions.}
+\item{colors}{Vector of colors to be used.}
 
 \item{size.point}{Size of points (0.1 by default).}
 
@@ -44,10 +44,9 @@ predicted proportions.}
 A ggplot object.
 }
 \description{
-Color spots on the spatial coordinates according to clustering basedd on
+Color spots on the spatial coordinates according to clustering based on
 predicted proportions.
 }
 \seealso{
-\code{\link{plotSpatialPropAll}} \code{\link{deconvSpatialDDLS}}
-\code{\link{trainDeconvModel}}
+\code{\link{spatialPropClustering}} \code{\link{deconvSpatialDDLS}}
 }

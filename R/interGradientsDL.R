@@ -1,17 +1,27 @@
 #' @importFrom tensorflow %as%
 NULL
 
+#### CHECK THE TEXT, I THINK ITS WRONG
+
 ################################################################################
 ############### Calculation of gradients for NN interpretation #################
 ################################################################################
 
-#' Calculate gradients with respect to predicted cell types/loss for 
-#' interpreting a trained deconvolution model
+#' Calculate gradients of features with respect to predicted cell types/loss for 
+#' interpreting trained deconvolution models
 #'
-#' Train a deep neural network model using training data from the
-#' \code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
-#' evaluated using test data, and prediction results are obtained to determine
-#' its performance (see \code{?\link{calculateEvalMetrics}}).
+#' This function allows the user to get insights on the interpretability of the
+#' deconvolution model. It calculates the gradients of features with respect to 
+#' predicted classes / loss function. This numeric values are calculated per 
+#' gene and cell type and can be interpreted as to what extent each feature is 
+#' used by the model to predict the cell proportions of each cell type. 
+#' 
+#' Gradients of features with respect to classes / loss funciton are calculated 
+#' only with pure mixed transcriptional profiles composed of only one cell type. 
+#' For this reason, these numbers can be interpreted as the extent of 
+#' each feature to predict each cell type proportion. In particular, gradients 
+#' are calculated at the sample level for each gene, but only mean gradients 
+#' by cell type are reported. For more information, see Mañanes et al., 2023. 
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a trained 
 #'    deconvolution model (\code{trained.model} slot) and pure mixed 
@@ -19,29 +29,18 @@ NULL
 #' @param method Method to calculate gradients with respect to inputs. It can be
 #'    \code{'class'} (gradients of predicted classes w.r.t. inputs), 
 #'    \code{'loss'} (gradients of loss w.r.t. inputs) or \code{'both'}.
-#' @param normalize Whether normalize data using logCPM (\code{TRUE} by 
+#' @param normalize Whether to normalize data using logCPM (\code{TRUE} by 
 #'   default). This parameter is only considered when the method used to 
 #'   simulate the mixed transcriptional profiles (\code{simMixedProfiles} 
 #'   function) was \code{"AddRawCount"}. Otherwise, data were already 
 #'   normalized. This parameter should be set according to the transformation 
 #'   used to train the model. 
-#' @param scaling How to scale data. It can be:
-#'   \code{"standarize"} (values are centered around the mean with a unit
-#'   standard deviation), \code{"rescale"} (values are shifted and rescaled so
-#'   that they end up ranging between 0 and 1, by default) or \code{"none"} (no
-#'   scaling is performed). This parameter should be set according to the 
-#'   transformation used to train the model. 
-#' @param on.the.fly Not available.
-#' @param agg.function Function used to build mixed transcriptional profiles. It
-#'   may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
-#'   profiles (raw counts) are added up across cells. Then, log-CPMs are
-#'   calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
-#'   transformed into CPMs and cross-cell averages are calculated. Then,
-#'   \code{log2(CPM + 1)} is calculated. \item \code{"AddCPM"}: single-cell
-#'   profiles (raw counts) are transformed into CPMs and are added up across
-#'   cells. Then, log-CPMs are calculated.}
-#' @param threads Number of threads used during simulation of mixed
-#'   transcriptional profiles if \code{on.the.fly = TRUE} (1 by default).
+#' @param scaling How to scale data. It can be: \code{"standardize"} 
+#'   (values are centered around the mean with a unit standard deviation), 
+#'   \code{"rescale"} (values are shifted and rescaled so that they end up 
+#'   ranging between 0 and 1, by default) or \code{"none"} (no scaling is 
+#'   performed). This parameter should be set according to the transformation 
+#'   used to train the model. 
 #' @param verbose Show informative messages during the execution (\code{TRUE} by
 #'   default).
 #'
@@ -98,9 +97,6 @@ interGradientsDL <- function(
     method = "class",
     normalize = TRUE,
     scaling = "rescale",
-    on.the.fly = FALSE,
-    agg.function = "AddRawCount",
-    threads = 1,
     verbose = TRUE
 ) {
   if (!is(object, "SpatialDDLS")) {
@@ -112,10 +108,10 @@ interGradientsDL <- function(
     stop("The provided object does not contain actual cell proportions in ", 
          "'prob.cell.types' slot for test data")
   }
-  if (!scaling %in% c("standarize", "rescale", "none")) {
-    stop("'scaling' argument must be one of the following options: 'standarize', 'rescale' or 'none'")
+  if (!scaling %in% c("standardize", "rescale", "none")) {
+    stop("'scaling' argument must be one of the following options: 'standardize', 'rescale' or 'none'")
   } else {
-    if (scaling == "standarize") {
+    if (scaling == "standardize") {
       scaling.fun <- base::scale
     } else if (scaling == "rescale") {
       scaling.fun <- rescale.function
@@ -139,61 +135,44 @@ interGradientsDL <- function(
     )
   }
   
-  if (!on.the.fly) {
-    ## checking if all data are provided
-    if (is.null(mixed.profiles(object, type.data = "train")) | 
-        is.null(mixed.profiles(object, type.data = "test"))) {
-      stop("If on.the.fly == FALSE, mixed transcriptional profiles must be provided")
-    } 
-    ## checking number of pure mixed transcriptional profiles 
-    num.pure <- rbind(
-      as.matrix(mixed.profiles(object, type.data = "train")@colData),
-      as.matrix(mixed.profiles(object, type.data = "test")@colData)
-    ) 
-    num.pure <- colSums(num.pure == 100)    
-    if (any(num.pure == 0)) {
-      stop(
-        paste0(
-          "Not all cell types have pure mixed transcriptional profiles, i.e. ", 
-          "transcriptional profiles made of only one cell type. See ?genMixedCellProp", 
-          " and ?simMixedProfiles to generate them"
-        )
+  
+  ## checking if all data are provided
+  if (is.null(mixed.profiles(object, type.data = "train")) | 
+      is.null(mixed.profiles(object, type.data = "test"))) {
+    stop("Mixed transcriptional profiles must be provided")
+  } 
+  ## checking number of pure mixed transcriptional profiles 
+  num.pure <- rbind(
+    as.matrix(mixed.profiles(object, type.data = "train")@colData),
+    as.matrix(mixed.profiles(object, type.data = "test")@colData)
+  ) 
+  num.pure <- colSums(num.pure == 100)    
+  if (any(num.pure == 0)) {
+    stop(
+      paste0(
+        "Not all cell types have pure mixed transcriptional profiles, i.e. ", 
+        "transcriptional profiles made of only one cell type. See ?genMixedCellProp", 
+        " and ?simMixedProfiles to generate them"
       )
-    }
-    ## get data and metadata 
-    metadata.prop <- rbind(
-      as.matrix(mixed.profiles(object, type.data = "train")@colData),
-      as.matrix(mixed.profiles(object, type.data = "test")@colData)
     )
-    metadata.prop <- metadata.prop[apply(X = metadata.prop == 100, MARGIN = 1, FUN = any), ]
-    data <- cbind(
-      assays(mixed.profiles(object, type.data = "train"))[["counts"]],
-      assays(mixed.profiles(object, type.data = "test"))[["counts"]]
-    )[, rownames(metadata.prop)]
-    ## normalization with logCPM (if required)
-    mixing.fun <- mixed.profiles(object, type.data = "train")@metadata[["mixing.fun"]]
-    if (normalize & mixing.fun == "AddRawCount") {
-      data <- log2(.cpmCalculate(x = data + 1))
-    }
-    ## standarization
-    data <- scaling.fun(t(data))
-  } else {
-    stop("This functionality is not available yet. Try on.the.fly = FALSE")
-    if (verbose) message("=== Generating mixed transcriptional profiles on the fly")
-    ## just in case of on.the.fly = TRUE
-    if (!agg.function %in% c("MeanCPM", "AddCPM", "AddRawCount")) {
-      stop("'agg.function' must be one of the following options: 'MeanCPM', 'AddCPM', 'AddRawCount'")
-    } else {
-      if (agg.function == "MeanCPM") {
-        .agg.fun <- aggregation.fun.mean.cpm
-      } else if (agg.function == "AddCPM") {
-        .agg.fun <- aggregation.fun.add.cpm
-      } else if (agg.function == "AddRawCount") {
-        .agg.fun <- aggregation.fun.add.raw.counts
-      }
-    }
-    ## generate the matrices: not implemented yet
   }
+  ## get data and metadata 
+  metadata.prop <- rbind(
+    as.matrix(mixed.profiles(object, type.data = "train")@colData),
+    as.matrix(mixed.profiles(object, type.data = "test")@colData)
+  )
+  metadata.prop <- metadata.prop[apply(X = metadata.prop == 100, MARGIN = 1, FUN = any), ]
+  data <- cbind(
+    assays(mixed.profiles(object, type.data = "train"))[["counts"]],
+    assays(mixed.profiles(object, type.data = "test"))[["counts"]]
+  )[, rownames(metadata.prop)]
+  ## normalization with logCPM (if required)
+  mixing.fun <- mixed.profiles(object, type.data = "train")@metadata[["mixing.fun"]]
+  if (normalize & mixing.fun == "AddRawCount") {
+    data <- log2(.cpmCalculate(x = data + 1))
+  }
+  ## standarization
+  data <- scaling.fun(t(data))
   # checking if DNN model is json format or compiled
   if (is.list(trained.model(object)@model)) {
     model.comp <- .loadModelFromJSON(trained.model(object))
@@ -202,22 +181,26 @@ interGradientsDL <- function(
   if (method == "class") {
     gradients <- list(
       class = .calcGradientsClass(
-        x.data = data, y.metadata = metadata.prop, model = trained.model(object)@model
+        x.data = data, y.metadata = metadata.prop, 
+        model = trained.model(object)@model
       )
     )
   } else if (method == "loss") {
     gradients <- list(
       loss = .calcGradientsLoss(
-        x.data = data, y.metadata = metadata.prop, model = trained.model(object)@model
+        x.data = data, y.metadata = metadata.prop, 
+        model = trained.model(object)@model
       )
     )
   } else {
     gradients <- list(
       class = .calcGradientsClass(
-        x.data = data, y.metadata = metadata.prop, model = trained.model(object)@model
+        x.data = data, y.metadata = metadata.prop, 
+        model = trained.model(object)@model
       ),
       loss = .calcGradientsLoss(
-        x.data = data, y.metadata = metadata.prop, model = trained.model(object)@model
+        x.data = data, y.metadata = metadata.prop, 
+        model = trained.model(object)@model
       )
     )
   }
@@ -227,7 +210,7 @@ interGradientsDL <- function(
 }
 
 ## core function: this function is intended to receive the data and metadata 
-## of those samples used to calculate gradients wrt class. previous functions
+## of samples used to calculate gradients wrt class. previous functions
 ## will provide with the correct samples
 .calcGradientsClass <- function(x.data, y.metadata, model) { 
   ## info
@@ -296,21 +279,21 @@ interGradientsDL <- function(
 
 #' Get top genes with largest/smallest gradients per cell type
 #'
-#' Get feature names of top features with largest/smallest gradients per cell type. 
-#' These genes can be used as input to visualize how they are spatially expressed 
-#' (\code{plotGeneSpatial} function) or to plot gradients a a heatmap (\code{plotGradHeatmap} function).
+#' Get feature names of top features with largest/smallest gradients per cell 
+#' type. These genes can be used as input to visualize how they are spatially 
+#' expressed (\code{plotGeneSpatial} function) or to plot gradients as a heatmap 
+#' (\code{plotGradHeatmap} function).
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object with a trained 
-#'    deconvolution model (\code{trained.model} slot) and pure mixed 
-#'    transcriptional profiles (\code{mixed.profiles} slot).
-#' @param method Method to calculate gradients with respect to inputs. It can be
-#'    \code{'class'} (gradients of predicted classes w.r.t. inputs), 
-#'    \code{'loss'} (gradients of loss w.r.t. inputs) or \code{'both'}. 
-#'    \code{'class'} by default.
-#' @param top.n Top n genes (positive and negative) taken per cell type. 
+#' @param object \code{\linkS4class{SpatialDDLS}} object with a 
+#'   \code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+#'   \code{interpret.gradients} slot.
+#' @param method Method gradients were calculated by. It can be \code{'class'}
+#'  (gradients of predicted classes w.r.t. inputs) or \code{'loss'} (gradients 
+#'  of loss w.r.t. inputs).
+#' @param top.n.genes Top n genes (positive and negative) taken per cell type. 
 #'
-#' @return Object containing gradients in the \code{interpret.gradients} slot of
-#'   the \code{DeconvDLModel} object (\code{trained.model} slot).
+#' @return List containing gene names with the top positive and negative 
+#'   gradients per cell tupe.
 #'
 #' @export
 #'
@@ -388,12 +371,12 @@ topGradientsCellType <- function(object, method = "class", top.n.genes = 15) {
     ) %>% setNames(c("class", "loss"))
   } else if (method == "class" | method == "loss") {
     if (!any(method %in% names(trained.model(object)@interpret.gradients))) {
-      stop("Chosen method is not present in the SpatialDDLS bject")
+      stop("Chosen method is not present in the SpatialDDLS object")
     }
     grad <- trained.model(object)@interpret.gradients[[method]]
     grads.top <- top.gradients(grad = grad, metadata = metadata.prop, n = top.n.genes)
   } else {
-    stop("method parameter has to be one of the following options: 'both', 'class' or 'loss'")
+    stop("method parameter has to be one of the following options: 'class' or 'loss'")
   }
 
   return(grads.top)
@@ -421,20 +404,21 @@ top.gradients <- function(grad, metadata, n) {
 
 #' Plot a heatmap of gradients
 #'
-#' Get feature names of top features with largest/smallest gradients per cell type. 
-#' These genes can be used as input to visualize how they are spatially expressed 
-#' (\code{plotGeneSpatial} function) or to plot gradients a a heatmap (\code{plotGradHeatmap} function).
+#' Plot a heatmap showing the top positive and negative gradients per cell type. 
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object with a trained 
-#'    deconvolution model (\code{trained.model} slot) and pure mixed 
-#'    transcriptional profiles (\code{mixed.profiles} slot).
+#' @param object \code{\linkS4class{SpatialDDLS}} object with a 
+#'   \code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+#'   \code{interpret.gradients} slot.
 #' @param method Method to calculate gradients with respect to inputs. It can be
 #'    \code{'class'} (gradients of predicted classes w.r.t. inputs) or
-#'    \code{'loss'} (gradients of loss w.r.t. inputs) (\code{'class'} by default).
+#'    \code{'loss'} (gradients of loss w.r.t. inputs) (\code{'class'} by 
+#'    default).
 #' @param top.n.genes Top n genes (positive and negative) taken per cell type. 
+#' @param scale.gradients Wheter to calculate feature-wise z-scores of gradients 
+#'   (\code{TRUE} by default).
 #'
-#' @return Object containing gradients in the \code{interpret.gradients} slot of
-#'   the \code{DeconvDLModel} object (\code{trained.model} slot).
+#' @return A list of \code{\linkS4class{Heatmap-class}} objects, one for top
+#'    positive and another one for top negative gradients. 
 #'
 #' @export
 #'

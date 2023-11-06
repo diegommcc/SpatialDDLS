@@ -6,7 +6,7 @@
 \alias{SpatialDDLS}
 \title{The SpatialDDLS Class}
 \description{
-The \code{\linkS4class{SpatialDDLS}}object is the core of the
+The \code{\linkS4class{SpatialDDLS}} object is the core of the
 \pkg{SpatialDDLS} package. This object stores different intermediate data
 needed for the construction of new deconvolution models, the spatial
 transcriptomics profiles to be deconvoluted, and the predicted cell type
@@ -24,14 +24,14 @@ storage. \item \code{\linkS4class{ZinbModel}} class with estimated parameters
 for the simulation of new single-cell profiles. \item
 \code{\linkS4class{SummarizedExperiment}} class for simulated mixed
 transcriptional profiles storage. \item \code{\linkS4class{PropCellTypes}}
-class for compositional cell type matrices. See
+class for composition cell type matrices. See
 \code{?\linkS4class{PropCellTypes}} for details. \item
-\code{\linkS4class{DeconvDLModel}} class to store the information related to
+\code{\linkS4class{DeconvDLModel}} class to store information related to
 deep neural network models. See \code{?\linkS4class{DeconvDLModel}} for
 details. }
 
-In order to provide a way to work with large amounts of data on
-RAM-constrained machines, we provide the possibility to use HDF5 files as
+In order to provide a way to work with large amounts of data in
+RAM-constrained machines, we provide the possibility of using HDF5 files as
 back-end to store count matrices of both real and simulated single-cell
 profiles by using the \pkg{HDF5Array} and \pkg{DelayedArray} classes from the
 homonymous packages.
@@ -62,7 +62,7 @@ Count matrices can be stored as \code{HDF5Array} objects using HDF5 files
 as back-end in case of RAM limitations.}
 
 \item{\code{trained.model}}{\code{\linkS4class{DeconvDLModel}} object with
-information related to the trained model. See
+information related to the deconvolution model. See
 \code{?\linkS4class{DeconvDLModel}} for more details.}
 
 \item{\code{deconv.spots}}{Deconvolution results. It consists of a list where each

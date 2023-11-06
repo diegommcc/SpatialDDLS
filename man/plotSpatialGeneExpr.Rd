@@ -11,14 +11,16 @@ plotSpatialGeneExpr(
   colors = "spectral",
   size.point = 1,
   title = NULL,
-  theme = NULL
+  theme = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
-can be either a position or a name if a named list was provided.}
+can be either a position or a name if a named list of
+\code{\linkS4class{SpatialExperiment}} objects was provided.}
 
 \item{gene}{Gene to color spots by.}
 

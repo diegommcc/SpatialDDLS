@@ -64,10 +64,10 @@ an RDS file on disk.
 Save \code{\linkS4class{SpatialDDLS}} and \code{\linkS4class{DeconvDLModel}}
 objects as RDS files. \pkg{keras} models cannot be stored natively as R
 objects (e.g. RData or RDS files). By saving the architecture as a JSON-like
-character object and the weights as a list, it is possible to retrieve the
-model and make new predictions. If the \code{trained.model} slot is empty,
-the function will behave as normal. \strong{Note:} with this option, the
-state of optimizer is not saved, only the model's architecture and weights.
+character object and the weights as a list, it is possible to retrieve a
+functional model and make new predictions. If the \code{trained.model} slot
+is empty, the function will behave as usual. \strong{Note:} with this option,
+the state of optimizer is not saved, only model's architecture and weights.
 It is possible to save the entire model as an HDF5 file with the
 \code{\link{saveTrainedModelAsH5}} function and load it into a
 \code{\linkS4class{SpatialDDLS}} object with the
