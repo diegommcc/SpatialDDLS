@@ -22,15 +22,16 @@ transcriptional profiles (\code{mixed.profiles} slot).}
 clustered. If missing, all datasets already deconvoluted will be clustered.}
 
 \item{method}{Clustering method. It can be \code{graph} (a nearest neighbor
-graph is created and louvain algorithm is used to detect communities) or
+graph is created and Louvain algorithm is used to detect communities) or
 \code{k.means} (k-means algorithm is run with the specified number of
 centers (\code{k.centers} parameter)).}
 
-\item{k.nn}{An integer specifying the number of nearest neighbors to during
-graph construction (10 by default). Only if \code{method == "graph"}.}
+\item{k.nn}{An integer specifying the number of nearest neighbors to be used
+during graph construction (10 by default). Only if
+\code{method == "graph"}.}
 
 \item{k.centers}{An integer specifying the number of centers for k-means
-algorithm. Only if \code{method == "k.means"}.}
+algorithm (5 by default). Only if \code{method == "k.means"}.}
 
 \item{verbose}{Show informative messages during the execution (\code{TRUE} by
 default).}
@@ -42,7 +43,7 @@ clusters as a column in the slot \code{colData} of the
 }
 \description{
 Cluster spatial transcriptomics data according to the cell proportions
-predicted in each spot. It allows to segregate data into niches with
+predicted in each spot. It allows to segregate ST data into niches with
 similar cell compositions.
 }
 \examples{

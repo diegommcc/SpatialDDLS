@@ -2,7 +2,7 @@
 % Please edit documentation in R/dnnModel.R
 \name{deconvSpatialDDLS}
 \alias{deconvSpatialDDLS}
-\title{Deconvolute spatial transcriptomics data}
+\title{Deconvolute spatial transcriptomics data using trained model}
 \usage{
 deconvSpatialDDLS(
   object,
@@ -33,33 +33,32 @@ deconvolute. If missing, all datasets will be deconvoluted.}
 \item{normalize}{Normalize data (logCPM) before deconvolution (\code{TRUE} by
 default).}
 
-\item{scaling}{How to scale data before training. It may be:
+\item{scaling}{How to scale data before training. Options include
 \code{"standardize"} (values are centered around the mean with a unit
 standard deviation) or \code{"rescale"} (values are shifted and rescaled so
 that they end up ranging between 0 and 1). If \code{normalize = FALSE},
 data are not scaled.}
 
 \item{k.spots}{Number of nearest spots considered for each spot during
-regularization of predicted cell proportions and creation of extrinsic
-transcriptional profiles. The greater, the smoother proportions will be.
-4 by default.}
+regularization and simulation of extrinsic transcriptional profiles. The
+greater, the smoother the regularization will be (4 by default).}
 
 \item{pca.space}{Whether to use PCA space to calculate distances between
-intrinsic and extrinsic transcriptional profiles. \code{TRUE} by default.}
+intrinsic and extrinsic transcriptional profiles (\code{TRUE} by default).}
 
-\item{pca.var}{Number between 0.2 and 1 indicating the cutoff of explained
-variance used to choose the number of PCs used if \code{pca.space == TRUE}.}
+\item{pca.var}{Threshold of explained
+variance (between 0.2 and 1) used to choose the number of PCs used if
+\code{pca.space == TRUE}.}
 
-\item{metric}{Metric used to calculate distances between intrinsic and
-extrinsic transcriptional profiles. It may be \code{'euclidean'},
+\item{metric}{Metric used to measure distance/similarity between intrinsic
+and extrinsic transcriptional profiles. It may be \code{'euclidean'},
 \code{'cosine'} or \code{'pearson'} (\code{'euclidean'} by default).}
 
-\item{alpha.cutoff}{It determines the minimum distance by which the intrinsic
-proportions will start being regularized according to the extrinsic ones.
-It may be \code{'mean'} (distances lower than the mean distance are used)
-or \code{'quantile'} (distances lower than the \code{alpha.quantile}
-quantile are used). \code{'mean'} by default. See Mañanes et al., 2023 for
-details.}
+\item{alpha.cutoff}{Minimum distance for regularization.
+It may be \code{'mean'} (spots with transcriptional distances shorter than
+the mean distance of the dataset will be modified) or \code{'quantile'}
+(spots with transcriptional distances shorter than the
+\code{alpha.quantile} quantile are used). \code{'mean'} by default.}
 
 \item{alpha.quantile}{Quantile used if \code{alpha.cutoff == 'quantile'}.
 0.5 by default.}
@@ -85,37 +84,58 @@ prediction (\code{FALSE} by default).}
 }
 \value{
 \code{\linkS4class{SpatialDDLS}} object with a \code{deconv.spots}
-slot. The output is a data frame with spot (\eqn{i}) as rows and cell types
-(\eqn{j}) as columns. Each entry represents the predicted proportion of
-\eqn{j} cell type in \eqn{i} spot. If \code{simplify.set} and/or
-\code{simplify.majority} are provided, the \code{deconv.spots} slot will
-contain a list with raw and simplified results.
+slot. The output is a list containing 'Regularized', 'Intrinsic' and
+'Extrinsic' deconvoluted cell proportions, 'Distances' between intrinsic
+and extrinsic transcriptional profiles, and 'Weight.factors' with the
+final weights used to regularize intrinsic cell proportions. If
+\code{simplify.set} and/or \code{simplify.majority} are provided,
+the \code{deconv.spots} slot will contain a list with raw and simplified
+results.
 }
 \description{
-Deconvolute spatial transcriptomics data using the trained model contained in
-the \code{\linkS4class{SpatialDDLS}} object. After model prediction,
-proportions of every spot are regularized according to its spatial location
-in order to keep their spatial consistency. In particular, nearest spots for
-every spot are calculated, and their profiles are added up so that a counter
-transcriptional profile for each spot composed of its nearest spots is
-created. We refer to these profiles as 'extrinsic' profiles, whereas the
-original profiles are called 'intrinsic'. Extrinsic profiles are used as
-input for the trained deconvolution model, thus having two matrices of
-predicted cell proportions: the intrinsic based on the intrinsic
-transcriptome of each spot and the extrinsic based on their nearby spots.
-Then, distances between intrinsic and extrinsic transcriptional profiles are
-calculated and used create a new set of regularized predicted proportions
-under the following hypothesis: if extrinsic profiles are very dissimilar to
-their intrinsic counterparts, intrinsic proportions will be used. On the
-other hand, if extrinsic profiles are similar to their intrinsic
-counterparts, a weighted mean between extrinsic and intrinsic proportions
-is calculated. Weights are calculated according to transcriptome distances
-between intrinsic nd extrinsic transcriptional profiles (see \code{metrics}
-parameter). In this way, we leverage the spatial information contained in
-spatial transcriptomics data while use the transcriptional information to
-deconvolute the data. For details, see Mañanes et al., 2023.
+Deconvolute spatial transcriptomics data using the trained model in
+the \code{\linkS4class{SpatialDDLS}} object. The trained model is used
+to predict cell proportions of two mirrored transcriptional profiles:
+\itemize{ \item 'Intrinsic' profiles: transcriptional profiles of each spot
+in the ST dataset. \item 'Extrinsic' profiles: profiles simulated from the
+surrounding spots of each spot.} After prediction, cell proportions
+from the intrinsic profiles (intrinsic cell proportions) are regularized
+based on the similarity between intrinsic and extrinsic profiles in order
+to maintain spatial consistency. This approach leverages both transcriptional
+and spatial information. For more details, see Mañanes et al., 2023 and the
+Details section.
 }
 \details{
+The deconvolution process involves two main steps: predicting cell
+proportions based on transcriptome using the trained neural network model,
+and regularization of cell proportions based on the spatial location of each
+spot. In the regularization step, a mirrored version of each spot is
+simulated based on its N-nearest spots. We refer to these profiles as
+'extrinsic' profiles, whereas the transcriptional profiles of each spot are
+called 'intrinsic' profiles. Extrinsic profiles are used to regularize
+predictions based on intrinsic profiles. The rationale is that spots
+surrounded by transcriptionally similar spots should have similar cell
+compositions, and therefore predicted proportions can be smoothed to preserve
+their spatial consistency. On the other hand, spots surrounded by dissimilar
+spots cannot be predicted by their neighbors, and thus they can only be
+predicted by their own transcriptional profiles likely due to presenting very
+specific cell compositions.
+
+Regarding the working os \pkg{SpatialDDLS}: first, extrinsic profiles are
+simulated based on the N-nearest spots for each spot by summing their
+transcriptomes. Distances between extrinsic and intrinsic profiles of each
+spot are calculated so that similar/dissimilar spots are identified. These
+two sets of transcriptional profiles are used as input for the trained neural
+network model, and according to the calculated distances, a weighted mean
+between the predicted proportions for each spot is calculated. Spots with
+distances between intrinsic and extrinsic profiles greater than
+\code{alpha.cutoff} are not regularized, whereas spots with distances less
+than \code{alpha.cutoff} contribute to the weighted mean. Weights are
+calculated by rescaling distances less than \code{alpha.cutoff} between 0
+and 0.5, so that the maximum extent to which a extrinsic profile can
+modified the predictions based on intrinsic profiles is 0.5 (a regular
+mean). For more details, see Mañanes et al., 2023.
+
 This function requires a \code{\linkS4class{SpatialDDLS}} object with a
 trained deep neural network model (\code{\link{trained.model}} slot, and the
 spatial transcriptomics datasets to be deconvoluted in the

@@ -231,7 +231,6 @@ plotSpatialProp <- function(
   return(plot)
 }
 
-
 ################################################################################
 ########################### Plot gene expression ###############################
 ################################################################################
@@ -338,18 +337,18 @@ plotSpatialGeneExpr <- function(
 ###################### Plot spatial clusters (single) ##########################
 ################################################################################
 
-#' Plot spatial clustering based on predicted cell proportions
+#' Plot results of clustering based on predicted cell proportions
 #'
-#' Color spots on the spatial coordinates according to clustering based on 
-#' predicted proportions. 
+#' Color spots on the spatial coordinates according to the results of 
+#' clustering based on predicted proportions. 
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list of 
 #'   \code{\linkS4class{SpatialExperiment}} objects was provided.
-#' @param method CLustering method results to plot. It can be \code{"graph"} or
+#' @param method Clustering method results to plot. It can be \code{"graph"} or
 #'   \code{"k.means"}. If missing, the first configuration found in the object 
-#'   fill be plotted. 
+#'   will be plotted. 
 #' @param k.nn Number of nearest neighbors used if \code{ method == "graph"}. 
 #' @param k.centers Number of k centers used if \code{ method == "k.means"}. 
 #' @param colors Vector of colors to be used.
@@ -406,23 +405,31 @@ plotSpatialClustering <- function(
     spatial.experiments(object = object, index.st = index.st)
   )
   if (missing(method)) {
-    cls <- grep(pattern = "^Clustering\\.", x = colnames(st.clusternig), value = TRUE)[1]
+    cls <- grep(
+      pattern = "^Clustering\\.", x = colnames(st.clusternig), value = TRUE
+    )[1]
     message(paste0("=== Plotting first clustering configuration ", cls, "\n"))
   } else if (method == "graph") {
     if (missing(k.nn)) {
       cls <- grep(
-        pattern = "^Clustering\\.graph\\.", x = colnames(st.clusternig), value = TRUE
+        pattern = "^Clustering\\.graph\\.", 
+        x = colnames(st.clusternig), value = TRUE
       )[1]
-      message(paste0("=== Plotting first graph clustering configuration ", cls, "\n"))
+      message(
+        paste0("=== Plotting first graph clustering configuration ", cls, "\n")
+      )
     } else {
       cls <- paste0("Clustering.graph.k.", k.nn)
     }
   } else if (method == "k.means") {
     if (missing(k.centers)) {
       cls <- grep(
-        pattern = "^Clustering\\.k.means\\.", x = colnames(st.clusternig), value = TRUE
+        pattern = "^Clustering\\.k.means\\.", x = colnames(st.clusternig), 
+        value = TRUE
       )[1]
-      message(paste0("=== Plotting first k-means clustering configuration ", cls, "\n"))
+      message(
+        paste0("=== Plotting first k-means clustering configuration ", cls, "\n")
+      )
     } else {
       cls <- paste0("Clustering.k.means.k.", k.centers)
     }
@@ -452,7 +459,6 @@ plotSpatialClustering <- function(
   return(plot)
 }
 
-
 ################################################################################
 ################################ Plot distances ################################
 ################################################################################
@@ -460,12 +466,13 @@ plotSpatialClustering <- function(
 #' Plot distances between intrinsic and extrinsic profiles
 #'
 #' Color spots on the spatial coordinates according to distances between 
-#' intrinsic and extrinsic profiles. 
+#' intrinsic and extrinsic transcriptional profiles. 
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list was provided.
-#' @param mid.scale Cell type predicted proportions to color spots by.
+#' @param mid.scale The midpoint of the diverging scale. it may be \code{'mean'}
+#'   or \code{'median'} (the former by default).
 #' @param size.point Size of points (0.1 by default).
 #' @param title Title of plot.
 #' @param theme \pkg{ggplot2} theme.
@@ -500,7 +507,6 @@ plotDistances <- function(
     index.st <- 1
   } else {
     if (is.character(index.st) & !is.null(names(spatial.experiments(object)))) {
-      ## check if all index.st are present in the slot
       stopifnot(
         "`index.st` contains elements not present in spatial.experiments slot " = index.st %in%
           names(spatial.experiments(object))
@@ -523,7 +529,7 @@ plotDistances <- function(
   } else if (mid.scale == "median") {
     midpoint <- median(dfPlot[["Distances"]])
   } else {
-    warning("Usin mean as mean distances as mid point")
+    # warning("Using mean as mean distances as mid point")
     midpoint <- mean(dfPlot[["Distances"]])
   }
   plot <- ggplot(

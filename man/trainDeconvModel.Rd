@@ -36,11 +36,11 @@ trainDeconvModel(
 and \code{mixed.profiles} slots (the last only if \code{on.the.fly =
   FALSE}).}
 
-\item{type.data.train}{Type of profiles used for training. It can be
+\item{type.data.train}{Type of profiles to be used for training. It can be
 \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 default).}
 
-\item{type.data.test}{Type of profiles used for evaluation. It can be
+\item{type.data.test}{Type of profiles to be used for evaluation. It can be
 \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 default).}
 
@@ -85,7 +85,7 @@ normalized.}
 \item{scaling}{How to scale data before training. It can be:
 \code{"standardize"} (values are centered around the mean with a unit
 standard deviation), \code{"rescale"} (values are shifted and rescaled so
-that they end up ranging between 0 and 1, by default) or \code{"none"} (no
+that they end up ranging between 0 and 1) or \code{"none"} (no
 scaling is performed). \code{"standardize"} by default.}
 
 \item{norm.batch.layers}{Whether to include batch normalization layers
@@ -103,8 +103,8 @@ by default).}
 
 \item{sc.downsampling}{It is only used if \code{type.data.train} is equal to
 \code{'both'} or \code{'single-cell'}. It allows to set a maximum number of
-single-cell profiles of a specific cell type used for training to avoid
-an unbalanced representation of cell types (\code{NULL} by default).}
+single-cell profiles of a specific cell type for training to avoid
+an unbalanced representation of classes (\code{NULL} by default).}
 
 \item{use.generator}{Boolean indicating whether to use generators during
 training and test. Generators are automatically used when \code{on.the.fly
@@ -114,8 +114,9 @@ demand (\code{FALSE} by default).}
 \item{on.the.fly}{Boolean indicating whether simulated data will be generated
 'on the fly' during training (\code{FALSE} by default).}
 
-\item{agg.function}{Function used to build mixed transcriptional profiles. It
-may be: \itemize{ \item \code{"AddRawCount"} (by default): single-cell
+\item{agg.function}{If \code{on.the.fly == TRUE}, function used to build
+mixed transcriptional profiles. It may be:
+\itemize{ \item \code{"AddRawCount"} (by default): single-cell
 profiles (raw counts) are added up across cells. Then, log-CPMs are
 calculated. \item \code{"MeanCPM"}: single-cell profiles (raw counts) are
 transformed into logCPM and cross-cell averages are calculated.
@@ -141,9 +142,11 @@ information about the structure of this class, see
 }
 \description{
 Train a deep neural network model using training data from the
-\code{\linkS4class{SpatialDDLS}} object. In addition, the trained model is
-evaluated using test data, and prediction results are obtained to determine
-its performance (see \code{?\link{calculateEvalMetrics}}).
+\code{\linkS4class{SpatialDDLS}} object. This model will be used to
+deconvolute spatial transcriptomics data from the same biological context as
+the single-cell RNA-seq data used to train it. In addition, the trained
+model is evaluated using test data, and prediction results are obtained to
+determine its performance (see \code{?\link{calculateEvalMetrics}}).
 }
 \details{
 \strong{Simulation of mixed transcriptional profiles 'on the fly'}

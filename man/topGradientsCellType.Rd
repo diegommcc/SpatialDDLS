@@ -8,24 +8,24 @@ topGradientsCellType(object, method = "class", top.n.genes = 15)
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with a
-\code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+\code{\linkS4class{DeconvDLModel}} object containing gradients in the
 \code{interpret.gradients} slot.}
 
-\item{method}{Method gradients were calculated by. It can be \code{'class'}
+\item{method}{Method gradients were calculated by. Either \code{'class'}
 (gradients of predicted classes w.r.t. inputs) or \code{'loss'} (gradients
-of loss w.r.t. inputs).}
+of loss w.r.t. input features).}
 
 \item{top.n.genes}{Top n genes (positive and negative) taken per cell type.}
 }
 \value{
-List containing gene names with the top positive and negative
-gradients per cell tupe.
+List of gene names with the top positive and negative
+gradients per cell type.
 }
 \description{
-Get feature names of top features with largest/smallest gradients per cell
-type. These genes can be used as input to visualize how they are spatially
-expressed (\code{plotGeneSpatial} function) or to plot gradients as a heatmap
-(\code{plotGradHeatmap} function).
+Retrieve feature names with the largest/smallest gradients per cell
+type. These genes can be used to visualize their spatial expression
+in the ST data (\code{plotGeneSpatial} function) or to plot the calculated
+gradients as a heatmap (\code{plotGradHeatmap} function).
 }
 \examples{
 \donttest{

@@ -2,8 +2,8 @@
 % Please edit documentation in R/interGradientsDL.R
 \name{interGradientsDL}
 \alias{interGradientsDL}
-\title{Calculate gradients of features with respect to predicted cell types/loss for
-interpreting trained deconvolution models}
+\title{Calculate gradients of predicted cell types/loss function with respect to
+input features for interpreting trained deconvolution models}
 \usage{
 interGradientsDL(
   object,
@@ -14,7 +14,7 @@ interGradientsDL(
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object with a trained
+\item{object}{\code{\linkS4class{SpatialDDLS}} object containing a trained
 deconvolution model (\code{trained.model} slot) and pure mixed
 transcriptional profiles (\code{mixed.profiles} slot).}
 
@@ -44,19 +44,21 @@ Object containing gradients in the \code{interpret.gradients} slot of
 the \code{DeconvDLModel} object (\code{trained.model} slot).
 }
 \description{
-This function allows the user to get insights on the interpretability of the
-deconvolution model. It calculates the gradients of features with respect to
-predicted classes / loss function. This numeric values are calculated per
-gene and cell type and can be interpreted as to what extent each feature is
-used by the model to predict the cell proportions of each cell type.
+This function enables users to gain insights into the interpretability of the
+deconvolution model. It calculates the gradients of classes/loss function
+with respect to the input features used in training. These numeric values are
+calculated per gene and cell type in pure mixed transcriptional profiles,
+providing information on the extent to which each feature influences the
+model's prediction of cell proportions for each cell type.
 }
 \details{
-Gradients of features with respect to classes / loss funciton are calculated
-only with pure mixed transcriptional profiles composed of only one cell type.
-For this reason, these numbers can be interpreted as the extent of
-each feature to predict each cell type proportion. In particular, gradients
-are calculated at the sample level for each gene, but only mean gradients
-by cell type are reported. For more information, see Mañanes et al., 2023.
+Gradients of classes / loss function with respect to the input features are
+calculated exclusively using pure mixed transcriptional profiles composed of
+a single cell type. Consequently, these numbers can be interpreted as the
+extent to which each feature is being used to predict each cell type
+proportion. Gradients are calculated at the sample level for each gene, but
+only mean gradients by cell type are reported. For additional details, see
+Mañanes et al., 2023.
 }
 \examples{
 \donttest{
@@ -101,5 +103,5 @@ SDDLS <- interGradientsDL(SDDLS)
   
 }
 \seealso{
-\code{\link{plotTrainingHistory}} \code{\link{deconvSpatialDDLS}}
+\code{\link{deconvSpatialDDLS}} \code{\link{plotTrainingHistory}}
 }

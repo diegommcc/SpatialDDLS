@@ -8,7 +8,7 @@ NULL
 setOldClass(Classes = 'package_version')
 # TODO: error with setOldClass, check what is going on
 setClass("keras_training_history") 
-setOldClass(Classes = "keras.engine.sequential.Sequential")
+setClass("keras.engine.sequential.Sequential")
 
 setClassUnion(name = "MatrixOrNULL", members = c("matrix", "NULL"))
 setClassUnion(name = "ListOrNULL", members = c("list", "NULL"))

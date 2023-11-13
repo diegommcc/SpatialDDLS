@@ -1,29 +1,29 @@
 #' @importFrom tensorflow %as%
 NULL
 
-#### CHECK THE TEXT, I THINK ITS WRONG
-
 ################################################################################
 ############### Calculation of gradients for NN interpretation #################
 ################################################################################
 
-#' Calculate gradients of features with respect to predicted cell types/loss for 
-#' interpreting trained deconvolution models
+#' Calculate gradients of predicted cell types/loss function with respect to 
+#' input features for interpreting trained deconvolution models
 #'
-#' This function allows the user to get insights on the interpretability of the
-#' deconvolution model. It calculates the gradients of features with respect to 
-#' predicted classes / loss function. This numeric values are calculated per 
-#' gene and cell type and can be interpreted as to what extent each feature is 
-#' used by the model to predict the cell proportions of each cell type. 
+#' This function enables users to gain insights into the interpretability of the
+#' deconvolution model. It calculates the gradients of classes/loss function 
+#' with respect to the input features used in training. These numeric values are 
+#' calculated per gene and cell type in pure mixed transcriptional profiles, 
+#' providing information on the extent to which each feature influences the 
+#' model's prediction of cell proportions for each cell type.
 #' 
-#' Gradients of features with respect to classes / loss funciton are calculated 
-#' only with pure mixed transcriptional profiles composed of only one cell type. 
-#' For this reason, these numbers can be interpreted as the extent of 
-#' each feature to predict each cell type proportion. In particular, gradients 
-#' are calculated at the sample level for each gene, but only mean gradients 
-#' by cell type are reported. For more information, see Mañanes et al., 2023. 
+#' Gradients of classes / loss function with respect to the input features are 
+#' calculated exclusively using pure mixed transcriptional profiles composed of 
+#' a single cell type. Consequently, these numbers can be interpreted as the 
+#' extent to which each feature is being used to predict each cell type 
+#' proportion. Gradients are calculated at the sample level for each gene, but 
+#' only mean gradients by cell type are reported. For additional details, see 
+#' Mañanes et al., 2023. 
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object with a trained 
+#' @param object \code{\linkS4class{SpatialDDLS}} object containing a trained 
 #'    deconvolution model (\code{trained.model} slot) and pure mixed 
 #'    transcriptional profiles (\code{mixed.profiles} slot).
 #' @param method Method to calculate gradients with respect to inputs. It can be
@@ -49,7 +49,7 @@ NULL
 #'
 #' @export
 #'
-#' @seealso \code{\link{plotTrainingHistory}} \code{\link{deconvSpatialDDLS}}
+#' @seealso \code{\link{deconvSpatialDDLS}} \code{\link{plotTrainingHistory}}
 #'
 #' @examples
 #' \donttest{
@@ -104,7 +104,7 @@ interGradientsDL <- function(
   } else if (is.null(trained.model(object))) {
     stop("The provided object does not have a trained model for evaluation")
   } else if (is.null(prob.cell.types(object)) ||
-             !c("train", "test") %in% names(prob.cell.types(object))) {
+             !any(c("train", "test") %in% names(prob.cell.types(object)))) {
     stop("The provided object does not contain actual cell proportions in ", 
          "'prob.cell.types' slot for test data")
   }
@@ -134,7 +134,6 @@ interGradientsDL <- function(
       )
     )
   }
-  
   
   ## checking if all data are provided
   if (is.null(mixed.profiles(object, type.data = "train")) | 
@@ -209,33 +208,31 @@ interGradientsDL <- function(
   return(object)
 }
 
-## core function: this function is intended to receive the data and metadata 
-## of samples used to calculate gradients wrt class. previous functions
-## will provide with the correct samples
 .calcGradientsClass <- function(x.data, y.metadata, model) { 
   ## info
+  # tensorflow::tf$executing_eagerly()
   n.samples <- nrow(x.data)
   samples.name <- rownames(x.data)
   features <- colnames(x.data)
   cell.types <- colnames(y.metadata)
-  ## from matrix to tensorflow
+  ## from matrix to tensor
   y.metadata <- y.metadata / 100
-  x.data <- tensorflow::tf$Variable(x.data)  # Convert all samples at once
+  x.data <- tensorflow::tf$Variable(x.data)  # convert all samples at once
   y.metadata.tf <- tensorflow::tf$Variable(as.matrix(y.metadata))
-  # Define the gradient tape
-  list.gradients <- list()
+  # define the gradient tape
+  list.gradients.var <- list()
   with(tensorflow::tf$GradientTape(persistent = TRUE) %as% tape, {
     # Forward pass through the model for all samples
     y.metadata.pred <- model(x.data)
     for (i in seq_along(cell.types)) {
-      list.gradients[[cell.types[i]]] <- tape$gradient(
+      list.gradients.var[[cell.types[i]]] <- tape$gradient(
         y.metadata.pred[, i], x.data
       )
     }
   })
   gradients.matrix <- lapply(
-    names(list.gradients), \(i) {
-      gradients <- list.gradients[[i]]  %>% as.matrix()
+    names(list.gradients.var), \(i) {
+      gradients <- as.matrix(as_tensor(list.gradients.var[[i]]))
       rownames(gradients) <- samples.name
       colnames(gradients) <- features
       return(gradients[y.metadata[, i] == 1, , drop = FALSE])
@@ -269,7 +266,7 @@ interGradientsDL <- function(
   colnames(gradients.matrix) <- features
   rownames(gradients.matrix) <- samples.name
   
-  return(gradients.matrix)
+  return(gradients.matrix[rownames(y.metadata), , drop = FALSE])
 }
 
 
@@ -279,21 +276,21 @@ interGradientsDL <- function(
 
 #' Get top genes with largest/smallest gradients per cell type
 #'
-#' Get feature names of top features with largest/smallest gradients per cell 
-#' type. These genes can be used as input to visualize how they are spatially 
-#' expressed (\code{plotGeneSpatial} function) or to plot gradients as a heatmap 
-#' (\code{plotGradHeatmap} function).
+#' Retrieve feature names with the largest/smallest gradients per cell 
+#' type. These genes can be used to visualize their spatial expression 
+#' in the ST data (\code{plotGeneSpatial} function) or to plot the calculated 
+#' gradients as a heatmap (\code{plotGradHeatmap} function).
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a 
-#'   \code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+#'   \code{\linkS4class{DeconvDLModel}} object containing gradients in the
 #'   \code{interpret.gradients} slot.
-#' @param method Method gradients were calculated by. It can be \code{'class'}
+#' @param method Method gradients were calculated by. Either \code{'class'}
 #'  (gradients of predicted classes w.r.t. inputs) or \code{'loss'} (gradients 
-#'  of loss w.r.t. inputs).
+#'  of loss w.r.t. input features).
 #' @param top.n.genes Top n genes (positive and negative) taken per cell type. 
 #'
-#' @return List containing gene names with the top positive and negative 
-#'   gradients per cell tupe.
+#' @return List of gene names with the top positive and negative 
+#'   gradients per cell type.
 #'
 #' @export
 #'
@@ -402,19 +399,22 @@ top.gradients <- function(grad, metadata, n) {
 ############################ Heatmap of gradients ##############################
 ################################################################################
 
-#' Plot a heatmap of gradients
+#' Plot a heatmap of gradients of classes / loss function wtih respect to the 
+#' input
 #'
-#' Plot a heatmap showing the top positive and negative gradients per cell type. 
+#' Plot a heatmap showing the top positive and negative average gradients per 
+#' cell type. 
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a 
 #'   \code{\linkS4class{DeconvDLModel}} object containing gradinets in the
 #'   \code{interpret.gradients} slot.
-#' @param method Method to calculate gradients with respect to inputs. It can be
-#'    \code{'class'} (gradients of predicted classes w.r.t. inputs) or
-#'    \code{'loss'} (gradients of loss w.r.t. inputs) (\code{'class'} by 
+#' @param method Method to calculate gradients with respect to input fetures. 
+#'    It can be
+#'    \code{'class'} (gradients of predicted classes w.r.t. input features) or
+#'    \code{'loss'} (gradients of loss w.r.t. input features) (\code{'class'} by 
 #'    default).
 #' @param top.n.genes Top n genes (positive and negative) taken per cell type. 
-#' @param scale.gradients Wheter to calculate feature-wise z-scores of gradients 
+#' @param scale.gradients Whether to calculate feature-wise z-scores of gradients 
 #'   (\code{TRUE} by default).
 #'
 #' @return A list of \code{\linkS4class{Heatmap-class}} objects, one for top
@@ -463,15 +463,15 @@ top.gradients <- function(grad, metadata, n) {
 #' )
 #' ## calculating gradients
 #' SDDLS <- interGradientsDL(SDDLS)
-#' plotHeatmapGrads(SDDLS, top.n.genes = 2)
+#' plotHeatmapGradsAgg(SDDLS, top.n.genes = 2)
 #' }
 #'   
-plotHeatmapGrads <- function(
+plotHeatmapGradsAgg <- function(
     object, 
     method = "class", 
     top.n.genes = 15,
     scale.gradients = TRUE
-  ) {
+) {
   if (!requireNamespace("ComplexHeatmap", quietly = TRUE) || 
       !requireNamespace("grid", quietly = TRUE)) {
     stop("ComplexHeatmap or grid R packages are required but not available")
@@ -486,15 +486,9 @@ plotHeatmapGrads <- function(
     as.matrix(mixed.profiles(object, type.data = "train")@colData),
     as.matrix(mixed.profiles(object, type.data = "test")@colData)
   )
-  metadata.prop <- metadata.prop[apply(X = metadata.prop == 100, MARGIN = 1, FUN = any), ]
-  grads <- trained.model(object)@interpret.gradients[[method]]
-  
-  if (method == "class" | method == "loss") {
-    top.genes <- topGradientsCellType(object, method = method, top.n.genes = top.n.genes)
-    list.genes <- .sel.genes.sign(top.genes)
-  } else {
-    stop("method parameter has to be one of the following options: 'both', 'class' or 'loss'")
-  }
+  metadata.prop <- metadata.prop[apply(
+    X = metadata.prop == 100, MARGIN = 1, FUN = any
+  ), ]
   color.cell.types <- list(
     CellType = default.colors()[seq(ncol(metadata.prop))] %>% 
       setNames(colnames(metadata.prop))
@@ -506,10 +500,23 @@ plotHeatmapGrads <- function(
         setNames(rownames(metadata.prop)[pos])
     }
   ) 
+  grads <- trained.model(object)@interpret.gradients[[method]]
+  grads.agg <- aggregate(x = grads, by = list(named.vec), FUN = mean)
+  rownames(grads.agg) <- grads.agg[["Group.1"]]
+  grads.agg[["Group.1"]] <- NULL
+  if (method == "class" | method == "loss") {
+    top.genes <- topGradientsCellType(
+      object, method = method, top.n.genes = top.n.genes
+    )
+    list.genes <- .sel.genes.sign(top.genes)
+  } else {
+    stop("method parameter has to be one of the following options: 'both', 'class' or 'loss'")
+  }
+  
   metadata.short <- data.frame(
-    row.names = names(named.vec),
-    CellType = named.vec
-  )[rownames(grads), , drop = FALSE]
+    row.names = rownames(grads.agg),
+    CellType = rownames(grads.agg)
+  )
   ha <- ComplexHeatmap::HeatmapAnnotation(
     df = metadata.short,
     col = color.cell.types,
@@ -518,12 +525,12 @@ plotHeatmapGrads <- function(
   list.heatmaps <- list()
   for (i in c("Positive", "Negative")) {
     if (scale.gradients) {
-      grads.f <- t(scale(grads[, list.genes[[i]]]))
+      grads.agg.f <- t(scale(grads.agg[, list.genes[[i]]]))
     } else {
-      grads.f <- t(grads[, list.genes[[i]]])
+      grads.agg.f <- t(grads.agg[, list.genes[[i]]])
     }
     list.heatmaps[[i]] <- ComplexHeatmap::Heatmap(
-      grads.f, 
+      grads.agg.f, 
       # col = greens,
       column_title = paste(i, "gradients (top", top.n.genes, "per cell type)"),
       top_annotation = ha, 
@@ -538,6 +545,8 @@ plotHeatmapGrads <- function(
   return(list.heatmaps)
 }
 
+
+
 .sel.genes.sign <- function(top.genes) {
   lapply(
     X = c("Positive", "Negative"), 
@@ -550,3 +559,77 @@ plotHeatmapGrads <- function(
   ) %>% setNames(c("Positive", "Negative"))
 }
 
+# plotHeatmapGrads <- function(
+#     object, 
+#     method = "class", 
+#     top.n.genes = 15,
+#     scale.gradients = TRUE
+#   ) {
+#   if (!requireNamespace("ComplexHeatmap", quietly = TRUE) || 
+#       !requireNamespace("grid", quietly = TRUE)) {
+#     stop("ComplexHeatmap or grid R packages are required but not available")
+#   }
+#   if (!is(object, "SpatialDDLS")) {
+#     stop("The provided object is not of SpatialDDLS class")
+#   } else if (is.null(trained.model(object))) {
+#     stop("The provided object does not have a trained model for evaluation")
+#   }
+#   ## get metadata
+#   metadata.prop <- rbind(
+#     as.matrix(mixed.profiles(object, type.data = "train")@colData),
+#     as.matrix(mixed.profiles(object, type.data = "test")@colData)
+#   )
+#   metadata.prop <- metadata.prop[apply(
+#     X = metadata.prop == 100, MARGIN = 1, FUN = any
+#   ), ]
+#   grads <- trained.model(object)@interpret.gradients[[method]]
+#   if (method == "class" | method == "loss") {
+#     top.genes <- topGradientsCellType(
+#       object, method = method, top.n.genes = top.n.genes
+#     )
+#     list.genes <- .sel.genes.sign(top.genes)
+#   } else {
+#     stop("method parameter has to be one of the following options: 'both', 'class' or 'loss'")
+#   }
+#   color.cell.types <- list(
+#     CellType = default.colors()[seq(ncol(metadata.prop))] %>% 
+#       setNames(colnames(metadata.prop))
+#   )
+#   named.vec <- sapply(
+#     X = seq(nrow(metadata.prop)),
+#     FUN = \(pos) {
+#       colnames(metadata.prop)[which(metadata.prop[pos, ] == 100)] %>% 
+#         setNames(rownames(metadata.prop)[pos])
+#     }
+#   ) 
+#   metadata.short <- data.frame(
+#     row.names = names(named.vec),
+#     CellType = named.vec
+#   )[rownames(grads), , drop = FALSE]
+#   ha <- ComplexHeatmap::HeatmapAnnotation(
+#     df = metadata.short,
+#     col = color.cell.types,
+#     annotation_name_gp = grid::gpar(fontsize = 10)
+#   )
+#   list.heatmaps <- list()
+#   for (i in c("Positive", "Negative")) {
+#     if (scale.gradients) {
+#       grads.f <- t(scale(grads[, list.genes[[i]]]))
+#     } else {
+#       grads.f <- t(grads[, list.genes[[i]]])
+#     }
+#     list.heatmaps[[i]] <- ComplexHeatmap::Heatmap(
+#       grads.f, 
+#       # col = greens,
+#       column_title = paste(i, "gradients (top", top.n.genes, "per cell type)"),
+#       top_annotation = ha, 
+#       border = "black", 
+#       row_names_gp = grid::gpar(fontsize = 8),
+#       name = "Score",
+#       column_title_gp = grid::gpar(fontface = "bold"),
+#       show_column_names = FALSE
+#     )
+#   }
+#   
+#   return(list.heatmaps)
+# }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotSpatialCoor.R
 \name{plotSpatialClustering}
 \alias{plotSpatialClustering}
-\title{Plot spatial clustering based on predicted cell proportions}
+\title{Plot results of clustering based on predicted cell proportions}
 \usage{
 plotSpatialClustering(
   object,
@@ -24,9 +24,9 @@ plotSpatialClustering(
 can be either a position or a name if a named list of
 \code{\linkS4class{SpatialExperiment}} objects was provided.}
 
-\item{method}{CLustering method results to plot. It can be \code{"graph"} or
+\item{method}{Clustering method results to plot. It can be \code{"graph"} or
 \code{"k.means"}. If missing, the first configuration found in the object
-fill be plotted.}
+will be plotted.}
 
 \item{k.nn}{Number of nearest neighbors used if \code{ method == "graph"}.}
 
@@ -44,8 +44,8 @@ fill be plotted.}
 A ggplot object.
 }
 \description{
-Color spots on the spatial coordinates according to clustering based on
-predicted proportions.
+Color spots on the spatial coordinates according to the results of
+clustering based on predicted proportions.
 }
 \seealso{
 \code{\link{spatialPropClustering}} \code{\link{deconvSpatialDDLS}}

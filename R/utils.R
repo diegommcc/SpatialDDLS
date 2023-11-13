@@ -660,7 +660,7 @@ installTFpython <- function(
   message("\n=== Installing tensorflow in SpatialDDLS-env environment")
   status3 <- tryCatch(
     tensorflow::install_tensorflow(
-      version = "2.5-cpu", 
+      version = "2.6-cpu", 
       method = "conda", 
       conda = dirConda, 
       envname = "SpatialDDLS-env"

@@ -20,7 +20,8 @@ plotDistances(
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
 can be either a position or a name if a named list was provided.}
 
-\item{mid.scale}{Cell type predicted proportions to color spots by.}
+\item{mid.scale}{The midpoint of the diverging scale. it may be \code{'mean'}
+or \code{'median'} (the former by default).}
 
 \item{size.point}{Size of points (0.1 by default).}
 
@@ -33,7 +34,7 @@ A ggplot object.
 }
 \description{
 Color spots on the spatial coordinates according to distances between
-intrinsic and extrinsic profiles.
+intrinsic and extrinsic transcriptional profiles.
 }
 \seealso{
 \code{\link{deconvSpatialDDLS}} \code{\link{trainDeconvModel}}
