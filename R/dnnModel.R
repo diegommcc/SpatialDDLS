@@ -44,7 +44,7 @@ NULL
 #'   \code{'both'}, \code{'single-cell'} or \code{'mixed'} (\code{'mixed'} by
 #'   default).
 #' @param batch.size Number of samples per gradient update (64 by default).
-#' @param num.epochs Number of epochs to train the model (10 by default).
+#' @param num.epochs Number of epochs to train the model (60 by default).
 #' @param num.hidden.layers Number of hidden layers of the neural network (2 by
 #'   default). This number must be equal to the length of \code{num.units}
 #'   argument.
@@ -167,7 +167,7 @@ trainDeconvModel <- function(
   type.data.train = "mixed",
   type.data.test = "mixed",
   batch.size = 64,
-  num.epochs = 10,
+  num.epochs = 60,
   num.hidden.layers = 2,
   num.units = c(200, 200),
   activation.fun = "relu",
@@ -1274,7 +1274,7 @@ deconvSpatialDDLS <- function(
   object,
   index.st,
   normalize = TRUE,
-  scaling = "rescale",
+  scaling = "standardize",
   k.spots = 4, 
   pca.space = TRUE,
   pca.var = 0.8,

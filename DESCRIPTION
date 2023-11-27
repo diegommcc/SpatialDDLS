@@ -38,7 +38,9 @@ Imports:
     ggplot2,
     ggpubr,
     RColorBrewer,
-    grDevices
+    grDevices,
+    scran,
+    scuttle
 Suggests:
     knitr,
     rmarkdown,

@@ -12,9 +12,10 @@ createSpatialDDLSobject(
   st.data,
   st.spot.ID.column,
   st.gene.ID.column,
-  sc.filt.genes.cluster = FALSE,
+  sc.filt.genes.cluster = TRUE,
   sc.min.mean.counts = 0,
-  sc.filt.genes.cells = TRUE,
+  sc.n.genes.per.cluster = 300,
+  top.n.genes = 2000,
   sc.min.counts = 0,
   sc.min.cells = 0,
   st.min.counts = 0,
@@ -62,16 +63,16 @@ data).}
 corresponding to the names used for features/genes (spatial transcriptomics
 data).}
 
-\item{sc.filt.genes.cluster}{Whether to filter single-cell RNA-seq genes
-according to a minimum threshold of non-zero average counts per cell type
-\code{sc.min.mean.counts}.}
-
 \item{sc.min.mean.counts}{Minimum non-zero average counts per cluster to
 filter genes.}
 
-\item{sc.filt.genes.cells}{Whether to filter genes from the single-cell
-RNA-seq data according to a minimum number of counts \code{sc.min.counts}
-in a minimum number of cells \code{sc.min.cells}.}
+\item{sc.n.genes.per.cluster}{Top n genes with the highest logFC per cluster.
+300 by default. See Details section for more details.}
+
+\item{top.n.genes}{Maximum number of genes used for downstream steps. 2000
+by default. In case the number of genes after filtering based on cutoffs
+if greater than \code{top.n.genes}, these genes will be set according to
+variability across the whole single-cell dataset.}
 
 \item{sc.min.counts}{Minimum gene counts to filter (0 by default; single-cell
 RNA-seq data).}

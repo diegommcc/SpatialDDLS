@@ -1,5 +1,6 @@
 #' @importFrom utils read.delim 
 #' @importFrom stats setNames
+#' @importFrom dplyr desc arrange
 NULL
 
 .readTabFiles <- function(file) {
@@ -309,6 +310,9 @@ NULL
                     "column from genes metadata will be used")) 
     } 
   }
+  ######### it is here where I can modify the behaviour of the function. Previous 
+  ### steps are kind of needed
+  
   # filter genes by min.counts and min.cells -----------------------------------
   if (!block.processing) {
     filtered.genes <- .filterGenesSparse(
@@ -389,49 +393,49 @@ NULL
 }
 
 # TODO: control what numbers can be used for min.mean.counts
-.filterGenesByCluster <- function(
-  counts, 
-  genes.metadata, 
-  cells.metadata, 
-  cell.type.column, 
-  min.mean.counts
-) {
-  ## mean counts per cluster: with big matrices, this will be problematic
-  # mean.cluster <- aggregate(
-  #   x = t(as.matrix(counts)), 
-  #   by = list(cells.metadata[[cell.type.column]]), 
-  #   FUN = mean
-  # )
-  # rownames(mean.cluster) <- mean.cluster[, 1]
-  # mean.cluster[, 1] <- NULL
-  ## this part has been changed using the same implementation as Matrix.utils
-  mean.cluster <- round(
-    x = .aggregate.Matrix.sparse(
-      x = Matrix::t(counts), 
-      groupings = list(cells.metadata[[cell.type.column]]), 
-      fun = "mean"
-    ), digits = 2
-  ) 
-  ## why this round here??
-  ## using cutoffs
-  sel.genes <- unlist(
-    apply(
-      X = mean.cluster >= min.mean.counts, 
-      MARGIN = 2, 
-      FUN = function(x) if(any(x)) return(TRUE)
-    )
-  )
-  if (!any(sel.genes)) {
-    return(list(counts, genes.metadata))
-  } else {
-    return(
-      list(
-        counts[names(sel.genes), ], 
-        genes.metadata[names(sel.genes), , drop = FALSE]
-      )
-    )
-  }
-}
+# .filterGenesByCluster <- function(
+#   counts, 
+#   genes.metadata, 
+#   cells.metadata, 
+#   cell.type.column, 
+#   min.mean.counts
+# ) {
+#   ## mean counts per cluster: with big matrices, this will be problematic
+#   # mean.cluster <- aggregate(
+#   #   x = t(as.matrix(counts)), 
+#   #   by = list(cells.metadata[[cell.type.column]]), 
+#   #   FUN = mean
+#   # )
+#   # rownames(mean.cluster) <- mean.cluster[, 1]
+#   # mean.cluster[, 1] <- NULL
+#   ## this part has been changed using the same implementation as Matrix.utils
+#   mean.cluster <- round(
+#     x = .aggregate.Matrix.sparse(
+#       x = Matrix::t(counts), 
+#       groupings = list(cells.metadata[[cell.type.column]]), 
+#       fun = "mean"
+#     ), digits = 2
+#   ) 
+#   ## why this round here??
+#   ## using cutoffs
+#   sel.genes <- unlist(
+#     apply(
+#       X = mean.cluster >= min.mean.counts, 
+#       MARGIN = 2, 
+#       FUN = function(x) if(any(x)) return(TRUE)
+#     )
+#   )
+#   if (!any(sel.genes)) {
+#     return(list(counts, genes.metadata))
+#   } else {
+#     return(
+#       list(
+#         counts[names(sel.genes), ], 
+#         genes.metadata[names(sel.genes), , drop = FALSE]
+#       )
+#     )
+#   }
+# }
 
 .filterGenesSparse <- function(
   counts,
@@ -482,17 +486,17 @@ NULL
     counts <- list.data[[1]]
     genes.metadata <- list.data[[2]]
   }
-  if (filt.genes.cluster) {
-    list.data <- .filterGenesByCluster(
-      counts = counts, 
-      genes.metadata = genes.metadata, 
-      cells.metadata = cells.metadata, 
-      cell.type.column = cell.type.column, 
-      min.mean.counts = min.mean.counts
-    )
-    counts <- list.data[[1]]
-    genes.metadata <- list.data[[2]]
-  }
+  # if (filt.genes.cluster) {
+  #   list.data <- .filterGenesByCluster(
+  #     counts = counts, 
+  #     genes.metadata = genes.metadata, 
+  #     cells.metadata = cells.metadata, 
+  #     cell.type.column = cell.type.column, 
+  #     min.mean.counts = min.mean.counts
+  #   )
+  #   counts <- list.data[[1]]
+  #   genes.metadata <- list.data[[2]]
+  # }
   if (dim(counts)[1] == 0) {
     stop(paste("Resulting count matrix after filtering does not have entries"))
   }
@@ -570,26 +574,26 @@ NULL
     }
   }
   # filter genes by cluster
-  if (filt.genes.cluster) {
-    sum.cluster <- DelayedArray::rowsum(
-      x = DelayedArray::t(counts), group = factor(cells.metadata[[cell.type.column]])
-    )
-    n.cluster <- data.frame(table(cells.metadata[[cell.type.column]]))
-    mean.cluster <- sum.cluster[n.cluster$Var1,] / n.cluster$Freq
-    
-    ## using cutoffs
-    sel.genes <- unlist(
-      apply(
-        X = mean.cluster >= min.mean.counts, 
-        MARGIN = 2, 
-        FUN = function(x) if(any(x)) return(TRUE)
-      )
-    )  
-    if (any(sel.genes)) {
-      counts <- counts[names(sel.genes), ]
-      genes.metadata <- genes.metadata[names(sel.genes), ]
-    }
-  }
+  # if (filt.genes.cluster) {
+  #   sum.cluster <- DelayedArray::rowsum(
+  #     x = DelayedArray::t(counts), group = factor(cells.metadata[[cell.type.column]])
+  #   )
+  #   n.cluster <- data.frame(table(cells.metadata[[cell.type.column]]))
+  #   mean.cluster <- sum.cluster[n.cluster$Var1,] / n.cluster$Freq
+  #   
+  #   ## using cutoffs
+  #   sel.genes <- unlist(
+  #     apply(
+  #       X = mean.cluster >= min.mean.counts, 
+  #       MARGIN = 2, 
+  #       FUN = function(x) if(any(x)) return(TRUE)
+  #     )
+  #   )  
+  #   if (any(sel.genes)) {
+  #     counts <- counts[names(sel.genes), ]
+  #     genes.metadata <- genes.metadata[names(sel.genes), ]
+  #   }
+  # }
   final.features <- nrow(counts)
   if (verbose) {
     message("\n    - Filtering features:")
@@ -861,7 +865,7 @@ NULL
       list(list.st.objects[[1]][[1]]) %>% setNames(names.st.objs)
     )
   ## if n.slides == 1 but length(list.st.objects) != 1: no subset, but lapply
-  # tyo make it a list of n elements
+  # to make it a list of n elements
   } else if (n.slides == 1) {
     return(
       lapply(X = list.st.objects, FUN = function(x) x[[1]]) %>% 
@@ -991,6 +995,73 @@ NULL
   )
 }
 
+.filterGenesByCluster <- function(
+  sce.obj,
+  cell.type.column, 
+  min.mean.counts,
+  n.genes.per.cluster,
+  top.n.genes,
+  verbose
+) {
+  
+  if (is.null(names(sce.obj@assays@data))) 
+    names(sce.obj@assays@data) <- "counts"
+  
+  mean.cluster.counts <- .aggregate.Matrix.sparse(
+    x = Matrix::t(sce.obj@assays@data$counts), 
+    groupings = list(sce.obj[[cell.type.column]]), 
+    fun = "mean"
+  )
+  sel.genes <- unlist(
+    apply(
+      X = mean.cluster.counts > min.mean.counts, 
+      MARGIN = 2, 
+      FUN = function(x) if(any(x)) return(TRUE)
+    )
+  )
+  sce.obj.norm <- scuttle::computeLibraryFactors(sce.obj[names(sel.genes), ])
+  sce.obj.norm <- scuttle::logNormCounts(sce.obj.norm)
+  ## mean values
+  mean.cluster.log <- .aggregate.Matrix.sparse(
+    x = Matrix::t(sce.obj.norm@assays@data$logcounts), 
+    groupings = list(sce.obj.norm@colData[[cell.type.column]]), 
+    fun = "mean"
+  )
+  means.all <- colMeans(as.matrix(mean.cluster.log))
+  logFCs.cluster <- apply(mean.cluster.log, 1, \(x) x - means.all)
+  list.cluster.FC <- lapply(
+    as.list(as.data.frame(logFCs.cluster)), 
+    \(x) x %>% setNames(rownames(logFCs.cluster))
+  )
+  ranked.logFC.top <- lapply(
+    list.cluster.FC, 
+    \(x) {
+      x.f <- x[x > 0.5] ## only if logFC > 0.5
+      x.f[order(x.f, decreasing = T)] %>% head(n.genes.per.cluster) %>% names()
+    }
+  ) %>% unlist() %>% unique()
+  final.genes <- intersect(ranked.logFC.top, names(sel.genes))
+  
+  if (verbose) 
+    message(
+      "\n=== Number of genes after filtering based on logFC: ", length(final.genes)
+    )
+  
+  if (length(final.genes) > top.n.genes) {
+    if (verbose) 
+      message(
+        "\n=== As the number of resulting genes is greater than ",
+        "the top.n.genes parameter. Using only ", 
+        top.n.genes, " according to gene variance"
+      )
+    dec.sc.obj.ln <- scran::modelGeneVar(sce.obj.norm[final.genes, ])
+    final.genes <- as.data.frame(dec.sc.obj.ln) %>% arrange(desc(abs(bio))) %>% 
+      head(top.n.genes) %>% rownames()
+  }
+  
+  return(final.genes)
+}
+
 ################################################################################
 ######################### Create a SpatialDDLS object ##########################
 ################################################################################
@@ -1052,14 +1123,15 @@ NULL
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes (spatial transcriptomics
 #'   data).
-#' @param sc.filt.genes.cluster Whether to filter single-cell RNA-seq genes
-#'   according to a minimum threshold of non-zero average counts per cell type
-#'   \code{sc.min.mean.counts}.
+#' @param sc.filt.genes.cluster
 #' @param sc.min.mean.counts Minimum non-zero average counts per cluster to
 #'   filter genes.
-#' @param sc.filt.genes.cells Whether to filter genes from the single-cell
-#'   RNA-seq data according to a minimum number of counts \code{sc.min.counts}
-#'   in a minimum number of cells \code{sc.min.cells}.
+#' @param sc.n.genes.per.cluster Top n genes with the highest logFC per cluster. 
+#'   300 by default. See Details section for more details. 
+#' @param top.n.genes Maximum number of genes used for downstream steps. 2000 
+#'   by default. In case the number of genes after filtering based on cutoffs 
+#'   if greater than \code{top.n.genes}, these genes will be set according to 
+#'   variability across the whole single-cell dataset. 
 #' @param sc.min.counts Minimum gene counts to filter (0 by default; single-cell
 #'   RNA-seq data).
 #' @param sc.min.cells Minimum of cells with more than \code{min.counts} (0 by
@@ -1171,9 +1243,10 @@ createSpatialDDLSobject <- function(
     st.data,
     st.spot.ID.column,
     st.gene.ID.column,
-    sc.filt.genes.cluster = FALSE,
+    sc.filt.genes.cluster = TRUE,
     sc.min.mean.counts = 0, 
-    sc.filt.genes.cells = TRUE,
+    sc.n.genes.per.cluster = 300,
+    top.n.genes = 2000,
     sc.min.counts = 0,
     sc.min.cells = 0,
     st.min.counts = 0,
@@ -1191,16 +1264,9 @@ createSpatialDDLSobject <- function(
 ) {
   if (missing(sc.cell.type.column)) sc.cell.type.column <- NULL
   # in case filtering according to expression in each cluster is used
-  if (sc.filt.genes.cluster & is.null(sc.cell.type.column)) {
-    stop(
-      paste(
-        "If genes will be filtered out according to their expression in", 
-        "each cell type (sc.filt.genes.cluster = TRUE), sc.cell.type.column",
-        "must be provided"
-      )
-    )
+  if (is.null(sc.cell.type.column)) {
+    stop("sc.cell.type.column must be provided")
   } 
-  
   ## spatial transcriptomics profiles
   if (!missing(st.data)) {
     spatial.experiments <- .loadSTData(
@@ -1223,9 +1289,9 @@ createSpatialDDLSobject <- function(
     gene.ID.column = sc.gene.ID.column,
     cell.type.column = sc.cell.type.column,
     name.dataset.h5 = sc.name.dataset.h5,
-    filt.genes.cluster = sc.filt.genes.cluster,
+    filt.genes.cluster = FALSE,
     min.mean.counts = sc.min.mean.counts,
-    filt.genes.cells = sc.filt.genes.cells,
+    filt.genes.cells = TRUE,
     min.cells = sc.min.cells,
     min.counts = sc.min.counts,
     file.backend = sc.file.backend,
@@ -1235,7 +1301,7 @@ createSpatialDDLSobject <- function(
     block.processing = sc.block.processing,
     verbose = verbose
   )
-  ## intersection between datasets
+## intersection between datasets
   if (!missing(st.data)) {
     if (shared.genes) {
       ## slide with more genes
@@ -1249,10 +1315,10 @@ createSpatialDDLSobject <- function(
           length(inter.genes) 
         )
         message(
-          "    - Original number of genes of single-cell data: ", nrow(single.cell.real) 
+          "    - Original # genes in single-cell data: ", nrow(single.cell.real) 
         )
         message(
-          "    - Original number of genes of spatial transcriptomics data (object with more genes): ", 
+          "    - Original # genes in ST data (object with the greatest # genes): ", 
           nrow(spatial.experiments[[pos.max]]) 
         )
       }
@@ -1263,11 +1329,28 @@ createSpatialDDLSobject <- function(
       )
     }
   }
+  if (sc.filt.genes.cluster) {
+    final.genes <- .filterGenesByCluster(
+      sce.obj = single.cell.real,
+      cell.type.column = sc.cell.type.column, 
+      min.mean.counts = sc.min.mean.counts,
+      n.genes.per.cluster = sc.n.genes.per.cluster,
+      top.n.genes = top.n.genes,
+      verbose = verbose
+    )  
+  }
+  spatial.experiments <- lapply(spatial.experiments, \(st) st[final.genes, ])
+  ## messages
+  if (verbose) 
+    message(
+      "\n=== Final number of dimensions for further analyses: ", 
+      length(final.genes)
+    )
   
   return(
     new(
       Class = "SpatialDDLS",
-      single.cell.real = single.cell.real,
+      single.cell.real = single.cell.real[final.genes, ],
       spatial.experiments = spatial.experiments,
       project = project,
       version = packageVersion(pkg = "SpatialDDLS")

@@ -119,22 +119,6 @@ interGradientsDL <- function(
       scaling.fun <- function(x) return(x)
     }
   }
-  ## check if in prob cell types there are pure mixed transcriptional profiles
-  num.pure <- rbind(
-    prob.cell.types(object, type.data = "train") %>% prob.matrix(),
-    prob.cell.types(object, type.data = "test") %>% prob.matrix()
-  ) 
-  num.pure <- colSums(num.pure == 100)
-  if (any(num.pure == 0)) {
-    stop(
-      paste0(
-        "Not all cell types have pure mixed transcriptional profiles, i.e. ", 
-        "transcriptional profiles made of only one cell type. See ?genMixedCellProp", 
-        " to generate them"
-      )
-    )
-  }
-  
   ## checking if all data are provided
   if (is.null(mixed.profiles(object, type.data = "train")) | 
       is.null(mixed.profiles(object, type.data = "test"))) {
@@ -386,7 +370,8 @@ top.gradients <- function(grad, metadata, n) {
       mean.grads <- base::sort(x = colMeans(grad[spots, , drop = FALSE]), decreasing = TRUE)
       return(
         list(
-          Positive = names(head(mean.grads, n = n)), 
+          Absolute = names(head(abs(mean.grads), n = n)),
+          Positive = names(head(mean.grads, n = n)),
           Negative = names(tail(mean.grads, n = n))
         )
       )
@@ -504,6 +489,7 @@ plotHeatmapGradsAgg <- function(
   grads.agg <- aggregate(x = grads, by = list(named.vec), FUN = mean)
   rownames(grads.agg) <- grads.agg[["Group.1"]]
   grads.agg[["Group.1"]] <- NULL
+  grads.agg <- as.matrix(grads.agg)
   if (method == "class" | method == "loss") {
     top.genes <- topGradientsCellType(
       object, method = method, top.n.genes = top.n.genes
@@ -523,15 +509,16 @@ plotHeatmapGradsAgg <- function(
     annotation_name_gp = grid::gpar(fontsize = 10)
   )
   list.heatmaps <- list()
-  for (i in c("Positive", "Negative")) {
+  for (i in c("Absolute", "Positive", "Negative")) {
     if (scale.gradients) {
-      grads.agg.f <- t(scale(grads.agg[, list.genes[[i]]]))
+      genes <- unique(as.vector(list.genes[[i]]))
+      grads.agg.f <- t(scale(grads.agg[, genes]))
     } else {
-      grads.agg.f <- t(grads.agg[, list.genes[[i]]])
+      genes <- unique(as.vector(list.genes[[i]]))
+      grads.agg.f <- t(grads.agg[, genes])
     }
     list.heatmaps[[i]] <- ComplexHeatmap::Heatmap(
       grads.agg.f, 
-      # col = greens,
       column_title = paste(i, "gradients (top", top.n.genes, "per cell type)"),
       top_annotation = ha, 
       border = "black", 
@@ -545,18 +532,17 @@ plotHeatmapGradsAgg <- function(
   return(list.heatmaps)
 }
 
-
-
 .sel.genes.sign <- function(top.genes) {
-  lapply(
-    X = c("Positive", "Negative"), 
+  ss <- lapply(
+    X = c("Absolute", "Positive", "Negative"),
     FUN = \(sign.sel) {
-      sapply(
+      ss <- sapply(
         X = names(top.genes), 
         FUN = \(cell.type.sel) top.genes[[cell.type.sel]][[sign.sel]]
-      ) %>% as.vector() %>% unique()
+      ) %>% unlist() %>% unique()
     }
-  ) %>% setNames(c("Positive", "Negative"))
+  ) %>% setNames(c("Absolute", "Positive", "Negative"))
+  return(ss)
 }
 
 # plotHeatmapGrads <- function(
