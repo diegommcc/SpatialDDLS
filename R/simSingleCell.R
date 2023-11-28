@@ -94,7 +94,8 @@ NULL
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
-#'   project = "Simul_example"
+#'   project = "Simul_example",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- estimateZinbwaveParams(
 #'   object = SDDLS,
@@ -776,6 +777,7 @@ estimateZinbwaveParams <- function(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE,
 #'   project = "Simul_example"
 #' )
 #' SDDLS <- estimateZinbwaveParams(

@@ -28,28 +28,32 @@ test_that(
       createSpatialDDLSobject(
         sc.data = sce,
         sc.cell.ID.column = "CellID",
-        sc.gene.ID.column = 1
+        sc.gene.ID.column = 1,
+        sc.filt.genes.cluster = FALSE
       )
     )
     expect_error(
       suppressWarnings(createSpatialDDLSobject(
         sc.sc.data = sce,
         sc.cell.ID.column = "Cell_type",
-        sc.gene.ID.column = 2
+        sc.gene.ID.column = 2,
+        sc.filt.genes.cluster = FALSE
       ))
     )
     expect_error(
       createSpatialDDLSobject(
         sc.data = sce,
         sc.cell.ID.column = "non_existent_column",
-        sc.gene.ID.column = 2
+        sc.gene.ID.column = 2,
+        sc.filt.genes.cluster = FALSE
       )
     )
     expect_error(
       createSpatialDDLSobject(
         sc.data = sce,
         sc.cell.ID.column = "Cell_type",
-        sc.gene.ID.column = "non_existent_column"
+        sc.gene.ID.column = "non_existent_column",
+        sc.filt.genes.cluster = FALSE
       )
     )
   }
@@ -65,7 +69,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = -1,
-        sc.min.cells = 1
+        sc.min.cells = 1,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "'min.counts' and 'min.cells' must be greater than or equal to zero"
     )
@@ -75,7 +80,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 1,
-        sc.min.cells = -1
+        sc.min.cells = -1,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "'min.counts' and 'min.cells' must be greater than or equal to zero"
     )
@@ -85,7 +91,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 10e6,
-        sc.min.cells = 10
+        sc.min.cells = 10,
+        sc.filt.genes.cluster = FALSE
       ),
       regexp = "Resulting count matrix after filtering"
     )
@@ -95,7 +102,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 30,
-        sc.min.cells = 440
+        sc.min.cells = 440,
+        sc.filt.genes.cluster = FALSE
       ),
       regexp = "Resulting count matrix after filtering"
     )
@@ -114,7 +122,8 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 1,
       sc.min.counts = sc.min.counts,
-      sc.min.cells = sc.min.cells
+      sc.min.cells = sc.min.cells,
+      sc.filt.genes.cluster = FALSE
     )
     expect_equal(dim(counts), dim(single.cell.real(SDDLSFiltered)))
     expect_equal(
@@ -131,14 +140,16 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 1,
       sc.min.counts = 0,
-      sc.min.cells = 0
+      sc.min.cells = 0,
+      sc.filt.genes.cluster = FALSE
     )
     DDLS2 <- createSpatialDDLSobject(
       sc.data = sce,
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 1,
       sc.min.counts = 6,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     )
     expect_is(assay(single.cell.real(DDLS1)), class = "dgCMatrix")
     expect_is(assay(single.cell.real(DDLS2)), class = "dgCMatrix")
@@ -165,7 +176,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 0,
-        sc.min.cells = 0
+        sc.min.cells = 0,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "Count matrix must have rownames"
     )
@@ -182,7 +194,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 0,
-        sc.min.cells = 0
+        sc.min.cells = 0,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "No data provided in colData slot"
     )
@@ -197,7 +210,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 0,
-        sc.min.cells = 0
+        sc.min.cells = 0,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "No data provided in rowData slot"
     )
@@ -217,7 +231,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 0,
-        sc.min.cells = 0
+        sc.min.cells = 0,
+        sc.filt.genes.cluster = FALSE
       ), regexp = "Count matrix must have"
     )
     # 5 - No matrix counts
@@ -231,7 +246,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 0,
-        sc.min.cells = 0
+        sc.min.cells = 0,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "No count data in SingleCellExperiment object"
     )
@@ -247,7 +263,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 1,
         sc.min.counts = 0,
-        sc.min.cells = 0
+        sc.min.cells = 0,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "There is more than one assay, only the first will be used"
     )
@@ -262,7 +279,8 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 1,
       sc.min.counts = 2,
-      sc.min.cells = 2
+      sc.min.cells = 2,
+      sc.filt.genes.cluster = FALSE
     )
     expect_is(single.cell.real(DDLS), class = "SingleCellExperiment")
     expect_is(single.cell.simul(DDLS), class = "NULL")
@@ -289,14 +307,16 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 2,
-        sc.min.cells = 2
+        sc.min.cells = 2,
+        sc.filt.genes.cluster = FALSE
       ), "- Filtering features"
     )
     expect_error(
       createSpatialDDLSobject(
         sc.data = file.path(file.tests, files.tsv),
         sc.cell.ID.column = "Cell_ID",
-        sc.gene.ID.column = 1
+        sc.gene.ID.column = 1,
+        sc.filt.genes.cluster = FALSE
       )
     )
     expect_error(
@@ -304,7 +324,8 @@ test_that(
         createSpatialDDLSobject(
           sc.data = file.path(file.tests, files.tsv),
           sc.cell.ID.column = "Cell_type",
-          sc.gene.ID.column = 2
+          sc.gene.ID.column = 2,
+          sc.filt.genes.cluster = FALSE
         )
       )
     )
@@ -314,7 +335,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 10e6,
-        sc.min.cells = 10
+        sc.min.cells = 10,
+        sc.filt.genes.cluster = FALSE
       )
     )
   }
@@ -329,14 +351,16 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 2,
-        sc.min.cells = 2
+        sc.min.cells = 2,
+        sc.filt.genes.cluster = FALSE
       ), "- Filtering features"
     )
     expect_error(
       createSpatialDDLSobject(
         sc.data = file.path(file.tests, files.tsv.gz),
         sc.cell.ID.column = "Cell_ID",
-        sc.gene.ID.column = 1
+        sc.gene.ID.column = 1,
+        sc.filt.genes.cluster = FALSE
       )
     )
     expect_error(
@@ -344,7 +368,8 @@ test_that(
         createSpatialDDLSobject(
           sc.data = file.path(file.tests, files.tsv.gz),
           sc.cell.ID.column = "Cell_type",
-          sc.gene.ID.column = 2
+          sc.gene.ID.column = 2,
+          sc.filt.genes.cluster = FALSE
         )
       )
     )
@@ -354,7 +379,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 100000,
-        sc.min.cells = 10
+        sc.min.cells = 10,
+        sc.filt.genes.cluster = FALSE
       )
     )
   }
@@ -369,14 +395,16 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 2,
-        sc.min.cells = 2
+        sc.min.cells = 2,
+        sc.filt.genes.cluster = FALSE
       ), "- Filtering features"
     )
     expect_error(
       createSpatialDDLSobject(
         sc.data = file.path(file.tests, files.sparse),
         sc.cell.ID.column = "Cell_ID",
-        sc.gene.ID.column = 1
+        sc.gene.ID.column = 1,
+        sc.filt.genes.cluster = FALSE
       )
     )
     expect_error(
@@ -384,7 +412,8 @@ test_that(
         createSpatialDDLSobject(
           sc.data = file.path(file.tests, files.sparse),
           sc.cell.ID.column = "Cell_type",
-          sc.gene.ID.column = 2
+          sc.gene.ID.column = 2,
+          sc.filt.genes.cluster = FALSE
         )
       )
     )
@@ -394,7 +423,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 100000,
-        sc.min.cells = 10
+        sc.min.cells = 10,
+        sc.filt.genes.cluster = FALSE
       )
     )
   }
@@ -408,21 +438,24 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 2,
       sc.min.counts = 0,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     )
     DDLS.tsv.gz <- createSpatialDDLSobject(
       sc.data = file.path(file.tests, files.tsv.gz),
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 2,
       sc.min.counts = 0,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     )
     DDLS.sparse <- createSpatialDDLSobject(
       sc.data = file.path(file.tests, files.sparse),
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 2,
       sc.min.counts = 0,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     )
     # DDLS objects
     expect_equal(DDLS.tsv, DDLS.tsv.gz)
@@ -451,7 +484,8 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 2,
       sc.min.counts = 0,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     ))
     files.tsv.gz.bad.2 <- c(
       "counts.bad.tsv.gz", "cellsMetadata.tsv.gz", "genesMetadata.tsv.gz"
@@ -461,7 +495,8 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 2,
       sc.min.counts = 0,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     ))
     files.tsv.gz.bad.3 <- c(
       "counts.tsv.gz", "cellsMetadata.bad.tsv.gz", "genesMetadata.tsv.gz"
@@ -471,7 +506,8 @@ test_that(
       sc.cell.ID.column = "Cell_ID",
       sc.gene.ID.column = 2,
       sc.min.counts = 0,
-      sc.min.cells = 12
+      sc.min.cells = 12,
+      sc.filt.genes.cluster = FALSE
     ))
     files.tsv.gz.bad.4 <- c(
       "counts.tsv.gz", "cellsMetadata.tsv.gz", "genesMetadata.bad.tsv.gz"
@@ -482,7 +518,8 @@ test_that(
         sc.cell.ID.column = "Cell_ID",
         sc.gene.ID.column = 2,
         sc.min.counts = 0,
-        sc.min.cells = 12
+        sc.min.cells = 12,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "18008 genes have been discarded from genes metadata"
     )
@@ -503,7 +540,8 @@ test_that(
         sc.gene.ID.column = 2,
         sc.min.counts = 0,
         sc.min.cells = 12,
-        sc.file.backend = file
+        sc.file.backend = file,
+        sc.filt.genes.cluster = FALSE
       ), 
       regexp = "=== Writing data to HDF5 file"
     )
@@ -516,7 +554,8 @@ test_that(
         sc.min.cells = 12,
         sc.file.backend = file,
         sc.name.dataset.backend = "other_dataset",
-        sc.block.processing = TRUE
+        sc.block.processing = TRUE,
+        sc.filt.genes.cluster = FALSE
       ),
       regexp = "=== Processing data in HDF5 by blocks"
     )
@@ -597,7 +636,8 @@ test_that(
         sc.gene.ID.column = 1,
         st.data = sce,
         st.spot.ID.column = "Cell_ID",
-        st.gene.ID.column = "Gene_ID"
+        st.gene.ID.column = "Gene_ID",
+        sc.filt.genes.cluster = FALSE
       ), "`st.data` argument must be a SpatialExperiment"
     )
     # 5 shared genes
@@ -608,7 +648,8 @@ test_that(
         sc.gene.ID.column = "Gene_ID",
         st.data = ste,
         st.spot.ID.column = "Cell_ID",
-        st.gene.ID.column = "Gene_ID"
+        st.gene.ID.column = "Gene_ID",
+        sc.filt.genes.cluster = FALSE
       ), "=== Number of shared genes between single-cell and spatial transcriptomics datasets: 5"
     )
     # deal with list of SpatialExperiment objects
@@ -621,7 +662,8 @@ test_that(
         sc.gene.ID.column = "Gene_ID",
         st.data = list.ste,
         st.spot.ID.column = "Cell_ID",
-        st.gene.ID.column = "Gene_ID"
+        st.gene.ID.column = "Gene_ID",
+        sc.filt.genes.cluster = FALSE
       ), "=== 5 SpatialExperiment objects provided"
     )
     ## min number of genes
@@ -636,9 +678,10 @@ test_that(
         st.data = list.ste,
         st.spot.ID.column = "Cell_ID",
         st.gene.ID.column = "Gene_ID",
-        st.n.slides = 20
+        st.n.slides = 20,
+        sc.filt.genes.cluster = FALSE
       ), 
-      regexp = paste0("with more genes): ", min.genes)
+      paste0("with the greatest # genes): ", min.genes)
     )
     # max gene
     set.seed(123)
@@ -652,9 +695,10 @@ test_that(
         st.data = list.ste,
         st.spot.ID.column = "Cell_ID",
         st.gene.ID.column = "Gene_ID",
-        st.n.slides = 1
+        st.n.slides = 1,
+        sc.filt.genes.cluster = FALSE
       ), 
-      paste0("with more genes): ", max.genes)
+      paste0("with the greatest # genes): ", max.genes)
     )
   }
 )
@@ -666,7 +710,8 @@ test_that(
     SDDLS <- createSpatialDDLSobject(
       sc.data = sce,
       sc.cell.ID.column = "Cell_ID",
-      sc.gene.ID.column = 1
+      sc.gene.ID.column = 1,
+      sc.filt.genes.cluster = FALSE
     )
     expect_error(
       loadSTProfiles(

@@ -9,7 +9,7 @@ interGradientsDL(
   object,
   method = "class",
   normalize = TRUE,
-  scaling = "rescale",
+  scaling = "standardize",
   verbose = TRUE
 )
 }
@@ -83,6 +83,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 SDDLS <- genMixedCellProp(
   object = SDDLS,

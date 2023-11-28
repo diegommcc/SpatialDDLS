@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.3', bioc: '3.17', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest", python: '3.8', tf: 'default' }
+          - { os: ubuntu-latest, r: 'release', bioc: '3.19', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest", python: '3.8', tf: 'default' }
           - { os: ubuntu-latest, r: 'devel', bioc: '3.19', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest", python: '3.8', tf: 'default' }
           - { os: windows-latest, r: 'release', bioc: '3.17', tf: 'default' }
     env:
@@ -123,6 +123,11 @@ jobs:
           sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
+
+      - name: Install venv python
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install python3-venv
 
       - name: Install macOS system dependencies
         if: matrix.config.os == 'macOS-latest'

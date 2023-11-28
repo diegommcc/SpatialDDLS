@@ -1,6 +1,7 @@
 #' @importFrom utils read.delim 
 #' @importFrom stats setNames
 #' @importFrom dplyr desc arrange
+#' @importFrom utils head tail
 NULL
 
 .readTabFiles <- function(file) {
@@ -1055,8 +1056,8 @@ NULL
         top.n.genes, " according to gene variance"
       )
     dec.sc.obj.ln <- scran::modelGeneVar(sce.obj.norm[final.genes, ])
-    final.genes <- as.data.frame(dec.sc.obj.ln) %>% arrange(desc(abs(bio))) %>% 
-      head(top.n.genes) %>% rownames()
+    final.genes <- as.data.frame(dec.sc.obj.ln) %>% 
+      arrange(desc(abs(.data[["bio"]]))) %>% head(top.n.genes) %>% rownames()
   }
   
   return(final.genes)
@@ -1071,8 +1072,27 @@ NULL
 #' Create a \code{\linkS4class{SpatialDDLS}} object by providing single-cell
 #' RNA-seq data. Additionally, spatial transcriptomics data contained in
 #' \code{\linkS4class{SpatialDDLS}} objects can also be provided. It is
-#' recommended to provide both types of data to calculate the intersection of
-#' genes shared between both experiments.
+#' recommended to provide both types of data to only use genes shared between 
+#' both experiments. 
+#' 
+#' \strong{Filtering genes}
+#' 
+#' In order to reduce the number of dimensions used for subsequent steps, 
+#' \code{createSpatialDDLSobject} implements different strategies aimed at 
+#' removing useless genes for deconvolution: \itemize{ \item Filtering at the 
+#' cell level: genes less expressed than a determined cutoff in N cells are
+#' removed. See \code{sc.min.cells}/\code{st.min.cells} and 
+#' \code{sc.min.counts}/\code{st.min.cells} parameters. \item Filtering at the 
+#' cluster level (only for scRNA-seq data): if 
+#' \code{sc.filt.genes.cluster == TRUE}, \code{createSpatialDDLSobject} sets a 
+#' cutoff of non-zero average counts per 
+#' cluster (\code{sc.min.mean.counts} parameter) and take only the 
+#' \code{sc.n.genes.per.cluster} genes with the highest logFC per cluster. 
+#' LogFCs are calculated using normalized logCPM of each cluster with respect to 
+#' the average in the whole dataset). Finally, if 
+#' the number of remaining genes is greater than \code{top.n.genes}, genes are 
+#' ranked based on variance and the \code{top.n.genes} most variable genes are 
+#' used for downstream analyses.}
 #'
 #' \strong{Single-cell RNA-seq data}
 #'
@@ -1123,14 +1143,16 @@ NULL
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes (spatial transcriptomics
 #'   data).
-#' @param sc.filt.genes.cluster
+#' @param sc.filt.genes.cluster Whether to filter single-cell RNA-seq genes
+#'   according to a minimum threshold of non-zero average counts per cell type
+#'   (\code{sc.min.mean.counts}). \code{TRUE} by default. 
 #' @param sc.min.mean.counts Minimum non-zero average counts per cluster to
-#'   filter genes.
+#'   filter genes. 1 by default. 
 #' @param sc.n.genes.per.cluster Top n genes with the highest logFC per cluster. 
 #'   300 by default. See Details section for more details. 
-#' @param top.n.genes Maximum number of genes used for downstream steps. 2000 
-#'   by default. In case the number of genes after filtering based on cutoffs 
-#'   if greater than \code{top.n.genes}, these genes will be set according to 
+#' @param top.n.genes Maximum number of genes used for downstream steps (2000 
+#'   by default). In case the number of genes after filtering is greater than 
+#'   \code{top.n.genes}, these genes will be set according to 
 #'   variability across the whole single-cell dataset. 
 #' @param sc.min.counts Minimum gene counts to filter (0 by default; single-cell
 #'   RNA-seq data).
@@ -1232,7 +1254,8 @@ NULL
 #'   st.data = ste,
 #'   st.spot.ID.column = "Cell_ID",
 #'   st.gene.ID.column = "Gene_ID",
-#'   project = "Simul_example"
+#'   project = "Simul_example",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #'   
 createSpatialDDLSobject <- function(
@@ -1244,7 +1267,7 @@ createSpatialDDLSobject <- function(
     st.spot.ID.column,
     st.gene.ID.column,
     sc.filt.genes.cluster = TRUE,
-    sc.min.mean.counts = 0, 
+    sc.min.mean.counts = 1, 
     sc.n.genes.per.cluster = 300,
     top.n.genes = 2000,
     sc.min.counts = 0,
@@ -1264,7 +1287,7 @@ createSpatialDDLSobject <- function(
 ) {
   if (missing(sc.cell.type.column)) sc.cell.type.column <- NULL
   # in case filtering according to expression in each cluster is used
-  if (is.null(sc.cell.type.column)) {
+  if (sc.filt.genes.cluster & (is.null(sc.cell.type.column) | missing(sc.cell.type.column))) {
     stop("sc.cell.type.column must be provided")
   } 
   ## spatial transcriptomics profiles
@@ -1338,19 +1361,21 @@ createSpatialDDLSobject <- function(
       top.n.genes = top.n.genes,
       verbose = verbose
     )  
+    spatial.experiments <- lapply(spatial.experiments, \(st) st[final.genes, ])
+    single.cell.real <- single.cell.real[final.genes, ]
   }
-  spatial.experiments <- lapply(spatial.experiments, \(st) st[final.genes, ])
+  
   ## messages
   if (verbose) 
     message(
       "\n=== Final number of dimensions for further analyses: ", 
-      length(final.genes)
+      nrow(single.cell.real)
     )
   
   return(
     new(
       Class = "SpatialDDLS",
-      single.cell.real = single.cell.real[final.genes, ],
+      single.cell.real = single.cell.real,
       spatial.experiments = spatial.experiments,
       project = project,
       version = packageVersion(pkg = "SpatialDDLS")
@@ -1426,7 +1451,8 @@ createSpatialDDLSobject <- function(
 #' SDDLS <- createSpatialDDLSobject(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
-#'   sc.gene.ID.column = "Gene_ID"
+#'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' 
 #' ## simulating a SpatialExperiment object
@@ -1448,7 +1474,7 @@ createSpatialDDLSobject <- function(
 #'   object = SDDLS,
 #'   st.data = ste,
 #'   st.spot.ID.column = "Cell_ID",
-#'   st.gene.ID.column = "Gene_ID",
+#'   st.gene.ID.column = "Gene_ID"
 #' )
 #' }
 #'   

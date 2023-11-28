@@ -9,7 +9,7 @@ trainDeconvModel(
   type.data.train = "mixed",
   type.data.test = "mixed",
   batch.size = 64,
-  num.epochs = 10,
+  num.epochs = 60,
   num.hidden.layers = 2,
   num.units = c(200, 200),
   activation.fun = "relu",
@@ -46,7 +46,7 @@ default).}
 
 \item{batch.size}{Number of samples per gradient update (64 by default).}
 
-\item{num.epochs}{Number of epochs to train the model (10 by default).}
+\item{num.epochs}{Number of epochs to train the model (60 by default).}
 
 \item{num.hidden.layers}{Number of hidden layers of the neural network (2 by
 default). This number must be equal to the length of \code{num.units}
@@ -190,6 +190,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 SDDLS <- genMixedCellProp(
   object = SDDLS,

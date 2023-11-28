@@ -51,7 +51,8 @@ SDDLS <- createSpatialDDLSobject(
   sc.gene.ID.column = "Gene_ID",
   st.data = simSpatialExperiment(n = 10),
   st.spot.ID.column = "Cell_ID",
-  st.gene.ID.column = "Gene_ID"
+  st.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 SDDLS <- estimateZinbwaveParams(
   object = SDDLS,

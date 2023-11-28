@@ -13,8 +13,7 @@ plotSpatialClustering(
   colors,
   size.point = 1,
   title = NULL,
-  theme = NULL,
-  verbose = TRUE
+  theme = NULL
 )
 }
 \arguments{

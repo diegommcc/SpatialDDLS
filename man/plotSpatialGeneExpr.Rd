@@ -11,8 +11,7 @@ plotSpatialGeneExpr(
   colors = "spectral",
   size.point = 1,
   title = NULL,
-  theme = NULL,
-  verbose = TRUE
+  theme = NULL
 )
 }
 \arguments{

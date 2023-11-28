@@ -8,7 +8,7 @@ deconvSpatialDDLS(
   object,
   index.st,
   normalize = TRUE,
-  scaling = "rescale",
+  scaling = "standardize",
   k.spots = 4,
   pca.space = TRUE,
   pca.var = 0.8,
@@ -165,6 +165,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 SDDLS <- genMixedCellProp(
   object = SDDLS,
@@ -180,7 +181,7 @@ SDDLS <- trainDeconvModel(
   batch.size = 15,
   num.epochs = 5
 )
-# simulating mixed profiles
+# simulating spatial data
 ngenes <- sample(3:40, size = 1)
 ncells <- sample(3:40, size = 1)
 counts <- matrix(

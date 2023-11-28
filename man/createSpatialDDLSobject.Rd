@@ -13,7 +13,7 @@ createSpatialDDLSobject(
   st.spot.ID.column,
   st.gene.ID.column,
   sc.filt.genes.cluster = TRUE,
-  sc.min.mean.counts = 0,
+  sc.min.mean.counts = 1,
   sc.n.genes.per.cluster = 300,
   top.n.genes = 2000,
   sc.min.counts = 0,
@@ -63,15 +63,19 @@ data).}
 corresponding to the names used for features/genes (spatial transcriptomics
 data).}
 
+\item{sc.filt.genes.cluster}{Whether to filter single-cell RNA-seq genes
+according to a minimum threshold of non-zero average counts per cell type
+(\code{sc.min.mean.counts}). \code{TRUE} by default.}
+
 \item{sc.min.mean.counts}{Minimum non-zero average counts per cluster to
-filter genes.}
+filter genes. 1 by default.}
 
 \item{sc.n.genes.per.cluster}{Top n genes with the highest logFC per cluster.
 300 by default. See Details section for more details.}
 
-\item{top.n.genes}{Maximum number of genes used for downstream steps. 2000
-by default. In case the number of genes after filtering based on cutoffs
-if greater than \code{top.n.genes}, these genes will be set according to
+\item{top.n.genes}{Maximum number of genes used for downstream steps (2000
+by default). In case the number of genes after filtering is greater than
+\code{top.n.genes}, these genes will be set according to
 variability across the whole single-cell dataset.}
 
 \item{sc.min.counts}{Minimum gene counts to filter (0 by default; single-cell
@@ -149,10 +153,29 @@ transcriptomics data are provided, they will be loaded into the
 Create a \code{\linkS4class{SpatialDDLS}} object by providing single-cell
 RNA-seq data. Additionally, spatial transcriptomics data contained in
 \code{\linkS4class{SpatialDDLS}} objects can also be provided. It is
-recommended to provide both types of data to calculate the intersection of
-genes shared between both experiments.
+recommended to provide both types of data to only use genes shared between
+both experiments.
 }
 \details{
+\strong{Filtering genes}
+
+In order to reduce the number of dimensions used for subsequent steps,
+\code{createSpatialDDLSobject} implements different strategies aimed at
+removing useless genes for deconvolution: \itemize{ \item Filtering at the
+cell level: genes less expressed than a determined cutoff in N cells are
+removed. See \code{sc.min.cells}/\code{st.min.cells} and
+\code{sc.min.counts}/\code{st.min.cells} parameters. \item Filtering at the
+cluster level (only for scRNA-seq data): if
+\code{sc.filt.genes.cluster == TRUE}, \code{createSpatialDDLSobject} sets a
+cutoff of non-zero average counts per
+cluster (\code{sc.min.mean.counts} parameter) and take only the
+\code{sc.n.genes.per.cluster} genes with the highest logFC per cluster.
+LogFCs are calculated using normalized logCPM of each cluster with respect to
+the average in the whole dataset). Finally, if
+the number of remaining genes is greater than \code{top.n.genes}, genes are
+ranked based on variance and the \code{top.n.genes} most variable genes are
+used for downstream analyses.}
+
 \strong{Single-cell RNA-seq data}
 
 Single-cell RNA-seq data can be provided from files (formats allowed: tsv,
@@ -218,7 +241,8 @@ SDDLS <- createSpatialDDLSobject(
   st.data = ste,
   st.spot.ID.column = "Cell_ID",
   st.gene.ID.column = "Gene_ID",
-  project = "Simul_example"
+  project = "Simul_example",
+  sc.filt.genes.cluster = FALSE
 )
   
 }

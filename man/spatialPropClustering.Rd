@@ -14,9 +14,8 @@ spatialPropClustering(
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object with a trained
-deconvolution model (\code{trained.model} slot) and pure mixed
-transcriptional profiles (\code{mixed.profiles} slot).}
+\item{object}{\code{\linkS4class{SpatialDDLS}} object with deconvoluted ST
+datasets.}
 
 \item{index.st}{Name or index of the dataset/slide already deconvoluted to be
 clustered. If missing, all datasets already deconvoluted will be clustered.}
@@ -37,14 +36,14 @@ algorithm (5 by default). Only if \code{method == "k.means"}.}
 default).}
 }
 \value{
-A \code{\linkS4class{SpatialDDLS}} object containing calculated
+A \code{\linkS4class{SpatialDDLS}} object containing computed
 clusters as a column in the slot \code{colData} of the
 \code{\linkS4class{SpatialExperiment}} objects.
 }
 \description{
 Cluster spatial transcriptomics data according to the cell proportions
 predicted in each spot. It allows to segregate ST data into niches with
-similar cell compositions.
+similar cell composition.
 }
 \examples{
 \donttest{
@@ -69,21 +68,48 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
-) \%>\% genMixedCellProp(
-  object = SDDLS,
+  sc.filt.genes.cluster = FALSE
+) 
+SDDLS <- genMixedCellProp(
+  SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   num.sim.spots = 50,
   verbose = TRUE
-) \%>\%simMixedProfiles(SDDLS) \%>\% 
-trainDeconvModel(
-  object = SDDLS,
+) 
+SDDLS <- simMixedProfiles(SDDLS) 
+SDDLS <- trainDeconvModel(
+  SDDLS,
   batch.size = 12,
   num.epochs = 5
-) \%>\% deconvSpatialDDLS(
+) 
+# simulating spatial data
+ngenes <- sample(3:40, size = 1)
+ncells <- sample(3:40, size = 1)
+counts <- matrix(
+  rpois(ngenes * ncells, lambda = 5), ncol = ncells,
+  dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
+)
+coordinates <- matrix(
+  rep(c(1, 2), ncells), ncol = 2
+)
+st <- SpatialExperiment::SpatialExperiment(
+  assays = list(counts = as.matrix(counts)),
+  rowData = data.frame(Gene_ID = paste0("Gene", seq(ngenes))),
+  colData = data.frame(Cell_ID = paste0("Spot", seq(ncells))),
+  spatialCoords = coordinates
+)
+SDDLS <- loadSTProfiles(
   object = SDDLS,
+  st.data = st,
+  st.spot.ID.column = "Cell_ID",
+  st.gene.ID.column = "Gene_ID"
+)
+SDDLS <- deconvSpatialDDLS(
+  SDDLS,
   index.st = 1
-) \%>\% spatialPropClustering(index.st = 1)
+) 
+SDDLS <- spatialPropClustering(SDDLS, index.st = 1, k.nn = 5)
 }
   
 }

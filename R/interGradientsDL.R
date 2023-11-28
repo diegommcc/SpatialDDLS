@@ -74,6 +74,7 @@ NULL
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -96,7 +97,7 @@ interGradientsDL <- function(
     object,
     method = "class",
     normalize = TRUE,
-    scaling = "rescale",
+    scaling = "standardize",
     verbose = TRUE
 ) {
   if (!is(object, "SpatialDDLS")) {
@@ -193,6 +194,8 @@ interGradientsDL <- function(
 }
 
 .calcGradientsClass <- function(x.data, y.metadata, model) { 
+  ## avoid problem with undeclared variables
+  tape <- ""
   ## info
   # tensorflow::tf$executing_eagerly()
   n.samples <- nrow(x.data)
@@ -221,7 +224,8 @@ interGradientsDL <- function(
       colnames(gradients) <- features
       return(gradients[y.metadata[, i] == 1, , drop = FALSE])
     }
-  )  %>% do.call(rbind, .)
+  ) 
+  gradients.matrix <- do.call(rbind, gradients.matrix)
   
   return(gradients.matrix[rownames(y.metadata), , drop = FALSE])
 }
@@ -229,6 +233,8 @@ interGradientsDL <- function(
 ## vanilla gradient is defined as the gradient of the loss function for the class
 ## we are interested in wrt the input variables
 .calcGradientsLoss <- function(x.data, y.metadata, model) {
+  ## avoid problem with undeclared variables
+  tape <- ""
   ## info
   n.samples <- nrow(x.data)
   samples.name <- rownames(x.data)
@@ -268,9 +274,9 @@ interGradientsDL <- function(
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a 
 #'   \code{\linkS4class{DeconvDLModel}} object containing gradients in the
 #'   \code{interpret.gradients} slot.
-#' @param method Method gradients were calculated by. Either \code{'class'}
-#'  (gradients of predicted classes w.r.t. inputs) or \code{'loss'} (gradients 
-#'  of loss w.r.t. input features).
+#' @param method Method gradients were calculated by. It can be either 
+#' \code{'class'} (gradients of predicted classes w.r.t. inputs) or 
+#' \code{'loss'} (gradients of loss w.r.t. input features).
 #' @param top.n.genes Top n genes (positive and negative) taken per cell type. 
 #'
 #' @return List of gene names with the top positive and negative 
@@ -303,6 +309,7 @@ interGradientsDL <- function(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -387,22 +394,22 @@ top.gradients <- function(grad, metadata, n) {
 #' Plot a heatmap of gradients of classes / loss function wtih respect to the 
 #' input
 #'
-#' Plot a heatmap showing the top positive and negative average gradients per 
-#' cell type. 
+#' Plot a heatmap showing the top positive and negative gene average 
+#' gradients per cell type. 
 #'
 #' @param object \code{\linkS4class{SpatialDDLS}} object with a 
-#'   \code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+#'   \code{\linkS4class{DeconvDLModel}} object containing gradients in the
 #'   \code{interpret.gradients} slot.
-#' @param method Method to calculate gradients with respect to input fetures. 
+#' @param method Method to calculate gradients with respect to input features. 
 #'    It can be
 #'    \code{'class'} (gradients of predicted classes w.r.t. input features) or
 #'    \code{'loss'} (gradients of loss w.r.t. input features) (\code{'class'} by 
 #'    default).
 #' @param top.n.genes Top n genes (positive and negative) taken per cell type. 
-#' @param scale.gradients Whether to calculate feature-wise z-scores of gradients 
-#'   (\code{TRUE} by default).
+#' @param scale.gradients Whether to calculate feature-wise z-scores of 
+#'   gradients (\code{TRUE} by default).
 #'
-#' @return A list of \code{\linkS4class{Heatmap-class}} objects, one for top
+#' @return A list of \code{Heatmap-class} objects, one for top
 #'    positive and another one for top negative gradients. 
 #'
 #' @export
@@ -432,6 +439,7 @@ top.gradients <- function(grad, metadata, n) {
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,

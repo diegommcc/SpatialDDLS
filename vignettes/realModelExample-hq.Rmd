@@ -1,11 +1,11 @@
 ---
-title: "Deconvolution of mouse lymph node samples"
+title: "Get started! Deconvolution of mouse lymph node samples"
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{Deconvolution of mouse lymph node samples}
+      %\VignetteIndexEntry{Get started}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -16,7 +16,7 @@ fontsize: 12pt
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, dpi = 50,
+  echo = TRUE, dpi = 200,
   base.dir = ".", fig.path = "", fig.align = "center"
 )
 ```

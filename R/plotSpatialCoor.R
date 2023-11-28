@@ -1,4 +1,5 @@
-#' @importFrom ggplot2 scale_color_gradientn scale_fill_gradientn
+#' @importFrom ggplot2 scale_color_gradientn scale_color_gradient2
+#' @importFrom stats median
 NULL
 color.prop.scale.blues <- c(
   "#ECF4FB", "#E1EDF8", "#D7E6F4", "#CDE0F1", "#C1D9ED", "#B0D2E7", "#A0CAE1",
@@ -6,7 +7,12 @@ color.prop.scale.blues <- c(
   "#1966AD", "#0E59A2", "#084B94", "#083D7F", "#08306B"
 )
 color.prop.scale.spectral <- grDevices::colorRampPalette(
-  colors = rev(x = RColorBrewer::brewer.pal(n = 11, name = "Spectral"))
+  colors = rev(
+    c(
+      "#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF", 
+      "#E6F598", "#ABDDA4", "#66C2A5", "#3288BD", "#5E4FA2"
+    )
+  )
 )(100)
 
 ################################################################################
@@ -264,18 +270,15 @@ plotSpatialGeneExpr <- function(
     colors = "spectral", 
     size.point = 1,
     title = NULL,
-    theme = NULL,
-    verbose = TRUE
+    theme = NULL
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
   } 
   if (missing(index.st)) {
-    if (verbose) {
-      message(
-        "   No 'index.st' provided. Using first ST dataset"
-      ) 
-    }
+    message(
+      "   No 'index.st' provided. Using first ST dataset"
+    ) 
     index.st <- 1
   } else {
     if (is.character(index.st) & !is.null(names(spatial.experiments(object)))) {
@@ -371,8 +374,7 @@ plotSpatialClustering <- function(
     colors, 
     size.point = 1,
     title = NULL,
-    theme = NULL,
-    verbose = TRUE
+    theme = NULL
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
@@ -381,11 +383,9 @@ plotSpatialClustering <- function(
   }
   ## checking index
   if (missing(index.st)) {
-    if (verbose) {
-      message(
-        "   No 'index.st' provided. Using first ST dataset"
-      ) 
-    }
+    message(
+      "   No 'index.st' provided. Using first ST dataset"
+    ) 
     index.st <- 1
   } else {
     if (is.character(index.st) & !is.null(names(spatial.experiments(object)))) {
@@ -489,8 +489,7 @@ plotDistances <- function(
     mid.scale = "mean",
     size.point = 1,
     title = NULL,
-    theme = NULL,
-    verbose = TRUE
+    theme = NULL
 ) {
   if (!is(object, "SpatialDDLS")) {
     stop("The provided object is not of class SpatialDDLS")
@@ -499,11 +498,9 @@ plotDistances <- function(
   }
   ## checking index
   if (missing(index.st)) {
-    if (verbose) {
-      message(
-        "   No 'index.st' provided. Using first ST dataset"
-      )
-    }
+    message(
+      "   No 'index.st' provided. Using first ST dataset"
+    )
     index.st <- 1
   } else {
     if (is.character(index.st) & !is.null(names(spatial.experiments(object)))) {

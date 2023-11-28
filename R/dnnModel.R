@@ -1,5 +1,5 @@
 #' @importFrom dplyr %>%
-#' @importFrom tools file_path_sans_ext
+#' @importFrom stats dist
 NULL
 
 ################################################################################
@@ -146,6 +146,7 @@ NULL
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -1218,6 +1219,7 @@ trainDeconvModel <- function(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -1233,7 +1235,7 @@ trainDeconvModel <- function(
 #'   batch.size = 15,
 #'   num.epochs = 5
 #' )
-#' # simulating mixed profiles
+#' # simulating spatial data
 #' ngenes <- sample(3:40, size = 1)
 #' ncells <- sample(3:40, size = 1)
 #' counts <- matrix(
@@ -1526,10 +1528,10 @@ deconvSpatialDDLS <- function(
 .spatialRegularization <- function(
     st.data, 
     prop.intrinsic,
-    model = trained.model(object),
+    model,
+    scaling,
     batch.size = batch.size,
     normalize = normalize,
-    scaling = scaling.fun,
     use.generator = use.generator,
     k = k, 
     pca = pca,

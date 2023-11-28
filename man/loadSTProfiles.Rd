@@ -83,7 +83,8 @@ sce <- SingleCellExperiment::SingleCellExperiment(
 SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
-  sc.gene.ID.column = "Gene_ID"
+  sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 
 ## simulating a SpatialExperiment object
@@ -105,7 +106,7 @@ SDDLS <- loadSTProfiles(
   object = SDDLS,
   st.data = ste,
   st.spot.ID.column = "Cell_ID",
-  st.gene.ID.column = "Gene_ID",
+  st.gene.ID.column = "Gene_ID"
 )
 }
   

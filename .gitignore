@@ -2,4 +2,5 @@ SpatialDDLS.Rproj
 *.Rproject
 *.Rhistory
 .Rproj.user
+.Rproj
 .RData

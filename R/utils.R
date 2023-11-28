@@ -86,7 +86,8 @@ getProbMatrix <- function(object, type.data) {
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
-#'   project = "Simul_example"
+#'   project = "Simul_example",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -425,6 +426,9 @@ SpatialDDLSTheme <- function() {
 #' @param colors Vector of colors to be used.
 #' @param set Type of simplification performed during deconvolution. It can
 #'   be \code{simpli.set} or \code{simpli.maj} (\code{NULL} by default).
+#'   
+#' @param prediction Set of predicted cell proportions to be plotted. It can be 
+#'   \code{"Regularized"}, \code{"Intrinsic"} or \code{"Extrinsic"}. 
 #' @param color.line Color of the border bars.
 #' @param x.label Label of x-axis.
 #' @param rm.x.text Logical value indicating whether to remove x-axis ticks

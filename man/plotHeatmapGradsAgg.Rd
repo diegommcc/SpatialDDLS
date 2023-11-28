@@ -14,10 +14,10 @@ plotHeatmapGradsAgg(
 }
 \arguments{
 \item{object}{\code{\linkS4class{SpatialDDLS}} object with a
-\code{\linkS4class{DeconvDLModel}} object containing gradinets in the
+\code{\linkS4class{DeconvDLModel}} object containing gradients in the
 \code{interpret.gradients} slot.}
 
-\item{method}{Method to calculate gradients with respect to input fetures.
+\item{method}{Method to calculate gradients with respect to input features.
 It can be
 \code{'class'} (gradients of predicted classes w.r.t. input features) or
 \code{'loss'} (gradients of loss w.r.t. input features) (\code{'class'} by
@@ -25,16 +25,16 @@ default).}
 
 \item{top.n.genes}{Top n genes (positive and negative) taken per cell type.}
 
-\item{scale.gradients}{Whether to calculate feature-wise z-scores of gradients
-(\code{TRUE} by default).}
+\item{scale.gradients}{Whether to calculate feature-wise z-scores of
+gradients (\code{TRUE} by default).}
 }
 \value{
-A list of \code{\linkS4class{Heatmap-class}} objects, one for top
+A list of \code{Heatmap-class} objects, one for top
 positive and another one for top negative gradients.
 }
 \description{
-Plot a heatmap showing the top positive and negative average gradients per
-cell type.
+Plot a heatmap showing the top positive and negative gene average
+gradients per cell type.
 }
 \examples{
 \donttest{
@@ -59,6 +59,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 SDDLS <- genMixedCellProp(
   object = SDDLS,

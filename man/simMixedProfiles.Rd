@@ -132,6 +132,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE,
   project = "Simul_example"
 )
 SDDLS <- genMixedCellProp(

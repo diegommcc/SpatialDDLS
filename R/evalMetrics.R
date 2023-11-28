@@ -1,23 +1,20 @@
 #' @importFrom dplyr mutate as_tibble left_join inner_join filter
-#' @importFrom tidyr gather
-#' @importFrom RColorBrewer brewer.pal
 #' @importFrom ggpubr stat_cor
 #' @importFrom stats aggregate as.formula sd var
 #' @importFrom ggplot2 ggplot aes geom_point geom_violin geom_boxplot geom_line geom_abline geom_text geom_hline geom_errorbar geom_bar theme ggtitle element_text xlab ylab scale_color_manual scale_fill_manual scale_x_continuous scale_y_continuous guides guide_legend facet_wrap stat_smooth annotate stat_density_2d element_blank
 #' @importFrom rlang .data
 NULL
 
+## colors from RColorBrewer: no space for more dependencies... CRAN policy
 default.colors <- function() {
   colors <- c(
-    RColorBrewer::brewer.pal(12, "Paired"), 
-    "#d45b91", "#374738",
-    RColorBrewer::brewer.pal(12, "Set3"),
-    RColorBrewer::brewer.pal(8, "Pastel2"),
-    "#333333", "#5D5D5D",
-    "#888888", "#B3B3B3"
+    "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F", 
+    "#FF7F00", "#CAB2D6", "#6A3D9A", "#e3dc5b", "#B15928", "#d45b91", "#374738",
+    "#60c4b4", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", "#B3DE69", 
+    "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5", "#FFED6F",
+    "#B3E2CD", "#FDCDAC", "#CBD5E8", "#F4CAE4", "#E6F5C9", "#FFF2AE", "#F1E2CC", 
+    "#CCCCCC", "#333333", "#5D5D5D", "#888888", "#B3B3B3"
   )
-  colors[11] <- "#e3dc5b"
-  colors[15] <- "#60c4b4"
   return(colors)
 }
 
@@ -71,14 +68,22 @@ calculateEvalMetrics <- function(object) {
   tmd <- as_tibble(x = testProbsDeconv)
   tmd <- mutate(tmd, Sample = rownames(testProbsDeconv),
                 nCellTypes = factor(rowSums(testProbsDeconv > 0)))
-  tmd <- tmd %>% gather(key = "CellType", value = "Prob", 
-                        -.data[["Sample"]], -.data[["nCellTypes"]])
+  
+  tmd <- suppressMessages(reshape2::melt(
+    tmd, variable.name = "CellType", value.name = "Prob"
+  ))
+  # tmd2 <- tmd %>% gather(key = "CellType", value = "Prob",
+  #                       -.data[["Sample"]], -.data[["nCellTypes"]])
   # probabilities target test
   pmd <- as_tibble(predictionsDeconv)
   pmd <- mutate(pmd, Sample = rownames(predictionsDeconv))
-  pmd <- pmd %>% gather(key = "CellType", value = "Pred", -.data[["Sample"]])
+  pmd <- suppressMessages(reshape2::melt(
+    pmd, variable.name = "CellType", value.name = "Pred"
+  ))
+  # pmd2 <- pmd %>% gather(key = "CellType", value = "Pred", -.data[["Sample"]])
   # union
   amd <- tmd %>% left_join(pmd, by = c("Sample", "CellType"))
+  # amd2 <- tmd2 %>% left_join(pmd2, by = c("Sample", "CellType"))
   # add bins to Probs
   amd$pBin <- 0
   for (p in seq(from = 0.1, to = 1, by = 0.1)) {
@@ -323,6 +328,7 @@ se <- function(x) sqrt(var(x)/length(x))
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -385,8 +391,6 @@ distErrorPlot <- function(
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not contain evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
-  } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
-    stop("Evaluation metrics are incorrect. Please, use 'calculateEvalMetrics' function")
   } else if (!error %in% c("AbsErr", "ppAbsErr", "SqrErr", "ppSqrErr")) {
     stop("'error' provided is not valid. The available errors are: 'AbsErr', ",
          "'ppAbsErr', 'SqrErr' and 'ppSqrErr'")
@@ -587,6 +591,7 @@ distErrorPlot <- function(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -646,8 +651,6 @@ corrExpPredPlot <- function(
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
-  } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
-    stop("Evaluation metrics are not present, use 'calculateEvalMetrics' function")
   } else if (!is.null(color.by)) {
     if (!color.by %in% c("nCellTypes", "CellType"))
       stop("'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL")
@@ -842,6 +845,7 @@ corrExpPredPlot <- function(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -898,8 +902,6 @@ blandAltmanLehPlot <- function(
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
-  } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
-    stop("Evaluation metrics are not correctly built, use 'calculateEvalMetrics' function")
   } else if (!is.null(color.by)) {
     if (!color.by %in% c("nCellTypes", "CellType")) {
       stop("'color.by' provided is not valid. The available options are: 'nCellTypes', 'CellType' or NULL")
@@ -1028,6 +1030,7 @@ blandAltmanLehPlot <- function(
 #'   sc.data = sce,
 #'   sc.cell.ID.column = "Cell_ID",
 #'   sc.gene.ID.column = "Gene_ID",
+#'   sc.filt.genes.cluster = FALSE
 #' )
 #' SDDLS <- genMixedCellProp(
 #'   object = SDDLS,
@@ -1074,8 +1077,6 @@ barErrorPlot <- function(
              is.null(trained.model(object)@test.deconv.metrics)) {
     stop("The provided object does not have evaluation metrics. Use ",
          "'calculateEvalMetrics' function")
-  } else if (!is(trained.model(object)@test.deconv.metrics[[1]], "tbl_df")) {
-    stop("Evaluation metrics are not properly built, use 'calculateEvalMetrics' function")
   } else if (!by %in% c("nCellTypes", "CellType")) {
     stop("'by' provided is not valid. The available options are: 'nCellTypes', 'CellType'")
   } else if (!error %in% c("MAE", "MSE")) {

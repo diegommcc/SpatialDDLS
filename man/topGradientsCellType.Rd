@@ -11,9 +11,9 @@ topGradientsCellType(object, method = "class", top.n.genes = 15)
 \code{\linkS4class{DeconvDLModel}} object containing gradients in the
 \code{interpret.gradients} slot.}
 
-\item{method}{Method gradients were calculated by. Either \code{'class'}
-(gradients of predicted classes w.r.t. inputs) or \code{'loss'} (gradients
-of loss w.r.t. input features).}
+\item{method}{Method gradients were calculated by. It can be either
+\code{'class'} (gradients of predicted classes w.r.t. inputs) or
+\code{'loss'} (gradients of loss w.r.t. input features).}
 
 \item{top.n.genes}{Top n genes (positive and negative) taken per cell type.}
 }
@@ -50,6 +50,7 @@ SDDLS <- createSpatialDDLSobject(
   sc.data = sce,
   sc.cell.ID.column = "Cell_ID",
   sc.gene.ID.column = "Gene_ID",
+  sc.filt.genes.cluster = FALSE
 )
 SDDLS <- genMixedCellProp(
   object = SDDLS,
