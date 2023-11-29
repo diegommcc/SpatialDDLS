@@ -111,7 +111,7 @@ mouseDLN.SDDLS <- genMixedCellProp(
   train.freq.cells = 2/3,
   train.freq.spots = 2/3,
   proportion.method = c(0.4, 0.3, 0.3),
-  prob.sparity = 1, 
+  prob.sparity = 0.8, 
   min.zero.prop = 5,
   balanced.type.cells = TRUE
 )

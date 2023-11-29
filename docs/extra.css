@@ -3,7 +3,8 @@ h1 {
 }
 
 #toc h2 {
-font-weight: bolder;
+  font-weight: bolder;
+  font-size: 10px;
 }
 
 .links h2 {

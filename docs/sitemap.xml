@@ -4,6 +4,9 @@
     <loc>/404.html</loc>
   </url>
   <url>
+    <loc>/articles/hdf5Backend.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
@@ -88,6 +91,9 @@
     <loc>/reference/installTFpython.html</loc>
   </url>
   <url>
+    <loc>/reference/interGradientsDL.html</loc>
+  </url>
+  <url>
     <loc>/reference/loadSTProfiles.html</loc>
   </url>
   <url>
@@ -101,6 +107,18 @@
   </url>
   <url>
     <loc>/reference/model.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plotDistances.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plotHeatmapGradsAgg.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plotSpatialClustering.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plotSpatialGeneExpr.html</loc>
   </url>
   <url>
     <loc>/reference/plotSpatialProp.html</loc>
@@ -157,6 +175,9 @@
     <loc>/reference/spatial.experiments.html</loc>
   </url>
   <url>
+    <loc>/reference/spatialPropClustering.html</loc>
+  </url>
+  <url>
     <loc>/reference/test.deconv.metrics.html</loc>
   </url>
   <url>
@@ -164,6 +185,9 @@
   </url>
   <url>
     <loc>/reference/test.pred.html</loc>
+  </url>
+  <url>
+    <loc>/reference/topGradientsCellType.html</loc>
   </url>
   <url>
     <loc>/reference/trainDeconvModel.html</loc>
