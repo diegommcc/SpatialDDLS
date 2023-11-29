@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SpatialDDLS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   </a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
      
     <span class="caret"></span>
@@ -69,7 +69,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">barPlotCellTypes</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  simplify <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prediction <span class="op">=</span> <span class="st">"Regularized"</span>,</span>
 <span>  color.line <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  x.label <span class="op">=</span> <span class="st">"Spots"</span>,</span>
 <span>  rm.x.text <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -92,9 +93,14 @@
 <dd><p>Vector of colors to be used.</p></dd>
 
 
-<dt>simplify</dt>
+<dt>set</dt>
 <dd><p>Type of simplification performed during deconvolution. It can
 be <code>simpli.set</code> or <code>simpli.maj</code> (<code>NULL</code> by default).</p></dd>
+
+
+<dt>prediction</dt>
+<dd><p>Set of predicted cell proportions to be plotted. It can be
+<code>"Regularized"</code>, <code>"Intrinsic"</code> or <code>"Extrinsic"</code>.</p></dd>
 
 
 <dt>color.line</dt>

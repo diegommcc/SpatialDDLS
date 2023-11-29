@@ -19,7 +19,7 @@ profiles."><meta property="og:image" content="/logo.png"><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SpatialDDLS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -31,7 +31,7 @@ profiles."><meta property="og:image" content="/logo.png"><!-- mathjax --><script
   </a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
      
     <span class="caret"></span>
@@ -137,7 +137,7 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu">SingleCellExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/SingleCellExperiment.html" class="external-link">SingleCellExperiment</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  assays <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
@@ -159,7 +159,15 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-in"><span>  sc.data <span class="op">=</span> <span class="va">sce</span>,</span></span>
 <span class="r-in"><span>  sc.cell.ID.column <span class="op">=</span> <span class="st">"Cell_ID"</span>,</span></span>
 <span class="r-in"><span>  sc.gene.ID.column <span class="op">=</span> <span class="st">"Gene_ID"</span>,</span></span>
+<span class="r-in"><span>  sc.filt.genes.cluster <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Spatial transcriptomics data not provided</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Processing single-cell data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>       - Filtering features:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          - Selected features: 15</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          - Discarded features: 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Final number of dimensions for further analyses: 15</span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="genMixedCellProp.html">genMixedCellProp</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
 <span class="r-in"><span>  cell.ID.column <span class="op">=</span> <span class="st">"Cell_ID"</span>,</span></span>
@@ -167,14 +175,88 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-in"><span>  num.sim.spots <span class="op">=</span> <span class="fl">50</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === The number of mixed profiles that will be generated is equal to 50</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Training set cells by type:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType1: 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType2: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType3: 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType4: 2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType5: 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType6: 2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Test set cells by type:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType1: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType2: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType3: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType4: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType5: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType6: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Probability matrix for training data:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Mixed spots: 34</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Cell types: 6</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Probability matrix for test data:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Mixed spots: 16</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Cell types: 6</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
+<span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="simMixedProfiles.html">simMixedProfiles</a></span><span class="op">(</span><span class="va">SDDLS</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Setting parallel environment to 1 thread(s)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating train mixed profiles:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating test mixed profiles:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
 <span class="r-in"><span><span class="co"># training of DDLS model</span></span></span>
-<span class="r-in"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/tensorflow/man/tf.html" class="external-link">tf</a></span><span class="op">$</span><span class="va">compat</span><span class="op">$</span><span class="va">v1</span><span class="op">$</span><span class="fu">disable_eager_execution</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="trainDeconvModel.html">trainDeconvModel</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
-<span class="r-in"><span>  on.the.fly <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  batch.size <span class="op">=</span> <span class="fl">15</span>,</span></span>
 <span class="r-in"><span>  num.epochs <span class="op">=</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Training and test from stored data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     Using only simulated mixed samples</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     Using only simulated mixed samples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model: "SpatialDDLS"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Layer (type)                   Output Shape               Param #    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> =====================================================================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dense1 (Dense)                 (None, 200)                3200       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BatchNormalization1 (BatchNorm (None, 200)                800        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Activation1 (Activation)       (None, 200)                0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dropout1 (Dropout)             (None, 200)                0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dense2 (Dense)                 (None, 200)                40200      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BatchNormalization2 (BatchNorm (None, 200)                800        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Activation2 (Activation)       (None, 200)                0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dropout2 (Dropout)             (None, 200)                0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dense3 (Dense)                 (None, 6)                  1206       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BatchNormalization3 (BatchNorm (None, 6)                  24         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ActivationSoftmax (Activation) (None, 6)                  0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> =====================================================================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total params: 46,230</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Trainable params: 45,418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Non-trainable params: 812</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 34 samples:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (16 samples)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.4229</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0.125</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2283</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0.125</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating prediction results using test data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
 <span class="r-in"><span><span class="co"># evaluation using test data</span></span></span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="calculateEvalMetrics.html">calculateEvalMetrics</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">SDDLS</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># bar error plots</span></span></span>
@@ -183,12 +265,14 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-in"><span>  error <span class="op">=</span> <span class="st">"MSE"</span>,</span></span>
 <span class="r-in"><span>  by <span class="op">=</span> <span class="st">"CellType"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="barErrorPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">barErrorPlot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
 <span class="r-in"><span>  error <span class="op">=</span> <span class="st">"MAE"</span>,</span></span>
 <span class="r-in"><span>  by <span class="op">=</span> <span class="st">"nCellTypes"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="barErrorPlot-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{Get started}
+      %\VignetteIndexEntry{Get started! Deconvolution of mouse lymph node samples}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -355,7 +355,9 @@ colnames(meanZscoresCustom) <- names(customMarkers)
 
 
 ```{r, zscores, fig.height=8.5, fig.width=12}
-color.z.scores <- rev(colorRampPalette(RColorBrewer::brewer.pal(n = 10, name = "RdBu"))(20))
+color.z.scores <- rev(
+  colorRampPalette(RColorBrewer::brewer.pal(n = 10, name = "RdBu"))(20)
+)
 st.coor <- SpatialExperiment::spatialCoords(
   spatial.experiments(object = mouseDLN.SDDLS, index.st = 1)
 )
@@ -375,7 +377,7 @@ dfPlotLong %>% ggplot(
     axis.title.x = element_blank(), axis.text.x = element_blank(),
     axis.ticks.x = element_blank(), axis.title.y = element_blank(),
     axis.text.y = element_blank(), axis.ticks.y = element_blank()
-  ) + coord_fixed() + facet_wrap(~ CellType) + coord_fixed()
+  ) + coord_fixed() + facet_wrap(~ CellType) 
 ```
 
 ## References

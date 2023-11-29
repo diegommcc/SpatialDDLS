@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SpatialDDLS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   </a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
      
     <span class="caret"></span>
@@ -100,7 +100,7 @@ type proportions of test data</p></td>
       </tr><tr><td>
           <p><code><a href="calculateEvalMetrics.html">calculateEvalMetrics()</a></code> </p>
         </td>
-        <td><p>Calculate evaluation metrics of test mixed transcriptional profiles</p></td>
+        <td><p>Calculate evaluation metrics on test mixed transcriptional profiles</p></td>
       </tr><tr><td>
           <p><code><a href="cell.names.html">cell.names()</a></code> <code><a href="cell.names.html">`cell.names&lt;-`()</a></code> </p>
         </td>
@@ -128,7 +128,7 @@ proportions of test data</p></td>
       </tr><tr><td>
           <p><code><a href="deconvSpatialDDLS.html">deconvSpatialDDLS()</a></code> </p>
         </td>
-        <td><p>Deconvolute spatial transcriptomics data</p></td>
+        <td><p>Deconvolute spatial transcriptomics data using trained model</p></td>
       </tr><tr><td>
           <p><code><a href="distErrorPlot.html">distErrorPlot()</a></code> </p>
         </td>
@@ -156,6 +156,11 @@ RNA-Seq expression profiles</p></td>
         </td>
         <td><p>Install Python dependencies for SpatialDDLS</p></td>
       </tr><tr><td>
+          <p><code><a href="interGradientsDL.html">interGradientsDL()</a></code> </p>
+        </td>
+        <td><p>Calculate gradients of predicted cell types/loss function with respect to
+input features for interpreting trained deconvolution models</p></td>
+      </tr><tr><td>
           <p><code><a href="loadSTProfiles.html">loadSTProfiles()</a></code> </p>
         </td>
         <td><p>Loads spatial transcriptomics data into a SpatialDDLS object</p></td>
@@ -179,6 +184,23 @@ object</p></td>
         </td>
         <td><p>Get and set <code>model</code> slot in a <code>DeconvDLModel</code>
 object</p></td>
+      </tr><tr><td>
+          <p><code><a href="plotDistances.html">plotDistances()</a></code> </p>
+        </td>
+        <td><p>Plot distances between intrinsic and extrinsic profiles</p></td>
+      </tr><tr><td>
+          <p><code><a href="plotHeatmapGradsAgg.html">plotHeatmapGradsAgg()</a></code> </p>
+        </td>
+        <td><p>Plot a heatmap of gradients of classes / loss function wtih respect to the
+input</p></td>
+      </tr><tr><td>
+          <p><code><a href="plotSpatialClustering.html">plotSpatialClustering()</a></code> </p>
+        </td>
+        <td><p>Plot results of clustering based on predicted cell proportions</p></td>
+      </tr><tr><td>
+          <p><code><a href="plotSpatialGeneExpr.html">plotSpatialGeneExpr()</a></code> </p>
+        </td>
+        <td><p>Plot normalized gene expression data (logCPM) in spatial coordinates</p></td>
       </tr><tr><td>
           <p><code><a href="plotSpatialProp.html">plotSpatialProp()</a></code> </p>
         </td>
@@ -266,6 +288,10 @@ model parameters</p></td>
         <td><p>Get and set <code>spatial.experiments</code> slot in a
 <code>SpatialDDLS</code> object</p></td>
       </tr><tr><td>
+          <p><code><a href="spatialPropClustering.html">spatialPropClustering()</a></code> </p>
+        </td>
+        <td><p>Cluster spatial data based on predicted cell proportions</p></td>
+      </tr><tr><td>
           <p><code><a href="test.deconv.metrics.html">test.deconv.metrics()</a></code> <code><a href="test.deconv.metrics.html">`test.deconv.metrics&lt;-`()</a></code> </p>
         </td>
         <td><p>Get and set <code>test.deconv.metrics</code> slot in a
@@ -280,6 +306,10 @@ model parameters</p></td>
         </td>
         <td><p>Get and set <code>test.pred</code> slot in a
 <code>DeconvDLModel</code> object</p></td>
+      </tr><tr><td>
+          <p><code><a href="topGradientsCellType.html">topGradientsCellType()</a></code> </p>
+        </td>
+        <td><p>Get top genes with largest/smallest gradients per cell type</p></td>
       </tr><tr><td>
           <p><code><a href="trainDeconvModel.html">trainDeconvModel()</a></code> </p>
         </td>

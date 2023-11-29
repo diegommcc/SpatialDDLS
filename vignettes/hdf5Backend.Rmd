@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{HDF5 files as back-end}
+      %\VignetteIndexEntry{Using HFD5 files as back-end}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
 geometry: margin=3cm

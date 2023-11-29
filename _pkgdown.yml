@@ -1,3 +1,6 @@
+development:
+  mode: auto
+
 template:
   params:
     bootswatch: cosmo
@@ -24,8 +27,10 @@ navbar:
      href: index.html
    - text: "Vignettes"
      menu:
-       - text: "Deconvolution of mouse lymph node samples"
+       - text: "Get started"
          href: ./articles/realModelExample-hq.html
+       - text: "HDF5 files"
+         href: ./articles/hdf5Backend.html
    - text: "Functions"
      href: reference/index.html
   right:
@@ -38,4 +43,5 @@ repo:
     source: https://github.com/diegommcc/SpatialDDLS/
     issue: https://github.com/diegommcc/SpatialDDLS/issues
     user: https://github.com/diegommcc/
+    
     

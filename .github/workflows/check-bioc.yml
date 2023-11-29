@@ -234,6 +234,12 @@ jobs:
         run: |
           remotes::install_cran("covr")
         shell: Rscript {0}
+        
+      - name: Install RColorBrewer
+        if: github.ref == 'refs/heads/master' && env.run_covr == 'true' && runner.os == 'Linux'
+        run: |
+          remotes::install_cran("RColorBrewer")
+        shell: Rscript {0}
 
       - name: Install pkgdown
         if: github.ref == 'refs/heads/master' && env.run_pkgdown == 'true' && runner.os == 'Linux'
