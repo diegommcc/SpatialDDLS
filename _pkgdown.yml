@@ -1,9 +1,8 @@
-development:
-  mode: auto
-
 template:
-  params:
-    bootswatch: cosmo
+  bootstrap: 5
+  bootswatch: cosmo
+  bslib:
+    primary: "#143D35"
 
 bslib:
   font_scale: 1.2
@@ -23,11 +22,9 @@ home:
 
 navbar:
   left:
-   - icon: fa-home fa-lg
-     href: index.html
    - text: "Vignettes"
      menu:
-       - text: "Get started"
+       - text: "Get started! Deconvolution of mouse lymph node samples"
          href: ./articles/realModelExample-hq.html
        - text: "HDF5 files"
          href: ./articles/hdf5Backend.html
@@ -36,6 +33,8 @@ navbar:
   right:
    - icon: fa-github
      href: https://github.com/diegommcc/SpatialDDLS
+  type: dark
+  bg: primary
   
 repo:
   url:
@@ -43,5 +42,4 @@ repo:
     source: https://github.com/diegommcc/SpatialDDLS/
     issue: https://github.com/diegommcc/SpatialDDLS/issues
     user: https://github.com/diegommcc/
-    
     

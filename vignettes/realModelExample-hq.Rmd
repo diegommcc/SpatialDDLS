@@ -113,8 +113,7 @@ mouseDLN.SDDLS <- genMixedCellProp(
   proportion.method = c(0.4, 0.3, 0.3),
   prob.sparity = 1, 
   min.zero.prop = 5,
-  balanced.type.cells = TRUE,
-  verbose = TRUE
+  balanced.type.cells = TRUE
 )
 ```
 
@@ -133,11 +132,12 @@ mouseDLN.SDDLS <- trainDeconvModel(
   mouseDLN.SDDLS,
   num.epochs = 60,
   num.hidden.layers = 2, 
-  num.units = c(200, 200)
+  num.units = c(200, 200),
+  verbose = FALSE
 ) 
 ```
 
-By default, some metrics about the performance of the model will be displayed. More advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, providing insight into the model's performance for each cell type. These metrics can be visualized using various functions:
+Some metrics of the training progress can be shown by setting `verbose = TRUE`. Anyhow, more advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, providing insight into the model's performance for each cell type. These metrics can be visualized using various functions:
 
 ```{r, abserr-celltype}
 mouseDLN.SDDLS <- calculateEvalMetrics(mouseDLN.SDDLS)
@@ -230,24 +230,26 @@ As one might expect, this is a smoothed version of the final predictions. It is 
 plotDistances(mouseDLN.SDDLS, index.st = 1, size.point = 1.5) + coord_fixed()
 ```
 
-Those spots with distances less than the mean distance were regularized according to their nearest neighbor spots. We can observe this spots using the following chunk of code: 
+Those spots with distances less than the mean distance were regularized according to their nearest neighbor spots. 
 
-```{r, modified-spots}
-st.coor <- SpatialExperiment::spatialCoords(
-  spatial.experiments(object = mouseDLN.SDDLS, index.st = 1)
-)[, 1:2]
-colnames(st.coor) <- paste("Spatial", 1:2)
-st.pred <- deconv.spots(object = mouseDLN.SDDLS, index.st = 1)
-alpha.factors <- st.pred[["Alpha.Factors"]]
-dfPlot <- as.data.frame(cbind(st.coor, alpha.factors))
-ggplot(
-  dfPlot, aes(
-    x = .data[["Spatial 1"]], y = .data[["Spatial 2"]], 
-    color = alpha.factors
-  )
-) + geom_point(size = 1.5) + scale_color_gradient2() + 
-  ggtitle("Distances") + SpatialDDLSTheme() + coord_fixed()
-```
+<!-- We can observe this spots using the following chunk of code:  -->
+
+<!-- ```{r, modified-spots} -->
+<!-- st.coor <- SpatialExperiment::spatialCoords( -->
+<!--   spatial.experiments(object = mouseDLN.SDDLS, index.st = 1) -->
+<!-- )[, 1:2] -->
+<!-- colnames(st.coor) <- paste("Spatial", 1:2) -->
+<!-- st.pred <- deconv.spots(object = mouseDLN.SDDLS, index.st = 1) -->
+<!-- alpha.factors <- st.pred[["Alpha.Factors"]] -->
+<!-- dfPlot <- as.data.frame(cbind(st.coor, alpha.factors)) -->
+<!-- ggplot( -->
+<!--   dfPlot, aes( -->
+<!--     x = .data[["Spatial 1"]], y = .data[["Spatial 2"]],  -->
+<!--     color = alpha.factors -->
+<!--   ) -->
+<!-- ) + geom_point(size = 1.5) + scale_color_gradient2() +  -->
+<!--   ggtitle("Distances") + SpatialDDLSTheme() + coord_fixed() -->
+<!-- ``` -->
 
 ## Interpreting the model
 

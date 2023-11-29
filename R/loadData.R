@@ -1143,6 +1143,9 @@ NULL
 #' @param st.gene.ID.column Name or number of the column in the genes metadata
 #'   corresponding to the names used for features/genes (spatial transcriptomics
 #'   data).
+#' @param filter.mt.genes Regular expression matching mitochondrial genes to 
+#'   be ruled out (\code{^mt-} by default). If \code{NULL}, no filtering is 
+#'   performed. 
 #' @param sc.filt.genes.cluster Whether to filter single-cell RNA-seq genes
 #'   according to a minimum threshold of non-zero average counts per cell type
 #'   (\code{sc.min.mean.counts}). \code{TRUE} by default. 
@@ -1266,6 +1269,7 @@ createSpatialDDLSobject <- function(
     st.data,
     st.spot.ID.column,
     st.gene.ID.column,
+    filter.mt.genes = "^mt-",
     sc.filt.genes.cluster = TRUE,
     sc.min.mean.counts = 1, 
     sc.n.genes.per.cluster = 300,
@@ -1350,6 +1354,31 @@ createSpatialDDLSobject <- function(
         X = spatial.experiments, 
         FUN = function(obj) obj[inter.genes[inter.genes %in% rownames(obj)], ]
       )
+    }
+  }
+  ## take out mitochondrial genes
+  if (!is.null(filter.mt.genes)) {
+    mt.genes.sc <- grepl(
+      pattern = filter.mt.genes, x = rownames(single.cell.real), 
+      ignore.case = TRUE
+    )
+    if (sum(mt.genes.sc) > 0) {
+      if (verbose) 
+        message("\n=== Number of removed mitochondrial genes: ", sum(mt.genes.sc))
+      
+      single.cell.real <- single.cell.real[!mt.genes.sc, ]
+      
+      mt.genes.st <- grepl(
+        pattern = filter.mt.genes, x = rownames(spatial.experiments[[1]]), 
+        ignore.case = TRUE
+      )
+      spatial.experiments <- lapply(spatial.experiments, \(st) st[!mt.genes.st, ])
+    } else {
+      if (verbose) 
+        message(
+          "\n=== No mitochondrial genes were found by using ", 
+          filter.mt.genes, " as regrex"
+        ) 
     }
   }
   if (sc.filt.genes.cluster) {

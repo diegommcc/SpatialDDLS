@@ -12,6 +12,7 @@ createSpatialDDLSobject(
   st.data,
   st.spot.ID.column,
   st.gene.ID.column,
+  filter.mt.genes = "^mt-",
   sc.filt.genes.cluster = TRUE,
   sc.min.mean.counts = 1,
   sc.n.genes.per.cluster = 300,
@@ -62,6 +63,10 @@ data).}
 \item{st.gene.ID.column}{Name or number of the column in the genes metadata
 corresponding to the names used for features/genes (spatial transcriptomics
 data).}
+
+\item{filter.mt.genes}{Regular expression matching mitochondrial genes to
+be ruled out (\code{^mt-} by default). If \code{NULL}, no filtering is
+performed.}
 
 \item{sc.filt.genes.cluster}{Whether to filter single-cell RNA-seq genes
 according to a minimum threshold of non-zero average counts per cell type
