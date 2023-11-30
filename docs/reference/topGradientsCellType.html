@@ -205,9 +205,9 @@ gradients per cell type.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 34 samples:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (16 samples)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 0.2015</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 0.2941</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.1817</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2542</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating prediction results using test data</span>
@@ -218,30 +218,30 @@ gradients per cell type.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">listGradients</span>, <span class="va">head</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType1$Absolute</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene8"  "Gene11" "Gene13" "Gene4"  "Gene3"  "Gene2"  "Gene12" "Gene14"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene5"  "Gene7"  "Gene6"  "Gene1"  "Gene10" "Gene9"  "Gene15"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene11" "Gene4"  "Gene8"  "Gene12" "Gene5"  "Gene3"  "Gene13" "Gene2" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene14" "Gene15" "Gene7"  "Gene1"  "Gene9"  "Gene6"  "Gene10"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType1$Positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene8"  "Gene11" "Gene13" "Gene4"  "Gene3"  "Gene2"  "Gene12" "Gene14"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene5"  "Gene7"  "Gene6"  "Gene1"  "Gene10" "Gene9"  "Gene15"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene11" "Gene4"  "Gene8"  "Gene12" "Gene5"  "Gene3"  "Gene13" "Gene2" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene14" "Gene15" "Gene7"  "Gene1"  "Gene9"  "Gene6"  "Gene10"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType1$Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene8"  "Gene11" "Gene13" "Gene4"  "Gene3"  "Gene2"  "Gene12" "Gene14"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene5"  "Gene7"  "Gene6"  "Gene1"  "Gene10" "Gene9"  "Gene15"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene11" "Gene4"  "Gene8"  "Gene12" "Gene5"  "Gene3"  "Gene13" "Gene2" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene14" "Gene15" "Gene7"  "Gene1"  "Gene9"  "Gene6"  "Gene10"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType2$Absolute</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene15" "Gene10" "Gene1"  "Gene7"  "Gene9"  "Gene6"  "Gene2"  "Gene4" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene3"  "Gene8"  "Gene12" "Gene14" "Gene11" "Gene13" "Gene5" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene10" "Gene7"  "Gene1"  "Gene9"  "Gene6"  "Gene15" "Gene11" "Gene13"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene2"  "Gene14" "Gene8"  "Gene3"  "Gene4"  "Gene12" "Gene5" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType2$Positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene15" "Gene10" "Gene1"  "Gene7"  "Gene9"  "Gene6"  "Gene2"  "Gene4" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene3"  "Gene8"  "Gene12" "Gene14" "Gene11" "Gene13" "Gene5" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene10" "Gene7"  "Gene1"  "Gene9"  "Gene6"  "Gene15" "Gene11" "Gene13"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene2"  "Gene14" "Gene8"  "Gene3"  "Gene4"  "Gene12" "Gene5" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $CellType2$Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene15" "Gene10" "Gene1"  "Gene7"  "Gene9"  "Gene6"  "Gene2"  "Gene4" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene3"  "Gene8"  "Gene12" "Gene14" "Gene11" "Gene13" "Gene5" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Gene10" "Gene7"  "Gene1"  "Gene9"  "Gene6"  "Gene15" "Gene11" "Gene13"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Gene2"  "Gene14" "Gene8"  "Gene3"  "Gene4"  "Gene12" "Gene5" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
