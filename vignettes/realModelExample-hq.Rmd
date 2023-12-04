@@ -110,8 +110,8 @@ mouseDLN.SDDLS <- genMixedCellProp(
   n.cells = 50,
   train.freq.cells = 2/3,
   train.freq.spots = 2/3,
-  proportion.method = c(0.4, 0.3, 0.3),
-  prob.sparity = 0.8, 
+  proportion.method = c(0, 0, 1),
+  prob.sparity = 1, 
   min.zero.prop = 5,
   balanced.type.cells = TRUE
 )
@@ -188,7 +188,7 @@ The latter can be used to understand how similar each spot is to its neighbors. 
 
 ```{r}
 mouseDLN.SDDLS <- deconvSpatialDDLS(
-  mouseDLN.SDDLS, k.spots = 6
+  mouseDLN.SDDLS, k.spots = 6, fast.pca = TRUE
 )
 ```
 
@@ -287,7 +287,7 @@ sapply(
 ) %>% as.data.frame()
 ```
 
-As can be seen, among the top 5 genes some canonical markers for different cell types appear, such as Cd79b for B cells, Cd8a for CD8 T cells, or Foxp3 for Tregs. These are just the top 5 genes, so considering a higher number can provide a more comprehensive understanding of the genes utilizaed by the model.
+As can be seen, among the top 5 genes some canonical markers for different cell types appear, such as Cd72 for B cells, Cd8a for CD8 T cells, or Foxp3 for Tregs. These are just the top 5 genes, so considering a higher number can provide a more comprehensive understanding of the genes utilizaed by the model.
 
 We also provide the `plotHeatmapGradsAgg` function for visualizing the top N mean gradients per cell type. This plot highlights genes with high gradients across different cell types, reflecting the multivariate nature of neural networks. It is advisable to examine both the most positive and negative gradients, as these genes significantly contribute to the network's predictions.
 

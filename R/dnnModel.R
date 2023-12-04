@@ -1155,9 +1155,15 @@ trainDeconvModel <- function(
 #'   greater, the smoother the regularization will be (4 by default). 
 #' @param pca.space Whether to use PCA space to calculate distances between 
 #'   intrinsic and extrinsic transcriptional profiles (\code{TRUE} by default). 
+#' @param fast.pca Whether using the \pkg{irlba} implementation. If \code{TRUE},
+#'   the number of PCs used is defined by the \code{} parameter. If 
+#'   \code{FALSE}, the PCA implementation from the \pkg{stats} R package is 
+#'   used instead (\code{TRUE} by default).
+#' @param pcs.num Number of PCs used to calculate distances if 
+#'   \code{fast.pca == TRUE} (50 by default). 
 #' @param pca.var Threshold of explained 
 #'   variance (between 0.2 and 1) used to choose the number of PCs used if 
-#'   \code{pca.space == TRUE}. 
+#'   \code{pca.space == TRUE} and \code{fast.pca == FALSE} (0.8 by default). 
 #' @param metric Metric used to measure distance/similarity between intrinsic 
 #'   and extrinsic transcriptional profiles. It may be \code{'euclidean'}, 
 #'   \code{'cosine'} or \code{'pearson'} (\code{'euclidean'} by default).
@@ -1279,6 +1285,8 @@ deconvSpatialDDLS <- function(
   scaling = "standardize",
   k.spots = 4, 
   pca.space = TRUE,
+  fast.pca = TRUE,
+  pcs.num = 50,
   pca.var = 0.8,
   metric = "euclidean",
   alpha.cutoff = "mean",
@@ -1371,6 +1379,8 @@ deconvSpatialDDLS <- function(
         use.generator = use.generator,
         k = k.spots, 
         pca = pca.space,
+        fast.pca = fast.pca,
+        pcs.num = pcs.num,
         pca.var = pca.var,
         metric = metric,
         alpha.cutoff = alpha.cutoff,
@@ -1535,6 +1545,8 @@ deconvSpatialDDLS <- function(
     use.generator = use.generator,
     k = k, 
     pca = pca,
+    fast.pca = fast.pca,
+    pcs.num = pcs.num,
     pca.var = pca.var,
     metric = metric,
     alpha.cutoff = alpha.cutoff,
@@ -1577,18 +1589,37 @@ deconvSpatialDDLS <- function(
     logcpm.nn.expr.2 <- logcpm.nn.expr
     colnames(logcpm.nn.expr.2) <- paste0(colnames(logcpm.nn.expr), "_NN")
     
-    ## I should use faster alternatives, but for the moment let's keep prcomp
-    pca.space <- stats::prcomp(
-      t(cbind(logcpm.spot.expr, logcpm.nn.expr.2)), center = TRUE, scale. = TRUE
-    )
-    eigs <- pca.space$sdev^2
-    n.pcs <- sum(cumsum(eigs / sum(eigs)) <= pca.var)
-    
-    if (verbose) 
-      message(paste0("        - Using ", n.pcs, " PCs (variance cutoff: ", pca.var, ")\n"))
-    
-    pca.nn <- pca.space$x[grep("_NN$", rownames(pca.space$x)), 1:n.pcs]
-    pca.ori <- pca.space$x[grep("_NN$", rownames(pca.space$x), invert = T), 1:n.pcs]
+    if (fast.pca) {
+      if (!requireNamespace("irlba", quietly = TRUE)) {
+        warning(
+          paste(
+            "irlba is required but not available. Running", 
+            "PCA implementation from the stats R package"
+          ), call. = FALSE, immediate. = TRUE
+        )
+      }
+      if (verbose) message("\n=== Calculating ", pcs.num, " PCs\n")
+      
+      log.cpm.final <- cbind(logcpm.spot.expr, logcpm.nn.expr.2)
+      if (pcs.num >= nrow(log.cpm.final)) {
+        pcs.num <- ceiling(nrow(log.cpm.final) * 0.8)
+      }
+      pca.space <- irlba::irlba(A = t(x = log.cpm.final), nv = pcs.num)
+      pca.nn <- pca.space[[2]][grepl("_NN$", colnames(log.cpm.final)), ]
+      pca.ori <- pca.space[[2]][!grepl("_NN$", colnames(log.cpm.final)), ]
+    } else {
+      pca.space <- stats::prcomp(
+        t(cbind(logcpm.spot.expr, logcpm.nn.expr.2)), center = TRUE, scale. = TRUE
+      )
+      eigs <- pca.space$sdev^2
+      n.pcs <- sum(cumsum(eigs / sum(eigs)) <= pca.var)
+      if (verbose) 
+        message(paste0("        - Using ", n.pcs, " PCs (variance cutoff: ", pca.var, ")\n"))
+        
+      pca.nn <- pca.space$x[grep("_NN$", rownames(pca.space$x)), 1:n.pcs]
+      pca.ori <- pca.space$x[grep("_NN$", rownames(pca.space$x), invert = T), 1:n.pcs]
+    }
+    ## distances
     dist.mm <- .distCalc(x = pca.ori, y = pca.nn, metric = metric)
   } else {
     if (verbose) message("\n=== Calculating distances in transcriptome space\n")

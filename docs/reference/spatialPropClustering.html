@@ -227,10 +227,10 @@ clusters as a column in the slot <code>colData</code> of the
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 34 samples:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (16 samples)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 0.186</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.169</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: NaN</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0.5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: NaN</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0.5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating prediction results using test data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
@@ -259,19 +259,21 @@ clusters as a column in the slot <code>colData</code> of the
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === 1 SpatialExperiment objects provided</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>    === Processing spatial transcriptomics data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>       - Filtering features:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>          - Selected features: 19</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          - Selected features: 17</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>          - Discarded features: 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="deconvSpatialDDLS.html">deconvSpatialDDLS</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">SDDLS</span>,</span></span>
 <span class="r-in"><span>  index.st <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span> </span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Filtering out 4 features in data that are not present in trained model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Filtering out 2 features in data that are not present in trained model</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Normalizing data (LogCPM)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Predicting cell type proportions</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating distances in PCA space</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>         - Using 3 PCs (variance cutoff: 0.8)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating 50 PCs</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>You're computing too large a percentage of total singular values, use a standard svd instead.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating alpha factors based on distances</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu">spatialPropClustering</span><span class="op">(</span><span class="va">SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, k.nn <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

@@ -97,6 +97,8 @@ Details section.</p>
 <span>  scaling <span class="op">=</span> <span class="st">"standardize"</span>,</span>
 <span>  k.spots <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  pca.space <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  fast.pca <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  pcs.num <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  pca.var <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  metric <span class="op">=</span> <span class="st">"euclidean"</span>,</span>
 <span>  alpha.cutoff <span class="op">=</span> <span class="st">"mean"</span>,</span>
@@ -146,10 +148,22 @@ greater, the smoother the regularization will be (4 by default).</p></dd>
 intrinsic and extrinsic transcriptional profiles (<code>TRUE</code> by default).</p></dd>
 
 
+<dt>fast.pca</dt>
+<dd><p>Whether using the <span class="pkg">irlba</span> implementation. If <code>TRUE</code>,
+the number of PCs used is defined by the <code></code> parameter. If
+<code>FALSE</code>, the PCA implementation from the <span class="pkg">stats</span> R package is
+used instead (<code>TRUE</code> by default).</p></dd>
+
+
+<dt>pcs.num</dt>
+<dd><p>Number of PCs used to calculate distances if
+<code>fast.pca == TRUE</code> (50 by default).</p></dd>
+
+
 <dt>pca.var</dt>
 <dd><p>Threshold of explained
 variance (between 0.2 and 1) used to choose the number of PCs used if
-<code>pca.space == TRUE</code>.</p></dd>
+<code>pca.space == TRUE</code> and <code>fast.pca == FALSE</code> (0.8 by default).</p></dd>
 
 
 <dt>metric</dt>
@@ -381,10 +395,10 @@ networks. biorxiv. doi: <a href="https://doi.org/10.1101/2023.08.31.555677" clas
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 34 samples:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (16 samples)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.561</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0.125</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2399</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0.125</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.6692</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2467</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating prediction results using test data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
@@ -413,7 +427,7 @@ networks. biorxiv. doi: <a href="https://doi.org/10.1101/2023.08.31.555677" clas
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === 1 SpatialExperiment objects provided</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>    === Processing spatial transcriptomics data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>       - Filtering features:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>          - Selected features: 33</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>          - Selected features: 27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>          - Discarded features: 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># simplify arguments</span></span></span>
@@ -425,15 +439,11 @@ networks. biorxiv. doi: <a href="https://doi.org/10.1101/2023.08.31.555677" clas
 <span class="r-in"><span>  simplify.set <span class="op">=</span> <span class="va">simplify</span>,</span></span>
 <span class="r-in"><span>  simplify.majority <span class="op">=</span> <span class="va">simplify</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Filtering out 18 features in data that are not present in trained model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Filtering out 12 features in data that are not present in trained model</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Normalizing data (LogCPM)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Predicting cell type proportions</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating distances in PCA space</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>         - Using 12 PCs (variance cutoff: 0.8)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating alpha factors based on distances</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Note that only regularized proportions will be simplified</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>k should be less than sample size!</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FNN::get.knn(distances, k = k):</span> ANN: ERROR-------&gt;</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

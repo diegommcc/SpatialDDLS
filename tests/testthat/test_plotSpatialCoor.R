@@ -84,7 +84,9 @@ SDDLSComp <- trainDeconvModel(
 )
 SDDLSComp <- calculateEvalMetrics(SDDLSComp)
 SDDLSComp <- deconvSpatialDDLS(
-  SDDLSComp, simplify.set = list(CellTypesNew = c("CellType2", "CellType4"))
+  SDDLSComp, 
+  simplify.set = list(CellTypesNew = c("CellType2", "CellType4")), 
+  pca.space = FALSE
 )
 
 # plotSpatialPropAll

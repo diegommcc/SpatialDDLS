@@ -93,14 +93,20 @@ calculateEvalMetrics <- function(object) {
   # calculate stats
   amd <- .updateAMD(amd = amd, use.met = use.met)
   amdf <- amd %>% filter(amd$Prob > 0 & amd$Prob < 1)
+  
   eval.stats <- lapply(
     X = use.met, 
     FUN = function(x) .calculateMetrics(mat = amd, err = x)
   )
-  eval.stats.f <- lapply(
-    X = use.met, 
-    FUN = function(x) .calculateMetrics(mat = amdf, err = x)
-  )
+  if (nrow(amdf) != 0) {
+    eval.stats.f <- lapply(
+      X = use.met, 
+      FUN = function(x) .calculateMetrics(mat = amdf, err = x)
+    )  
+  } else {
+    eval.stats.f <- NULL
+  }
+  
   # update object
   trained.model(object)@test.deconv.metrics <- list(
     raw = amd,

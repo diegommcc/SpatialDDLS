@@ -11,6 +11,8 @@ deconvSpatialDDLS(
   scaling = "standardize",
   k.spots = 4,
   pca.space = TRUE,
+  fast.pca = TRUE,
+  pcs.num = 50,
   pca.var = 0.8,
   metric = "euclidean",
   alpha.cutoff = "mean",
@@ -46,9 +48,17 @@ greater, the smoother the regularization will be (4 by default).}
 \item{pca.space}{Whether to use PCA space to calculate distances between
 intrinsic and extrinsic transcriptional profiles (\code{TRUE} by default).}
 
+\item{fast.pca}{Whether using the \pkg{irlba} implementation. If \code{TRUE},
+the number of PCs used is defined by the \code{} parameter. If
+\code{FALSE}, the PCA implementation from the \pkg{stats} R package is
+used instead (\code{TRUE} by default).}
+
+\item{pcs.num}{Number of PCs used to calculate distances if
+\code{fast.pca == TRUE} (50 by default).}
+
 \item{pca.var}{Threshold of explained
 variance (between 0.2 and 1) used to choose the number of PCs used if
-\code{pca.space == TRUE}.}
+\code{pca.space == TRUE} and \code{fast.pca == FALSE} (0.8 by default).}
 
 \item{metric}{Metric used to measure distance/similarity between intrinsic
 and extrinsic transcriptional profiles. It may be \code{'euclidean'},

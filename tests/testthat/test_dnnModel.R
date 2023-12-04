@@ -82,7 +82,7 @@ test_that(
   {
     # object without prob.cell.types slot
     expect_error(
-      trainDeconvModel(object = SDDLS, verbose = FALSE), 
+      trainDeconvModel(object = SDDLS, num.epochs = 10, verbose = FALSE), 
       regexp = "If `type.data.train` = mixed is selected, 'mixed.profiles' must be provided"
     )
     SDDLS <- suppressWarnings(
@@ -97,21 +97,23 @@ test_that(
     # combine = 'both' without mixed samples
     expect_error(
       trainDeconvModel(
-        object = SDDLS, type.data.train = "both", verbose = FALSE
+        object = SDDLS, type.data.train = "both", 
+        num.epochs = 10, verbose = FALSE
       ), 
       regexp = "If `type.data.train` = both'"
     )
     expect_error(
       trainDeconvModel(
         object = SDDLS, type.data.train = "single-cell", 
-        type.data.test = "both", verbose = FALSE
+        num.epochs = 10, type.data.test = "both", verbose = FALSE
       ), 
       regexp = "If `type.data.test` = both' is selected, 'mixed.profiles' and at least one single cell slot must be provided"
     )
     # combine = 'mixed' without mixed samples
     expect_error(
       trainDeconvModel(
-        object = SDDLS, type.data.train = "mixed", verbose = FALSE
+        object = SDDLS, type.data.train = "mixed", 
+        num.epochs = 10, verbose = FALSE
       ), 
       regexp = "If `type.data.train` = mixed is selected, 'mixed.profiles' must be provided"
     )
@@ -130,6 +132,7 @@ test_that(
           type.data.train = "single-cell",
           on.the.fly = TRUE,
           batch.size = 12,
+          num.epochs = 10, 
           view.metrics.plot = FALSE
         )
       ),
@@ -145,6 +148,7 @@ test_that(
           object = SDDLSBad,
           type.data.train = "mixed",
           on.the.fly = TRUE,
+          num.epochs = 10, 
           batch.size = 12,
           view.metrics.plot = FALSE
         )
@@ -157,6 +161,7 @@ test_that(
         object = SDDLS,
         on.the.fly = TRUE,
         agg.function = "Invalid",
+        num.epochs = 10, 
         batch.size = 12,
         view.metrics.plot = FALSE
       ), 
@@ -184,6 +189,7 @@ test_that(
         object = SDDLS,
         num.hidden.layers = 3,
         num.units = c(200, 200, 100),
+        num.epochs = 10, 
         batch.size = 28,
         verbose = FALSE
       )
@@ -199,6 +205,7 @@ test_that(
         num.hidden.layers = 1,
         num.units = c(100),
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       )
       expect_false(
@@ -221,6 +228,7 @@ test_that(
           num.hidden.layers = 1,
           num.units = c(200, 200, 100),
           batch.size = 28,
+          num.epochs = 10, 
           verbose = FALSE
         ),
         regexp = "The number of hidden layers must be equal"
@@ -232,6 +240,7 @@ test_that(
         num.units = c(100),
         activation.fun = "elu",
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       )
       expect_true(
@@ -248,6 +257,7 @@ test_that(
         num.units = c(100, 100),
         dropout.rate = 0.45,
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       )
       expect_true(
@@ -263,6 +273,7 @@ test_that(
         metrics = c("accuracy", "mean_absolute_error",
                     "cosine_similarity"),
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       )
       expect_true(
@@ -287,12 +298,14 @@ test_that(
         object = SDDLS,
         batch.size = 28,
         scaling = "standardize",
+        num.epochs = 10, 
         verbose = FALSE
       )
       SDDLS.rescale <- trainDeconvModel(
         object = SDDLS,
         batch.size = 28,
         scaling = "rescale",
+        num.epochs = 10, 
         verbose = FALSE
       )
       samp.stand <- as.numeric(
@@ -352,6 +365,7 @@ test_that(
       object = SDDLS, 
       custom.model = customModel,
       batch.size = 28,
+      num.epochs = 10, 
       verbose = FALSE
     )
     expect_s4_class(
@@ -390,6 +404,7 @@ test_that(
         object = SDDLS, 
         custom.model = customModel,
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       ), regexp = "The number of neurons of the last layer must be equal"
     )
@@ -419,6 +434,7 @@ test_that(
         object = SDDLS, 
         custom.model = customModel,
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       ), regexp = "The number of neurons of the first layer must be equal to the number of genes"
     )
@@ -448,6 +464,7 @@ test_that(
         object = SDDLS, 
         custom.model = customModel,
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       ), regexp = "In order to get proportions as output, the activation function of the last hidden layer must be 'softmax'"
     )
@@ -476,6 +493,7 @@ test_that(
     SDDLS <- trainDeconvModel(
       object = SDDLS,
       batch.size = 28,
+      num.epochs = 10, 
       verbose = FALSE
     )
     ste <- simSpatialExperiment(n = 1)
@@ -486,7 +504,7 @@ test_that(
       st.gene.ID.column = "Gene_ID",
       st.n.slides = 1
     )
-    SDDLS <- deconvSpatialDDLS(object = SDDLS, index.st = 1)
+    SDDLS <- deconvSpatialDDLS(object = SDDLS, index.st = 1, pca.space = FALSE)
     # expect_true(names(deconv.spots(SDDLS)) == names(spatial.experiments(SDDLS)))
     expect_true(
       nrow(deconv.spots(SDDLS, 1)[["Regularized"]]) == ncol(spatial.experiments(SDDLS, 1))
@@ -500,6 +518,7 @@ test_that(
       deconvSpatialDDLS(
         object = SDDLS, 
         index.st = "not_exists",
+        pca.space = FALSE,
         verbose = FALSE
       ), regexp = "spatial.experiment slot does not contain names, so `index.st` must be an integer"
     )
@@ -509,6 +528,7 @@ test_that(
       deconvSpatialDDLS(
         object = SDDLS,
         index.st = 1,
+        pca.space = FALSE,
         simplify.set = list(c("Mc", "M")),
         verbose = FALSE
       ), 
@@ -518,6 +538,7 @@ test_that(
     SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
       index.st = 1,
+      pca.space = FALSE,
       simplify.set = list(CellTypesNew = c("CellType2", "CellType4")),
       verbose = FALSE
     )
@@ -535,6 +556,7 @@ test_that(
     SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
       index.st = 1,
+      pca.space = FALSE,
       simplify.set = list(
         CellTypesNew = c("CellType2", "CellType4"), 
         CellTypesNew2 = c("CellType3", "CellType1")
@@ -551,6 +573,7 @@ test_that(
     SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
       index.st = 1,
+      pca.space = FALSE,
       simplify.majority = list(c("CellType2", "CellType4"), 
                                c("CellType3", "CellType1")),
       verbose = FALSE
@@ -574,6 +597,7 @@ test_that(
     SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
       index.st = 1,
+      pca.space = FALSE,
       simplify.majority = list(c("CellType2", "CellType4"), 
                                c("CellType3", "CellType1")),
       simplify.set = list(
@@ -618,6 +642,7 @@ test_that(
     expect_error(
       deconvSpatialDDLS(
         object = SDDLS, 
+        pca.space = FALSE,
         index.st = "no",
         verbose = FALSE
       ), regexp = "`index.st` contains elements not present in spatial.experiments slot"
@@ -628,6 +653,7 @@ test_that(
       deconvSpatialDDLS(
         object = SDDLS,
         index.st = 1,
+        pca.space = FALSE,
         simplify.set = list(c("Mc", "M")),
         verbose = FALSE
       ), 
@@ -654,6 +680,7 @@ test_that(
       trainDeconvModel(
         object = SDDLS,
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       )
     )
@@ -682,7 +709,7 @@ test_that(
       st.n.slides = 1
     )
     SDDLS <- deconvSpatialDDLS(
-      object = SDDLS, index.st = 1, verbose = FALSE
+      object = SDDLS, index.st = 1, verbose = FALSE, pca.space = FALSE
     )
     SDDLSNew <- loadSTProfiles(
       object = SDDLSNew, 
@@ -692,7 +719,7 @@ test_that(
       st.n.slides = 1
     )
     SDDLSNew <- deconvSpatialDDLS(
-      object = SDDLSNew, index.st = 1, verbose = FALSE
+      object = SDDLSNew, index.st = 1, pca.space = FALSE, verbose = FALSE
     )
     expect_true(
       all(colnames(deconv.spots(SDDLSNew, 1)) == 
@@ -734,6 +761,7 @@ test_that(
       trainDeconvModel(
         object = SDDLS,
         batch.size = 28,
+        num.epochs = 10, 
         verbose = FALSE
       )
     )
@@ -747,6 +775,7 @@ test_that(
     SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
       index.st = 1,
+      pca.space = FALSE,
       verbose = FALSE
     )
     # index.st not provided
@@ -763,6 +792,7 @@ test_that(
     SDDLS <- deconvSpatialDDLS(
       object = SDDLS,
       index.st = 1,
+      pca.space = FALSE,
       simplify.set = list(
         CellTypesNew = c("CellType2", "CellType4"), 
         CellTypesNew2 = c("CellType3", "CellType1")

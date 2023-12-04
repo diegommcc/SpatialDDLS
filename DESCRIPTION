@@ -49,7 +49,8 @@ Suggests:
     ComplexHeatmap,
     grid,
     bluster,
-    lsa
+    lsa,
+    irlba
 SystemRequirements: Python (>= 2.7.0), TensorFlow (https://www.tensorflow.org/)
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)

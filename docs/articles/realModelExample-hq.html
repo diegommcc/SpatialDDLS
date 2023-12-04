@@ -187,13 +187,13 @@ parameters).</p>
 <pre><code><span><span class="co">## An object of class SpatialDDLS </span></span>
 <span><span class="co">## Real single-cell profiles:</span></span>
 <span><span class="co">##   1058 features and 14989 cells</span></span>
-<span><span class="co">##   rownames: Rps3 Rps7 Tmsb4x ... Tmsb4x Cacna1e Mycl Izumo1r </span></span>
-<span><span class="co">##   colnames: TAACACGAGGAGAGGC-1-2 CCCTAACTCGCGGACT-1-2 CCGATGGTCTGCCTGT-1-2 ... CCGATGGTCTGCCTGT-1-2 GCTACCTAGTTATGGA-1-2 TTTACTGGTGGAATGC-1-1 TGTTACTTCTGAGAAA-1-3 </span></span>
+<span><span class="co">##   rownames: Tcrg-C2 Pax5 C1qc ... C1qc Rpl37a Prdx5 Rgs2 </span></span>
+<span><span class="co">##   colnames: TCAATTCCACTACAGT-1-2 AAGACTCAGTTCGCAT-1-1 GTCTGTCAGAGCCGAT-1-1 ... GTCTGTCAGAGCCGAT-1-1 AACAACCGTGCTCCGA-1-1 CTGCTCATCTGAATCG-1-3 GAGTTGTTCACACGAT-1-2 </span></span>
 <span><span class="co">## Spatial experiments:</span></span>
 <span><span class="co">##   1 experiments</span></span>
 <span><span class="co">##   1058 features and 1092 spots</span></span>
-<span><span class="co">##   rownames: Kmo Cd2 Spic ... Spic Gpr141 Klra4 Klrd1 </span></span>
-<span><span class="co">##   colnames: CGCGGGAATTAGGCAG-1-1 ATTCAGTAGCAGGGTC-1-0 CGGTTGACCTGGCATA-1-0 ... CGGTTGACCTGGCATA-1-0 CTAATTTCAACAACAC-1-0 TCCCGTCAGTCCCGCA-1-1 TCCGATGACTGAGCTC-1-1 </span></span>
+<span><span class="co">##   rownames: Dntt Rps3a1 Cacnb3 ... Cacnb3 Ccr1 Rps27l Etv5 </span></span>
+<span><span class="co">##   colnames: ACATCAGCTGGGACGC-1-0 GAGATCTGCTTGGCAT-1-1 ATAAACGGACCCGTAA-1-1 ... ATAAACGGACCCGTAA-1-1 ACCTAATCGACTTCCT-1-0 GTTCGCCATAAGTGCC-1-1 AGGCTATGGTTAGCTT-1-0 </span></span>
 <span><span class="co">## Project: SpatialDDLS-Proj</span></span></code></pre>
 <p>In this case, we are only working on 1 spatial transcriptomics
 dataset, but an arbitrary number of <code>SpatialExperiment</code>
@@ -241,8 +241,8 @@ profile.</p>
 <span>  n.cells <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  train.freq.cells <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span>
 <span>  train.freq.spots <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span>
-<span>  proportion.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span>  prob.sparity <span class="op">=</span> <span class="fl">0.8</span>, </span>
+<span>  proportion.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  prob.sparity <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>  min.zero.prop <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  balanced.type.cells <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -324,9 +324,9 @@ training process involving 60 epochs.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span> </span></code></pre></div>
 <pre><code>## 
-  1/105 [..............................] - ETA: 14s - loss: 0.0705 - accuracy: 0.9688 - mean_absolute_error: 0.0147 - categorical_accuracy: 0.9688
- 70/105 [===================&gt;..........] - ETA: 0s - loss: 0.0690 - accuracy: 0.8906 - mean_absolute_error: 0.0146 - categorical_accuracy: 0.8906 
-105/105 [==============================] - 0s 772us/step - loss: 0.0697 - accuracy: 0.8896 - mean_absolute_error: 0.0148 - categorical_accuracy: 0.8896</code></pre>
+  1/105 [..............................] - ETA: 12s - loss: 0.0916 - accuracy: 0.8438 - mean_absolute_error: 0.0191 - categorical_accuracy: 0.8438
+ 83/105 [======================&gt;.......] - ETA: 0s - loss: 0.0800 - accuracy: 0.8942 - mean_absolute_error: 0.0165 - categorical_accuracy: 0.8942 
+105/105 [==============================] - 0s 606us/step - loss: 0.0796 - accuracy: 0.8926 - mean_absolute_error: 0.0165 - categorical_accuracy: 0.8926</code></pre>
 <p>Some metrics of the training progress can be shown by setting
 <code>verbose = TRUE</code>. Anyhow, more advanced metrics can be
 calculated using the <code>calculateEvalMetrics</code> function. This
@@ -398,17 +398,18 @@ Documentation and <span class="citation">Mañanes et al.
 (2023)</span>.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deconvSpatialDDLS.html">deconvSpatialDDLS</a></span><span class="op">(</span></span>
-<span>  <span class="va">mouseDLN.SDDLS</span>, k.spots <span class="op">=</span> <span class="fl">6</span></span>
+<span>  <span class="va">mouseDLN.SDDLS</span>, k.spots <span class="op">=</span> <span class="fl">6</span>, fast.pca <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    No 'index.st' provided. Deconvoluting all SpatialExperiment objects contained in the `spatial.experiments` slot</span></span></code></pre>
 <pre><code><span><span class="co">## === Normalizing data (LogCPM)</span></span></code></pre>
 <pre><code><span><span class="co">## === Predicting cell type proportions</span></span></code></pre>
 <pre><code>## 
  1/35 [..............................] - ETA: 0s
-35/35 [==============================] - 0s 598us/step</code></pre>
+35/35 [==============================] - 0s 600us/step</code></pre>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## === Calculating distances in PCA space</span></span></code></pre>
-<pre><code><span><span class="co">##         - Using 133 PCs (variance cutoff: 0.8)</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Calculating 50 PCs</span></span></code></pre>
 <pre><code><span><span class="co">## === Calculating alpha factors based on distances</span></span></code></pre>
 <pre><code><span><span class="co">## DONE</span></span></code></pre>
 <p>Now, let’s project these predicted proportions in the spatial
@@ -536,20 +537,20 @@ greatest gradients per cell type:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span></span>
 <span>  <span class="va">top.gradients</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">Positive</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   B cells CD4 T cells CD8 T cells   cDC1s  cDC2s GD T cells   Macrophages</span></span>
-<span><span class="co">## 1  Vpreb3      Igfbp4       Cd8b1 Slc16a9 Clec2d    Gm26917 1300017J02Rik</span></span>
-<span><span class="co">## 2    Cd72       Ly6c1        Cd8a  Hbb-bs  Stk39        Il4         Timd4</span></span>
-<span><span class="co">## 3  Slc1a3       Satb1        Ccr9 Tnfsf14   Ryr2      Stk39          Prg3</span></span>
-<span><span class="co">## 4   H3f3b        Lef1        Acp5    Gatm Ndfip1      Ccr10          Cst7</span></span>
-<span><span class="co">## 5    Rfc4        Cd28        Rgcc   Ahnak   Ugcg     Selplg         Cd8b1</span></span>
-<span><span class="co">##   Migratory DCs Monocytes NK cells   pDCs  Tregs</span></span>
-<span><span class="co">## 1   D16Ertd472e    Ndfip1    Klra9 Clec2d  Foxp3</span></span>
-<span><span class="co">## 2      Tmem150c      Ucp2     Ugcg Clec4e  Cxcr3</span></span>
-<span><span class="co">## 3        Il15ra     Marco    Klrc1  H2-K1  Ctla4</span></span>
-<span><span class="co">## 4        Samhd1      Ryr2     Ccl3 Ndfip1 Samhd1</span></span>
-<span><span class="co">## 5        Clec2d    Clec4e  Tnfrsf8    Fyn  Itgb1</span></span></code></pre>
+<pre><code><span><span class="co">##   B cells CD4 T cells CD8 T cells    cDC1s   cDC2s GD T cells   Macrophages</span></span>
+<span><span class="co">## 1    Snx2      Igfbp4       Cd8b1   Fam20c    Xist        Il4          Svbp</span></span>
+<span><span class="co">## 2  Vpreb3       Satb1        Cd8a   Slc1a3 Gm26917      Ramp1 2200002D01Rik</span></span>
+<span><span class="co">## 3   Cd79b       Ly6c1       Actn2 Hist1h3c Trav3-3      Itgb3         Timd4</span></span>
+<span><span class="co">## 4    Ska3        Lef1       Itgae   Sapcd2  Slc1a3      Ikzf3          Fth1</span></span>
+<span><span class="co">## 5  Slc1a3       Rps29        Acp5    Cox7b    Ryr2       Ugcg 1300017J02Rik</span></span>
+<span><span class="co">##   Migratory DCs Monocytes NK cells    pDCs    Tregs</span></span>
+<span><span class="co">## 1          Xist    Map4k4    Cdc20    Ryr2    Foxp3</span></span>
+<span><span class="co">## 2          Melk      Ryr2     Ryr2    Xist Ifi27l2a</span></span>
+<span><span class="co">## 3         Ly6c1      Pfn1   Tmsb10  Tagln2   Samhd1</span></span>
+<span><span class="co">## 4        Slc1a3   Cd300ld    Nuggc    Wnk1    Itgb1</span></span>
+<span><span class="co">## 5          Cd28     Pde1c     Jak1 Zfp36l1    Gpr83</span></span></code></pre>
 <p>As can be seen, among the top 5 genes some canonical markers for
-different cell types appear, such as Cd79b for B cells, Cd8a for CD8 T
+different cell types appear, such as Cd72 for B cells, Cd8a for CD8 T
 cells, or Foxp3 for Tregs. These are just the top 5 genes, so
 considering a higher number can provide a more comprehensive
 understanding of the genes utilizaed by the model.</p>

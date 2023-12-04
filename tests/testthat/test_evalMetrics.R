@@ -175,7 +175,7 @@ test_that(
     # incorrect number of colors
     expect_error(
       distErrorPlot(
-        object = SDDLSComp, error = "AbsErr", colors = c("red", "blue")
+        object = SDDLSComp, error = "AbsErr", colors = c("red")
       ), 
       regexp = "Number of provided colors is not large enough"
     )
