@@ -75,6 +75,8 @@ SDDLS <- genMixedCellProp(
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   num.sim.spots = 50,
+  train.freq.cells = 2/3,
+  train.freq.spots = 2/3,
   verbose = TRUE
 ) 
 SDDLS <- simMixedProfiles(SDDLS) 
@@ -85,7 +87,7 @@ SDDLS <- trainDeconvModel(
 ) 
 # simulating spatial data
 ngenes <- sample(3:40, size = 1)
-ncells <- sample(3:40, size = 1)
+ncells <- sample(10:40, size = 1)
 counts <- matrix(
   rpois(ngenes * ncells, lambda = 5), ncol = ncells,
   dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))

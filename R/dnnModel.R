@@ -153,6 +153,8 @@ NULL
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 50,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #' SDDLS <- simMixedProfiles(SDDLS)
@@ -1231,7 +1233,9 @@ trainDeconvModel <- function(
 #'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'  num.sim.spots = 50,
+#'   num.sim.spots = 50,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' ) 
 #' SDDLS <- simMixedProfiles(SDDLS)
@@ -1243,7 +1247,7 @@ trainDeconvModel <- function(
 #' )
 #' # simulating spatial data
 #' ngenes <- sample(3:40, size = 1)
-#' ncells <- sample(3:40, size = 1)
+#' ncells <- sample(10:40, size = 1)
 #' counts <- matrix(
 #'   rpois(ngenes * ncells, lambda = 5), ncol = ncells,
 #'   dimnames = list(paste0("Gene", seq(ngenes)), paste0("Spot", seq(ncells)))
@@ -1269,7 +1273,7 @@ trainDeconvModel <- function(
 #' SDDLS <- deconvSpatialDDLS(
 #'   object = SDDLS,
 #'   index.st = 1,
-#'   simplify.set = simplify,
+#'   simplify.set = simplify, 
 #'   simplify.majority = simplify
 #' )
 #' }
@@ -1601,8 +1605,8 @@ deconvSpatialDDLS <- function(
       if (verbose) message("\n=== Calculating ", pcs.num, " PCs\n")
       
       log.cpm.final <- cbind(logcpm.spot.expr, logcpm.nn.expr.2)
-      if (pcs.num >= nrow(log.cpm.final)) {
-        pcs.num <- ceiling(nrow(log.cpm.final) * 0.8)
+      if (pcs.num >= min(ncol(log.cpm.final), nrow(log.cpm.final))) {
+        pcs.num <- ceiling(min(nrow(log.cpm.final), ncol(log.cpm.final)) * 0.8)
       }
       pca.space <- irlba::irlba(A = t(x = log.cpm.final), nv = pcs.num)
       pca.nn <- pca.space[[2]][grepl("_NN$", colnames(log.cpm.final)), ]

@@ -84,7 +84,6 @@ present in the spots (\code{nCellTypes}).
 \examples{
 \donttest{
 set.seed(123)
-set.seed(123)
 sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
@@ -112,6 +111,8 @@ SDDLS <- genMixedCellProp(
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   num.sim.spots = 50,
+  train.freq.cells = 2/3,
+  train.freq.spots = 2/3,
   verbose = TRUE
 )
 SDDLS <- simMixedProfiles(SDDLS)

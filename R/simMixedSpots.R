@@ -118,6 +118,8 @@ NULL
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 10,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #'   
@@ -295,7 +297,7 @@ genMixedCellProp <- function(
       paste(
         "Not all cell types considered by SpatialDDLS are in test",
         "data. SpatialDDLS needs to have all cell types in both subsets",
-        "(training and testing). Please, provide a bigger single-cell experiment",
+        "(training and test). Please, provide a bigger single-cell experiment",
         "or consider simulate new single-cell profiles with", 
         "'estimateZinbwaveParams' and 'simSCProfiles' functions"
       )
@@ -868,6 +870,8 @@ setCount <- function(
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 10,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #' SDDLS <- simMixedProfiles(SDDLS, verbose = TRUE)

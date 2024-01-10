@@ -75,7 +75,7 @@ SDDLSComp <- genMixedCellProp(
 SDDLSComp <- simMixedProfiles(SDDLSComp, verbose = FALSE)
 SDDLSComp <- trainDeconvModel(
   object = SDDLSComp,
-  batch.size = 28,
+  batch.size = 20,
   verbose = FALSE
 )
 SDDLSComp <- suppressWarnings(calculateEvalMetrics(SDDLSComp))

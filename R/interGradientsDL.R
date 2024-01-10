@@ -81,6 +81,8 @@ NULL
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 50,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #' SDDLS <- simMixedProfiles(SDDLS)
@@ -316,6 +318,8 @@ interGradientsDL <- function(
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 50,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #' SDDLS <- simMixedProfiles(SDDLS)
@@ -375,9 +379,15 @@ top.gradients <- function(grad, metadata, n) {
     X = colnames(metadata), \(x) {
       spots <- rownames(metadata)[metadata[, x] == 100]
       mean.grads <- base::sort(x = colMeans(grad[spots, , drop = FALSE]), decreasing = TRUE)
+      # n.abs <- ceiling(n / 2)
       return(
         list(
-          Absolute = names(head(abs(mean.grads), n = n)),
+          Absolute = unique(
+            c(
+              names(head(mean.grads, n = n)),
+              names(tail(mean.grads, n = n))
+            )
+          ),
           Positive = names(head(mean.grads, n = n)),
           Negative = names(tail(mean.grads, n = n))
         )
@@ -446,6 +456,8 @@ top.gradients <- function(grad, metadata, n) {
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
 #'   num.sim.spots = 50,
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #' SDDLS <- simMixedProfiles(SDDLS)

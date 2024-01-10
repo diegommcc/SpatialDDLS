@@ -140,7 +140,7 @@ test_that(
     skip_if_not(.checkPythonDependencies(alert = "none"))
     SDDLSComp <- trainDeconvModel(
       object = SDDLSComp,
-      batch.size = 28,
+      batch.size = 20,
       verbose = FALSE
     )
     # incorrect object: no trained.model slot
@@ -168,7 +168,7 @@ test_that(
     skip_if_not(.checkPythonDependencies(alert = "none"))
     SDDLSComp <- trainDeconvModel(
       object = SDDLSComp,
-      batch.size = 28,
+      batch.size = 20,
       verbose = FALSE
     )
     # saving model
@@ -233,7 +233,7 @@ test_that(
     skip_if_not(.checkPythonDependencies(alert = "none"))
     SDDLSComp <- trainDeconvModel(
       object = SDDLSComp,
-      batch.size = 28,
+      batch.size = 20,
       verbose = FALSE
     )
     # incorrect object: no trained.model slot

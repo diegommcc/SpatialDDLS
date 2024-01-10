@@ -37,7 +37,7 @@ function and the package vignettes for more information.
 \examples{
 \dontrun{
 notesInstallation <- installTFpython(
-  method = "auto", conda = "auto", install.conda = TRUE
+  conda = "auto", install.conda = TRUE
 )
 }
 

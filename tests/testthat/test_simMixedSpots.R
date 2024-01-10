@@ -387,7 +387,7 @@ test_that(
         type.data = "both",
         file.backend = tempfile(),
         block.processing = TRUE,
-        block.size = 3,
+        block.size = 1,
         verbose = TRUE
       ), regexp = "Writing block"
     )

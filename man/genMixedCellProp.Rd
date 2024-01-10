@@ -140,6 +140,8 @@ SDDLS <- genMixedCellProp(
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
   num.sim.spots = 10,
+  train.freq.cells = 2/3,
+  train.freq.spots = 2/3,
   verbose = TRUE
 )
   

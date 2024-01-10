@@ -93,7 +93,9 @@ getProbMatrix <- function(object, type.data) {
 #'   object = SDDLS,
 #'   cell.ID.column = "Cell_ID",
 #'   cell.type.column = "Cell_Type",
-#'   num.sim.spots = 10,
+#'   num.sim.spots = 10, 
+#'   train.freq.cells = 2/3,
+#'   train.freq.spots = 2/3,
 #'   verbose = TRUE
 #' )
 #' showProbPlot(
@@ -611,7 +613,7 @@ barPlotCellTypes <- function(
 #' @examples
 #' \dontrun{
 #' notesInstallation <- installTFpython(
-#'   method = "auto", conda = "auto", install.conda = TRUE
+#'   conda = "auto", install.conda = TRUE
 #' )
 #' }
 #' 

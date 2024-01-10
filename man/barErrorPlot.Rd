@@ -76,14 +76,16 @@ SDDLS <- genMixedCellProp(
   object = SDDLS,
   cell.ID.column = "Cell_ID",
   cell.type.column = "Cell_Type",
-  num.sim.spots = 50,
+  num.sim.spots = 100,
+  train.freq.cells = 2/3,
+  train.freq.spots = 2/3,
   verbose = TRUE
 )
 SDDLS <- simMixedProfiles(SDDLS)
 # training of DDLS model
 SDDLS <- trainDeconvModel(
   object = SDDLS,
-  batch.size = 15,
+  batch.size = 10,
   num.epochs = 5
 )
 # evaluation using test data

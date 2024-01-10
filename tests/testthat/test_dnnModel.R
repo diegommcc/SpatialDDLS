@@ -190,7 +190,7 @@ test_that(
         num.hidden.layers = 3,
         num.units = c(200, 200, 100),
         num.epochs = 10, 
-        batch.size = 28,
+        batch.size = 20,
         verbose = FALSE
       )
       expect_true(
@@ -204,7 +204,7 @@ test_that(
         object = SDDLS,
         num.hidden.layers = 1,
         num.units = c(100),
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       )
@@ -227,7 +227,7 @@ test_that(
           object = SDDLS,
           num.hidden.layers = 1,
           num.units = c(200, 200, 100),
-          batch.size = 28,
+          batch.size = 20,
           num.epochs = 10, 
           verbose = FALSE
         ),
@@ -239,7 +239,7 @@ test_that(
         num.hidden.layers = 1,
         num.units = c(100),
         activation.fun = "elu",
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       )
@@ -256,7 +256,7 @@ test_that(
         num.hidden.layers = 2,
         num.units = c(100, 100),
         dropout.rate = 0.45,
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       )
@@ -272,7 +272,7 @@ test_that(
         loss = "mean_squared_error",
         metrics = c("accuracy", "mean_absolute_error",
                     "cosine_similarity"),
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       )
@@ -286,7 +286,7 @@ test_that(
       expect_error(
         object = trainDeconvModel(
           object = SDDLS,
-          batch.size = 28,
+          batch.size = 20,
           scaling = "invalid",
           verbose = FALSE
         ), 
@@ -296,14 +296,14 @@ test_that(
       SDDLS@trained.model <- NULL
       SDDLS.standardize <- trainDeconvModel(
         object = SDDLS,
-        batch.size = 28,
+        batch.size = 20,
         scaling = "standardize",
         num.epochs = 10, 
         verbose = FALSE
       )
       SDDLS.rescale <- trainDeconvModel(
         object = SDDLS,
-        batch.size = 28,
+        batch.size = 20,
         scaling = "rescale",
         num.epochs = 10, 
         verbose = FALSE
@@ -364,7 +364,7 @@ test_that(
     SDDLS <- trainDeconvModel(
       object = SDDLS, 
       custom.model = customModel,
-      batch.size = 28,
+      batch.size = 20,
       num.epochs = 10, 
       verbose = FALSE
     )
@@ -403,7 +403,7 @@ test_that(
       trainDeconvModel(
         object = SDDLS, 
         custom.model = customModel,
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       ), regexp = "The number of neurons of the last layer must be equal"
@@ -433,7 +433,7 @@ test_that(
       trainDeconvModel(
         object = SDDLS, 
         custom.model = customModel,
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       ), regexp = "The number of neurons of the first layer must be equal to the number of genes"
@@ -463,7 +463,7 @@ test_that(
       trainDeconvModel(
         object = SDDLS, 
         custom.model = customModel,
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       ), regexp = "In order to get proportions as output, the activation function of the last hidden layer must be 'softmax'"
@@ -492,7 +492,7 @@ test_that(
     # check is everything works
     SDDLS <- trainDeconvModel(
       object = SDDLS,
-      batch.size = 28,
+      batch.size = 20,
       num.epochs = 10, 
       verbose = FALSE
     )
@@ -679,7 +679,7 @@ test_that(
     SDDLS <- suppressWarnings(
       trainDeconvModel(
         object = SDDLS,
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       )
@@ -760,7 +760,7 @@ test_that(
     SDDLS <- suppressWarnings(
       trainDeconvModel(
         object = SDDLS,
-        batch.size = 28,
+        batch.size = 20,
         num.epochs = 10, 
         verbose = FALSE
       )
