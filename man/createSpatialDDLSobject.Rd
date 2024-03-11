@@ -17,6 +17,7 @@ createSpatialDDLSobject(
   sc.min.mean.counts = 1,
   sc.n.genes.per.cluster = 300,
   top.n.genes = 2000,
+  sc.log.FC = TRUE,
   sc.min.counts = 1,
   sc.min.cells = 1,
   st.min.counts = 1,
@@ -82,6 +83,9 @@ filter genes. 1 by default.}
 by default). In case the number of genes after filtering is greater than
 \code{top.n.genes}, these genes will be set according to
 variability across the whole single-cell dataset.}
+
+\item{sc.log.FC}{Whether to filter genes with a logFC less than 0.5 when
+\code{sc.filt.genes.cluster = TRUE} (\code{TRUE} by default).}
 
 \item{sc.min.counts}{Minimum gene counts to filter (1 by default; single-cell
 RNA-seq data).}

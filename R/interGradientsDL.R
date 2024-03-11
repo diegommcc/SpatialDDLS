@@ -154,7 +154,7 @@ interGradientsDL <- function(
   )[, rownames(metadata.prop)]
   ## normalization with logCPM (if required)
   mixing.fun <- mixed.profiles(object, type.data = "train")@metadata[["mixing.fun"]]
-  if (normalize & mixing.fun == "AddRawCount") {
+  if (normalize & (mixing.fun == "AddRawCount")) {
     data <- log2(.cpmCalculate(x = data + 1))
   }
   ## standarization

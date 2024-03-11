@@ -14,7 +14,7 @@ profiles."><meta property="og:image" content="/logo.png"><!-- mathjax --><script
     
     <a class="navbar-brand me-2" href="../index.html">SpatialDDLS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,6 +154,9 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Spatial transcriptomics data not provided</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Processing single-cell data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'as(&lt;dgCMatrix&gt;, "dgTMatrix")' is deprecated.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'as(., "TsparseMatrix")' instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> See help("Deprecated") and help("Matrix-deprecated").</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>       - Filtering features:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>          - Selected features: 15</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>          - Discarded features: 0</span>
@@ -165,11 +168,13 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
 <span class="r-in"><span>  cell.ID.column <span class="op">=</span> <span class="st">"Cell_ID"</span>,</span></span>
 <span class="r-in"><span>  cell.type.column <span class="op">=</span> <span class="st">"Cell_Type"</span>,</span></span>
-<span class="r-in"><span>  num.sim.spots <span class="op">=</span> <span class="fl">50</span>,</span></span>
+<span class="r-in"><span>  num.sim.spots <span class="op">=</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span>  train.freq.cells <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span></span>
+<span class="r-in"><span>  train.freq.spots <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === The number of mixed profiles that will be generated is equal to 50</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === The number of mixed profiles that will be generated is equal to 100</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Training set cells by type:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType1: 3</span>
@@ -186,10 +191,10 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType5: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     - CellType6: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Probability matrix for training data:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Mixed spots: 34</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Mixed spots: 67</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     - Cell types: 6</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Probability matrix for test data:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Mixed spots: 16</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     - Mixed spots: 33</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     - Cell types: 6</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="simMixedProfiles.html">simMixedProfiles</a></span><span class="op">(</span><span class="va">SDDLS</span><span class="op">)</span></span></span>
@@ -203,7 +208,7 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-in"><span><span class="co"># training of DDLS model</span></span></span>
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="trainDeconvModel.html">trainDeconvModel</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
-<span class="r-in"><span>  batch.size <span class="op">=</span> <span class="fl">15</span>,</span></span>
+<span class="r-in"><span>  batch.size <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  num.epochs <span class="op">=</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Training and test from stored data</span>
@@ -240,13 +245,13 @@ profiles are shown (<code>TRUE</code> by default).</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Non-trainable params: 812</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> _____________________________________________________________________</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 34 samples:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 67 samples:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (16 samples)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.8145</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0.0625</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2518</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0.0625</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (33 samples)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.6731</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0.1515</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2434</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0.1515</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating prediction results using test data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>

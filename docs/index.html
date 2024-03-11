@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Deconvolution of spatial transcriptomics data using deconvolution models based on deep neural networks and single-cell RNA-seq data. These models are able to make accurate estimates of the cell composition of spots in spatial transcriptomics datasets from the same context using the advances provided by deep learning and the meaningful information provided by single-cell RNA-Seq data. See Torroja and Sanchez-Cabo (2019) &lt;doi:10.3389/fgene.2019.00978&gt; and Mañanes et al. (2023) &lt;doi:10.1101/2023.08.31.555677&gt; to get an overview of the method and see some examples of its performance. ">
+<meta name="description" content="Deconvolution of spatial transcriptomics data based on neural networks and single-cell RNA-seq data. SpatialDDLS implements a workflow to create neural network models able to make accurate estimates of cell composition of spots from spatial transcriptomics data using deep learning and the meaningful information provided by single-cell RNA-seq data. See Torroja and Sanchez-Cabo (2019) &lt;doi:10.3389/fgene.2019.00978&gt; and Mañanes et al. (2024) &lt;doi:10.1093/bioinformatics/btae072&gt; to get an overview of the method and see some examples of its performance. ">
 <title>Deconvolution of Spatial Transcriptomics Data Based on Neural Networks • SpatialDDLS</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
 <meta property="og:title" content="Deconvolution of Spatial Transcriptomics Data Based on Neural Networks">
-<meta property="og:description" content="Deconvolution of spatial transcriptomics data using deconvolution models based on deep neural networks and single-cell RNA-seq data. These models are able to make accurate estimates of the cell composition of spots in spatial transcriptomics datasets from the same context using the advances provided by deep learning and the meaningful information provided by single-cell RNA-Seq data. See Torroja and Sanchez-Cabo (2019) &lt;doi:10.3389/fgene.2019.00978&gt; and Mañanes et al. (2023) &lt;doi:10.1101/2023.08.31.555677&gt; to get an overview of the method and see some examples of its performance. ">
+<meta property="og:description" content="Deconvolution of spatial transcriptomics data based on neural networks and single-cell RNA-seq data. SpatialDDLS implements a workflow to create neural network models able to make accurate estimates of cell composition of spots from spatial transcriptomics data using deep learning and the meaningful information provided by single-cell RNA-seq data. See Torroja and Sanchez-Cabo (2019) &lt;doi:10.3389/fgene.2019.00978&gt; and Mañanes et al. (2024) &lt;doi:10.1093/bioinformatics/btae072&gt; to get an overview of the method and see some examples of its performance. ">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SpatialDDLS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,8 +78,7 @@
 <strong>SpatialDDLS</strong> <a class="anchor" aria-label="anchor" href="#spatialddls-"></a>
 </h1>
 </div>
-<!-- [![R build status](https://github.com/diegommcc/SpatialDDLS/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/diegommcc/SpatialDDLS/actions)  -->
-<p><a href="https://app.codecov.io/gh/diegommcc/SpatialDDLS" class="external-link"><img src="https://codecov.io/github/diegommcc/SpatialDDLS/coverage.svg?branch=master" alt="codecov.io"></a></p>
+<p><a href="https://github.com/diegommcc/SpatialDDLS/actions" class="external-link"><img src="https://github.com/diegommcc/SpatialDDLS/workflows/R-CMD-check-bioc/badge.svg" alt="R build status"></a> <!-- [![codecov.io](https://codecov.io/github/diegommcc/SpatialDDLS/coverage.svg?branch=master)](https://app.codecov.io/gh/diegommcc/SpatialDDLS) --></p>
 <div style="text-align:left">
 <span>
 <h4>
@@ -88,7 +87,7 @@ An R package to deconvolute spatial transcriptomics data using single-cell RNA-s
 <p></p></span>
 </div>
 <p><br></p>
-<p>The <strong>SpatialDDLS</strong> R package provides a neural network-based solution for cell type deconvolution of spatial transcriptomics data. The package takes advantage of single-cell RNA sequencing (scRNA-seq) data to simulate mixed transcriptional profiles with known cell composition and train fully-connected neural networks to predict cell type composition of spatial transcriptomics spots. The resulting trained models can be applied to new spatial transcriptomics data to predict cell type proportions, allowing for more accurate cell type identification and characterization of spatially-resolved transcriptomic data. Overall, SpatialDDLS is a powerful tool for cell type deconvolution in spatial transcriptomics data, providing a reliable, fast and flexible solution for researchers in the field.</p>
+<p>The <strong>SpatialDDLS</strong> R package provides a neural network-based solution for cell type deconvolution of spatial transcriptomics data. The package takes advantage of single-cell RNA sequencing (scRNA-seq) data to simulate mixed transcriptional profiles with known cell composition and train fully-connected neural networks to predict cell type composition of spatial transcriptomics spots. The resulting trained models can be applied to new spatial transcriptomics data to predict cell type proportions, allowing for a more accurate cell type identification and characterization of spatially-resolved transcriptomic data. Overall, SpatialDDLS is a powerful tool for cell type deconvolution in spatial transcriptomics data, providing a reliable, fast and flexible solution for researchers in the field.</p>
 <p>For more details about the algorithm and functionalities implemented in this package, see <a href="https://diegommcc.github.io/SpatialDDLS/" class="external-link uri">https://diegommcc.github.io/SpatialDDLS/</a>.</p>
 <p><img src="reference/figures/summary.png"></p>
 <div class="section level2">
@@ -118,7 +117,7 @@ In the following figure, an outline of the package's workflow can be found:
 <table class="table">
 <tr>
 <td>
-Mañanes, D., Rivero-García, I., Jimenez-Carretero, D., Torres, M., Sancho, D., Torroja, C. and Sánchez-Cabo, F. (2023). SpatialDDLS: An R package to deconvolute spatial transcriptomics data using neural networks. <i>bioRxiv</i> (preprint) <a href="https://doi.org/10.1101/2023.08.31.555677" class="external-link">doi:10.1101/2023.08.31.555677</a>
+Mañanes, D., Rivero-García, I., Relaño, C., Jimenez-Carretero, D., Torres, M., Sancho, D., Torroja, C. and Sánchez-Cabo, F. (2024). SpatialDDLS: An R package to deconvolute spatial transcriptomics data using neural networks. <i>Bioinformatics</i> <b>40</b> 2 <a href="https://doi.org/10.1093/bioinformatics/btae072" class="external-link">doi:10.1093/bioinformatics/btae072</a>
 </td>
 </tr>
 <tr>

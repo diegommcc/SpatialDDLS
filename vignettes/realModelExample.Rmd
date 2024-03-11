@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{Deconvolution of mouse lymph node samples}
+      %\VignetteIndexEntry{Get started! Deconvolution of mouse lymph node samples}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -15,6 +15,8 @@ fontsize: 12pt
 
 
 
+
+<!-- Reference: @Li2017 -->
 
 In this vignette, we will analyze a spatial transcriptomics dataset (10x Visium) comprising three slides from murine lymph nodes, two of which obtained after a 48-hour infection with _Mycobacterium smegmatis_ (@Lopez2022). As a reference, we will use the paired single-cell RNA-seq (10x Chromium) data from the same study. The raw data is publicly available on GEO ([GSE173778](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE173778)), but for ease of use, we have made it available through the `SpatialDDLSdata` R data package.
 
@@ -59,12 +61,11 @@ cbind(spatialCoords(MouseDLN.ST), colData(MouseDLN.ST)) %>% as.data.frame() %>%
 <p class="caption">plot of chunk spatialdata-cond</p>
 </div>
 
-With regard to the single-cell RNA-seq data, preprocessing and visualization could be performed, but such analysis is outside the scope of this tutorial.
-
+With regard to the single-cell RNA-seq data, preprocessing and visualization could be performed, but such analyses are outside the scope of this tutorial.
 
 ## Loading data into a `SpatialDDLS` object
 
-Now, we need to create a `SpatialDDLS` object, which will serve as the central core for all subsequent steps. We suggest including both the spatial and single-cell transcriptomics data to enable filtering and selection of only those genes that are present in both data types for further analyses. Additionally, we recommend filtering genes based on their expression levels in order to reduce the number of dimensions and consider only meaningful genes. Please refer to the documentation to review the implemented strategies (specially `sc.n.genes.per.cluster` and `sc.min.mean.counts` parameters). 
+Now, we need to create a `SpatialDDLS` object, which will serve as the central core for all subsequent steps. We recommend including both the spatial and single-cell transcriptomics data to enable filtering and selection of only those genes that are present in both data types for further analyses. Additionally, we recommend filtering genes based on their expression levels in order to reduce the number of dimensions and consider only meaningful genes. Please, refer to the documentation to review the implemented strategies (specially `sc.n.genes.per.cluster` and `sc.min.mean.counts` parameters). 
 
 
 ```r
@@ -74,13 +75,11 @@ mouseDLN.SDDLS <- createSpatialDDLSobject(
   sc.gene.ID.column = "GeneSymbol",
   sc.cell.type.column = "broad_cell_types",
   st.data = MouseDLN.ST,
-  sc.min.counts = 1, 
-  sc.min.cells = 1,
+  st.spot.ID.column = "CellID",
+  st.gene.ID.column = "GeneSymbol",
   sc.filt.genes.cluster = TRUE, 
   sc.n.genes.per.cluster = 150,
-  sc.min.mean.counts = 2,
-  st.spot.ID.column = "CellID",
-  st.gene.ID.column = "GeneSymbol"
+  sc.min.mean.counts = 2
 )
 ```
 
@@ -90,6 +89,12 @@ mouseDLN.SDDLS <- createSpatialDDLSobject(
 
 ```
 ##    === Processing spatial transcriptomics data
+```
+
+```
+## 'as(<dgCMatrix>, "dgTMatrix")' is deprecated.
+## Use 'as(., "TsparseMatrix")' instead.
+## See help("Deprecated") and help("Matrix-deprecated").
 ```
 
 ```
@@ -167,13 +172,13 @@ mouseDLN.SDDLS
 ## An object of class SpatialDDLS 
 ## Real single-cell profiles:
 ##   1041 features and 14989 cells
-##   rownames: Klrb1a Tnfrsf18 Ramp3 ... Ramp3 Cpe Mreg Ccl9 
-##   colnames: GAAGAATCATGGGCAA-1-3 GGGACCTGTCATCCGG-1-0 TCCCATGGTCCAAAGG-1-0 ... TCCCATGGTCCAAAGG-1-0 GCACGGTAGTCGGGAT-1-1 AACGTCAGTAGCTTAC-1-2 GGCGTCACATGCACTA-1-2 
+##   rownames: Kdr Acsbg1 Cx3cr1 ... Cx3cr1 Cd14 H2afj AA467197 
+##   colnames: AAGCCATCAGGAGGTT-1-1 TTCCACGCAAACACGG-1-2 GAGATGGAGGTTATAG-1-0 ... GAGATGGAGGTTATAG-1-0 GGCGTCAGTTGGTAGG-1-3 TGTGAGTGTGTCCAAT-1-2 TTCGATTGTAAGGAGA-1-0 
 ## Spatial experiments:
 ##   1 experiments
 ##   1041 features and 1092 spots
-##   rownames: Hck Ets1 Ifitm10 ... Ifitm10 Atp1b3 Mctp2 Igfbp4 
-##   colnames: TTGCCCTGATCACGGG-1-0 GCCTATAGTGTCAGGG-1-1 TGGTGATCGTATTTGT-1-0 ... TGGTGATCGTATTTGT-1-0 GCTGGCATATTCACCT-1-0 GATCTTTGCAGGGTAT-1-0 CCATTCCCTGCCCACA-1-0 
+##   rownames: Klri2 Mmp25 Cacna1e ... Cacna1e F630028O10Rik Map4k4 Clec4a1 
+##   colnames: CAATAAACCTTGGCCC-1-1 AACAGGAAATCGAATA-1-1 CTGGCGGGAATAAGTA-1-0 ... CTGGCGGGAATAAGTA-1-0 TTCCTCTGCCCGAATA-1-0 CTATCGGGTCTCAACA-1-1 ATCCTGCGTGGAATGG-1-1 
 ## Project: SpatialDDLS-Proj
 ```
 
@@ -197,10 +202,6 @@ mouseDLN.SDDLS <- genMixedCellProp(
   cell.type.column = "broad_cell_types",
   num.sim.spots = 10000,
   n.cells = 50,
-  train.freq.cells = 2/3,
-  train.freq.spots = 2/3,
-  proportion.method = c(0, 0, 1),
-  prob.sparity = 1, 
   min.zero.prop = 5,
   balanced.type.cells = TRUE
 )
@@ -217,18 +218,18 @@ mouseDLN.SDDLS <- genMixedCellProp(
 ```
 
 ```
-##     - B cells: 5573
-##     - CD4 T cells: 1362
-##     - CD8 T cells: 2179
-##     - cDC1s: 67
-##     - cDC2s: 58
-##     - GD T cells: 59
-##     - Macrophages: 70
-##     - Migratory DCs: 199
-##     - Monocytes: 53
-##     - NK cells: 62
-##     - pDCs: 52
-##     - Tregs: 260
+##     - B cells: 6269
+##     - CD4 T cells: 1532
+##     - CD8 T cells: 2451
+##     - cDC1s: 75
+##     - cDC2s: 65
+##     - GD T cells: 66
+##     - Macrophages: 79
+##     - Migratory DCs: 224
+##     - Monocytes: 59
+##     - NK cells: 70
+##     - pDCs: 58
+##     - Tregs: 292
 ```
 
 ```
@@ -236,18 +237,18 @@ mouseDLN.SDDLS <- genMixedCellProp(
 ```
 
 ```
-##     - B cells: 2786
-##     - CD4 T cells: 681
-##     - CD8 T cells: 1089
-##     - cDC1s: 33
-##     - cDC2s: 29
-##     - GD T cells: 29
-##     - Macrophages: 35
-##     - Migratory DCs: 100
-##     - Monocytes: 26
-##     - NK cells: 31
-##     - pDCs: 26
-##     - Tregs: 130
+##     - B cells: 2090
+##     - CD4 T cells: 511
+##     - CD8 T cells: 817
+##     - cDC1s: 25
+##     - cDC2s: 22
+##     - GD T cells: 22
+##     - Macrophages: 26
+##     - Migratory DCs: 75
+##     - Monocytes: 20
+##     - NK cells: 23
+##     - pDCs: 20
+##     - Tregs: 98
 ```
 
 ```
@@ -255,7 +256,7 @@ mouseDLN.SDDLS <- genMixedCellProp(
 ```
 
 ```
-##     - Mixed spots: 6667
+##     - Mixed spots: 7500
 ##     - Cell types: 12
 ```
 
@@ -264,7 +265,7 @@ mouseDLN.SDDLS <- genMixedCellProp(
 ```
 
 ```
-##     - Mixed spots: 3333
+##     - Mixed spots: 2500
 ##     - Cell types: 12
 ```
 
@@ -300,25 +301,66 @@ mouseDLN.SDDLS <- simMixedProfiles(mouseDLN.SDDLS, threads = 3)
 
 ## Training a fully-connected neural network using mixed transcriptional profiles
 
-Having generated a set of mixed transcriptional profiles with known cell composition, we can then train a neural network using the training subset and evaluate the model by predicting cell type proportions on the test subset. Once trained, the model can deconvolute the cellular composition of new transcriptional profiles, such as spots in a spatial transcriptomics experiment. The architecture of the network is fully customizable, although in our experience, the hyperparameters used in this example work for most of the cases. Particularly, we will employ a model with two hidden layers, each consisting of 200 neurons, and a training process involving 60 epochs.
+After generating a set of mixed transcriptional profiles with known cell composition, we can then train a neural network using the training subset and evaluate the model by predicting cell type proportions on the test subset. The trained model can deconvolute the cellular composition of new transcriptional profiles, such as spots in a spatial transcriptomics experiment. The architecture of the network is fully customizable, although in our experience, the default hyperparameters used in this example work for most of the cases. Particularly, we will employ a model with two hidden layers, each consisting of 200 neurons, and a training process involving 60 epochs.
 
 
 ```r
 mouseDLN.SDDLS <- trainDeconvModel(
   mouseDLN.SDDLS,
-  num.epochs = 60,
-  num.hidden.layers = 2, 
-  num.units = c(200, 200),
   verbose = FALSE
 ) 
 ```
 
 ```
-##   1/105 [..............................] - ETA: 12s - loss: 0.0949 - accuracy: 0.8750 - mean_absolute_error: 0.0187 - categorical_accuracy: 0.8750 81/105 [======================>.......] - ETA: 0s - loss: 0.0826 - accuracy: 0.8808 - mean_absolute_error: 0.0170 - categorical_accuracy: 0.8808 105/105 [==============================] - 0s 622us/step - loss: 0.0827 - accuracy: 0.8818 - mean_absolute_error: 0.0170 - categorical_accuracy: 0.8818
-## 105/105 [==============================] - 0s 626us/step - loss: 0.0827 - accuracy: 0.8818 - mean_absolute_error: 0.0170 - categorical_accuracy: 0.8818
+##  1/79 [..............................] - ETA: 9s - loss: 0.0840 - accuracy: 0.8750 - mean_absolute_error: 0.0175 - categorical_accuracy: 0.875079/79 [==============================] - 0s 622us/step - loss: 0.0818 - accuracy: 0.8712 - mean_absolute_error: 0.0170 - categorical_accuracy: 0.8712
+## 79/79 [==============================] - 0s 629us/step - loss: 0.0818 - accuracy: 0.8712 - mean_absolute_error: 0.0170 - categorical_accuracy: 0.8712
 ```
 
-Some metrics of the training progress can be shown by setting `verbose = TRUE`. Anyhow, more advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, providing insight into the model's performance for each cell type. These metrics can be visualized using various functions:
+Some metrics about the training progress can be shown by setting `verbose = TRUE` or by calling the object:
+
+
+```r
+mouseDLN.SDDLS
+```
+
+```
+## An object of class SpatialDDLS 
+## Real single-cell profiles:
+##   1041 features and 14989 cells
+##   rownames: Clec4a1 Csf1r Sapcd2 ... Sapcd2 Cd79a Fam20c Rpl37a 
+##   colnames: AGGGTTTTCGTAACCA-1-1 ACGGGTCGTTTACGAC-1-2 GCCATTCGTAGGCAGT-1-2 ... GCCATTCGTAGGCAGT-1-2 TTACAGGAGGAGAGTA-1-3 GGGTCACCACAACGAG-1-0 GACTCAACATGACACT-1-2 
+## Spatial experiments:
+##   1 experiments
+##   1041 features and 1092 spots
+##   rownames: Klrc1 Rps3 Ankrd33b ... Ankrd33b Iglc3 Plekha4 Lynx1 
+##   colnames: CAATGGATCTCTACCA-1-1 GGCGCGTTCGAGTTTA-1-1 GAAGCGTGAGGAATTT-1-1 ... GAAGCGTGAGGAATTT-1-1 GTGGAACCTACATGCG-1-1 AACTTGCCCGTATGCA-1-0 ATAAAGGCTCGGTCGT-1-1 
+## Cell type composition matrices:
+##   Cell type matrix for traindata: 7500 bulk samples and 12 cell types 
+##   Cell type matrix for testdata: 2500 bulk samples and 12 cell types 
+## Simulated mixed spots:
+##   train spots:
+##     1041 features and 7500 spots
+##     rownames: Ngfr Trib1 Timp2 ... Timp2 Rps3a1 Pou2af1 H3f3a 
+##     colnames: Spot_train_7037 Spot_train_7151 Spot_train_5337 ... Spot_train_5337 Spot_train_3547 Spot_train_2476 Spot_train_1594 
+##   test spots:
+##     1041 features and 2500 spots
+##     rownames: Eif5a Spint1 Ip6k3 ... Ip6k3 Cox6a2 Nudt17 Gsr 
+##     colnames: Spot_test_2242 Spot_test_2302 Spot_test_1868 ... Spot_test_1868 Spot_test_1775 Spot_test_1287 Spot_test_385 
+## Trained model: 60 epochs
+##   Training metrics (last epoch):
+##     loss: 0.0855
+##     accuracy: 0.8157
+##     mean_absolute_error: 0.0193
+##     categorical_accuracy: 0.8157
+##   Evaluation metrics on test data:
+##     loss: 0.0818
+##     accuracy: 0.8712
+##     mean_absolute_error: 0.017
+##     categorical_accuracy: 0.8712 
+## Project: SpatialDDLS-Proj
+```
+
+Anyhow, more advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, providing insight into the model's performance for each cell type. These metrics can be visualized using various functions:
 
 
 ```r
@@ -378,26 +420,22 @@ corrExpPredPlot(
 <p class="caption">plot of chunk corr-pred</p>
 </div>
 
-As demonstrated, the overall performance is satisfactory, indicating that the model is capable of comprehending the distinctive features of each cell type to provide precise predictions of the cell type composition of transcriptional profiles.
+As it can be seen, the overall performance is satisfactory, indicating that the model is capable of identifying the distinctive features of each cell type to provide precise predictions of the cell type composition of transcriptional profiles.
 
 ## Deconvolution of the spatial transcriptomics dataset
 
 Finally, we can use our trained model to deconvolute the signals of each spot using the `deconvSpatialDDLS` function. By default, this function uses the trained model to predict cell proportions of two sets of transcriptional profiles obtained from the ST datasets: 
 
 * 'Intrinsic' profiles: these are the actual transcriptional profiles of every spot in the ST dataset. 
-* 'Extrinsic' profiles: these are simulated profiles generated from the surrounding spots of every spot. The concept is to create a mirrored set of transcriptional profiles that represent the transcriptional features of the spatial context of each spot. 
+* 'Extrinsic' profiles: these are simulated profiles generated from the surrounding spots of every spot. The concept is to create a set of transcriptional profiles that represent the transcriptional features of the spatial context of each spot. 
 
 The latter can be used to understand how similar each spot is to its neighbors. Considering the hypothesis that we can infer the cellular composition of each spot based on its surroundings given the correlation between spatial location and cell composition/transcriptional features, we can use this information to spatially contextualize our predictions and improve their accuracy. We refer to this process as spatial regularization. Details about the methodology are explained in the Documentation and @Mananes2023. 
 
 
 ```r
 mouseDLN.SDDLS <- deconvSpatialDDLS(
-  mouseDLN.SDDLS, k.spots = 6, fast.pca = TRUE
+  mouseDLN.SDDLS, index.st = 1, k.spots = 6, fast.pca = TRUE
 )
-```
-
-```
-##    No 'index.st' provided. Deconvoluting all SpatialExperiment objects contained in the `spatial.experiments` slot
 ```
 
 ```
@@ -409,8 +447,8 @@ mouseDLN.SDDLS <- deconvSpatialDDLS(
 ```
 
 ```
-##  1/35 [..............................] - ETA: 0s35/35 [==============================] - 0s 565us/step
-## 35/35 [==============================] - 0s 576us/step
+##  1/35 [..............................] - ETA: 0s35/35 [==============================] - 0s 551us/step
+## 35/35 [==============================] - 0s 563us/step
 ```
 
 ```
@@ -521,7 +559,7 @@ ggarrange(plotlist = list.plots[9:12], align = "hv")
 <p class="caption">plot of chunk pred-spatial-sep-extrinsic</p>
 </div>
 
-As one might expect, this is a smoothed version of the final predictions. It is also possible to visualize distances between the extrinsic and intrinsic transcriptional profiles of each spot to understand how the regularization step works by using the `plotDistances` function: 
+As one may expect, the extrinsic predictions are a smoothed version of the final ones. It is also possible to visualize distances between the extrinsic and intrinsic transcriptional profiles of each spot to understand how the regularization step works by using the `plotDistances` function: 
 
 
 ```r
@@ -556,12 +594,12 @@ Those spots with distances less than the mean distance were regularized accordin
 
 ## Interpreting the model
 
-In order to make predictions more transparent, `SpatialDDLS` includes an additional module designed to provide insights into the model's decision-making process. It relies on calculating the predicted classes/loss function gradients with respect to the input variables, a method popularly known as **Vanilla Gradient**. These numeric values are computed for each gene and cell type using the pure mixed transcriptional profiles previously simulated. Therefore, they can be interpreted as the extent to which each feature is contributing to the model's predictions. While these values are initially calculated at the sample/gene level, they can be aggregated at the cell type level in order to assess the relevance of different genes for cell type proportion predictions. These steps are performed through the `interGradientDL` function:
+In order to make predictions more transparent, `SpatialDDLS` includes an additional module designed to provide insights into the model's decision-making process. It relies on calculating the predicted classes/loss function gradients with respect to the input variables, a method popularly known as Vanilla Gradient. These numeric values are computed for each gene and cell type using the pure mixed transcriptional profiles previously simulated. Therefore, they can be interpreted as the extent to which each feature is contributing to the model's predictions. While these values are initially calculated at the sample/gene level, they are aggregated at the cell type level in order to assess the relevance of each gene to each cell type prediction. These steps are performed through the `interGradientDL` function:
 
 
 ```r
 mouseDLN.SDDLS <- interGradientsDL(
-  mouseDLN.SDDLS, scaling = "standardize", method = "class"
+  mouseDLN.SDDLS, method = "class", scaling = "standardize"
 )
 ```
 
@@ -585,22 +623,22 @@ sapply(
 ```
 
 ```
-##   B cells CD4 T cells CD8 T cells    cDC1s   cDC2s GD T cells   Macrophages Migratory DCs Monocytes NK cells     pDCs Tregs
-## 1  Vpreb3      Igfbp4       Satb1    Cdc20 Gm26917      Ly6c1       Chchd10        Sec11c    Sec11c    Cox7b   Sec11c  Ddx5
-## 2   Cd79b       Satb1        Lef1   Neurl3   Ptprc       Cd28           Mif       Ifitm10    Epsti1   Sec11c     Ryr2 Itgb1
-## 3  Sec11c       Ly6c1       Pcgf5    Gstm5  Gprc5c       Ddx5 1300017J02Rik        Epsti1       Myc     Ryr2 Lgals3bp Foxp3
-## 4 Chchd10        Lef1       Timp2  Bcl2a1a   Mbnl1      Limd2 2200002D01Rik        Fam20c   Ifitm10  Tnfrsf9     Lrp8 Ctla4
-## 5  Sh3bp5       Rps29        Acp5 Lgals3bp   Tiam1     Gpr183          Ehd1      Rabgap1l    Atp2b1    Klrc2      Fyb   Fyn
+##   B cells CD4 T cells CD8 T cells         cDC1s   cDC2s GD T cells Macrophages Migratory DCs Monocytes NK cells  pDCs Tregs
+## 1   Dmxl1      Igfbp4       Cd8b1       Slc16a9    Ddx5    Gm42418        Svbp        Sec11c     Kif22    Runx3 Kif22 Foxp3
+## 2 Tnfrsf8       Satb1        Acp5       Tnfrsf8    Rpl4       Nrgn        Fth1        Asprv1    Samhd1     Ccr9 Rpl31 Stk39
+## 3   Cd79b       Ly6c1        Ccr9 1500009L16Rik  Samhd1       Ddx5     Chchd10          Ctsw    Ndfip1    Mbnl1 Iglv1 Ctla4
+## 4    Npm1        Lef1        Rgcc         Cox7b  Lefty1      Kif22    Atp6v1g1         Kif22     Gpr83     Cd72  Emp3 Itih5
+## 5  Fam20c       Rps29       Runx3         Cdc20 Gm26917      Il2rg     Pla2g2d         Cd164      Ddx5    Il2rg  Rac2   Fyn
 ```
 
-As can be seen, among the top 5 genes some canonical markers for different cell types appear, such as Cd72 for B cells, Cd8a for CD8 T cells, or Foxp3 for Tregs. These are just the top 5 genes, so considering a higher number can provide a more comprehensive understanding of the genes utilizaed by the model.
+As can be seen, among the top 5 genes some canonical markers for different cell types appear, such as Cd8 for CD8 T cells or Foxp3 for Tregs. These are just the top 5 genes, so considering a higher number of genes can provide a more comprehensive understanding of the genes being used by the model.
 
-We also provide the `plotHeatmapGradsAgg` function for visualizing the top N mean gradients per cell type. This plot highlights genes with high gradients across different cell types, reflecting the multivariate nature of neural networks. It is advisable to examine both the most positive and negative gradients, as these genes significantly contribute to the network's predictions.
+We also provide the `plotHeatmapGradsAgg` function for visualizing the top N mean gradients per cell type. This plot highlights genes with high gradients across different cell types, reflecting the multivariate nature of neural networks.
 
 
 ```r
 hh <- plotHeatmapGradsAgg(mouseDLN.SDDLS, top.n.genes = 4, method = "class")
-hh$Positive
+hh$Absolute
 ```
 
 <div class="figure" style="text-align: center">
@@ -608,14 +646,38 @@ hh$Positive
 <p class="caption">plot of chunk positive-grad</p>
 </div>
 
+Finally, we can use the `plotSpatialGeneExpr` function to visualize the spatial distribution of the top N genes per cell type in the ST dataset. Let's plot some genes for some cell types just for demonstration purposes: 
+
 
 ```r
-hh$Negative
+top.genes <- topGradientsCellType(mouseDLN.SDDLS, top.n.genes = 4)
+for (i in c("B cells", "CD4 T cells", "CD8 T cells", "Tregs", "Monocytes")) {
+  list.plots <- list()
+  for (j in top.genes[[i]][["Positive"]]) {
+    list.plots[[j]] <- plotSpatialGeneExpr(
+      mouseDLN.SDDLS, index.st = 1, gene = j, size.point = 0.5,
+      title = paste0(i, " - ", j)
+    ) + coord_fixed() + theme(legend.position = "none") ## legend removed just for viz
+  }
+  print(ggpubr::ggarrange(plotlist = list.plots, align = "hv"))
+}
 ```
 
 <div class="figure" style="text-align: center">
-<img src="negative-grad-1.png" alt="plot of chunk negative-grad"  />
-<p class="caption">plot of chunk negative-grad</p>
+<img src="top-genes-spatial-1.png" alt="plot of chunk top-genes-spatial"  />
+<p class="caption">plot of chunk top-genes-spatial</p>
+</div><div class="figure" style="text-align: center">
+<img src="top-genes-spatial-2.png" alt="plot of chunk top-genes-spatial"  />
+<p class="caption">plot of chunk top-genes-spatial</p>
+</div><div class="figure" style="text-align: center">
+<img src="top-genes-spatial-3.png" alt="plot of chunk top-genes-spatial"  />
+<p class="caption">plot of chunk top-genes-spatial</p>
+</div><div class="figure" style="text-align: center">
+<img src="top-genes-spatial-4.png" alt="plot of chunk top-genes-spatial"  />
+<p class="caption">plot of chunk top-genes-spatial</p>
+</div><div class="figure" style="text-align: center">
+<img src="top-genes-spatial-5.png" alt="plot of chunk top-genes-spatial"  />
+<p class="caption">plot of chunk top-genes-spatial</p>
 </div>
 
 ## Clustering analysis
@@ -660,7 +722,7 @@ plotSpatialClustering(mouseDLN.SDDLS) + coord_fixed()
 
 ## Comparing deconvoluted cell proportions with colocalization of cell markers
 
-Finally, we are going to assess whether there is a collocation between the predicted cell type proportions and the expression of known classic markers for each cell type. This analysis aims to validate the model's predictions by comparing them with well-established cellular markers, but it does not mean to be a quantitative validation of the model.
+Finally, we are going to assess whether there is a collocation between the predicted cell type proportions and the expression of known markers for each cell type. This analysis aims to validate the model's predictions by comparing them with well-established cellular markers, but it does not mean to be a quantitative validation of the model.
 
 
 ```r
@@ -724,5 +786,7 @@ dfPlotLong %>% ggplot(
 <img src="zscores-1.png" alt="plot of chunk zscores"  />
 <p class="caption">plot of chunk zscores</p>
 </div>
+
+As it can be seen, markers for each cell type colocalize with the cell proportions predicted by `SpatialDDLS`, demonstrating its ability to deconvolute ST samples. For more examples and a quantitative assessment of the algorithm, please see the published manuscript @Mananes2023. 
 
 ## References

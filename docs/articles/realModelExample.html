@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="SpatialDDLS">
-<title>Deconvolution of mouse lymph node samples • SpatialDDLS</title>
+<title>Get started! Deconvolution of mouse lymph node samples • SpatialDDLS</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Deconvolution of mouse lymph node samples">
+<meta property="og:title" content="Get started! Deconvolution of mouse lymph node samples">
 <meta property="og:description" content="SpatialDDLS">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SpatialDDLS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Deconvolution of mouse lymph node samples</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Get started! Deconvolution of mouse lymph node samples</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/diegommcc/SpatialDDLS/vignettes/realModelExample.Rmd" class="external-link"><code>vignettes/realModelExample.Rmd</code></a></small>
@@ -86,7 +86,6 @@
 
     
     
-<!-- Reference: @Li2017 -->
 <p>In this vignette, we will analyze a spatial transcriptomics dataset
 (10x Visium) comprising three slides from murine lymph nodes, two of
 which obtained after a 48-hour infection with <em>Mycobacterium
@@ -100,10 +99,8 @@ but for ease of use, we have made it available through the
 </h2>
 <p>Firstly, let’s load the required packages and data:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://diegommcc.github.io/SpatialDDLS/" class="external-link">"SpatialDDLS"</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in library("SpatialDDLS"): there is no package called 'SpatialDDLS'</span></span></code></pre>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"SingleCellExperiment"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://diegommcc.github.io/SpatialDDLS/" class="external-link">"SpatialDDLS"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"SingleCellExperiment"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/drighelli/SpatialExperiment" class="external-link">"SpatialExperiment"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rpkgs.datanovia.com/ggpubr/" class="external-link">"ggpubr"</a></span><span class="op">)</span></span>
@@ -122,7 +119,7 @@ but for ease of use, we have made it available through the
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">MouseDLN.ST</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s explore the spatial transcriptomics data contained in the
 <code>MouseDLN.ST</code> object:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span><span class="va">MouseDLN.ST</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">MouseDLN.ST</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">X0</span>, <span class="va">X1</span>, color <span class="op">=</span> <span class="va">lymph_node</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Mouse lymph nodes by condition"</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -148,7 +145,7 @@ dimensions and consider only meaningful genes. Please refer to the
 documentation to review the implemented strategies (specially
 <code>sc.n.genes.per.cluster</code> and <code>sc.min.mean.counts</code>
 parameters).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createSpatialDDLSobject.html">createSpatialDDLSobject</a></span><span class="op">(</span></span>
 <span>  sc.data <span class="op">=</span> <span class="va">MouseDLN.SCE</span>, </span>
 <span>  sc.cell.ID.column <span class="op">=</span> <span class="st">"CellID"</span>, </span>
@@ -163,11 +160,41 @@ parameters).</p>
 <span>  st.spot.ID.column <span class="op">=</span> <span class="st">"CellID"</span>,</span>
 <span>  st.gene.ID.column <span class="op">=</span> <span class="st">"GeneSymbol"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in createSpatialDDLSobject(sc.data = MouseDLN.SCE, sc.cell.ID.column = "CellID", : could not find function "createSpatialDDLSobject"</span></span></code></pre>
+<pre><code><span><span class="co">## === 1 SpatialExperiment objects provided</span></span></code></pre>
+<pre><code><span><span class="co">##    === Processing spatial transcriptomics data</span></span></code></pre>
+<pre><code><span><span class="co">##       - Filtering features:</span></span></code></pre>
+<pre><code><span><span class="co">##          - Selected features: 12514</span></span></code></pre>
+<pre><code><span><span class="co">##          - Discarded features: 1434</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span></code></pre>
+<pre><code><span><span class="co">## === Processing single-cell data</span></span></code></pre>
+<pre><code><span><span class="co">##       - Removing 16 genes without expression in any cell</span></span></code></pre>
+<pre><code><span><span class="co">##       - Filtering features:</span></span></code></pre>
+<pre><code><span><span class="co">##          - Selected features: 12350</span></span></code></pre>
+<pre><code><span><span class="co">##          - Discarded features: 488</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Number of shared genes between single-cell and spatial transcriptomics datasets: 10941</span></span></code></pre>
+<pre><code><span><span class="co">##     - Original # genes in single-cell data: 12350</span></span></code></pre>
+<pre><code><span><span class="co">##     - Original # genes in ST data (object with the greatest # genes): 12514</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Number of removed mitochondrial genes: 11</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Number of genes after filtering based on logFC: 1041</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Final number of dimensions for further analyses: 1041</span></span></code></pre>
 <p>We can show some basic information about the object:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'mouseDLN.SDDLS' not found</span></span></code></pre>
+<pre><code><span><span class="co">## An object of class SpatialDDLS </span></span>
+<span><span class="co">## Real single-cell profiles:</span></span>
+<span><span class="co">##   1041 features and 14989 cells</span></span>
+<span><span class="co">##   rownames: Cd19 Rpl38 Adcy6 ... Adcy6 Napsa Plbd1 Adgre1 </span></span>
+<span><span class="co">##   colnames: GATCGTACACTTGAAC-1-1 ACTGTCCTCGCTCCTA-1-1 AGACCCGCACCGTCTT-1-1 ... AGACCCGCACCGTCTT-1-1 AACCTGATCAAGAATG-1-2 CACTTCGAGTCCGTCG-1-1 CTGTGAATCTGACAGT-1-2 </span></span>
+<span><span class="co">## Spatial experiments:</span></span>
+<span><span class="co">##   1 experiments</span></span>
+<span><span class="co">##   1041 features and 1092 spots</span></span>
+<span><span class="co">##   rownames: Plaur Utrn Zfp36l2 ... Zfp36l2 Gm10851 Nusap1 Rpl5 </span></span>
+<span><span class="co">##   colnames: CGAGTTCTGTCCCACC-1-1 CTGGGCCTGCTATATC-1-0 CAGGCCGTTTGGGTGT-1-1 ... CAGGCCGTTTGGGTGT-1-1 TACTGGACAGCTCGGC-1-0 GTTTCTGCAGTCTCCC-1-1 TAAAGCGTTAGGAGAA-1-1 </span></span>
+<span><span class="co">## Project: SpatialDDLS-Proj</span></span></code></pre>
 <p>In this case, we are only working on 1 spatial transcriptomics
 dataset, but an arbitrary number of <code>SpatialExperiment</code>
 objects can be loaded.</p>
@@ -178,19 +205,20 @@ objects can be loaded.</p>
 <p>Now, we are going to simulate cell composition matrices that will
 serve to simulate mixed transcriptional profiles with known cell
 proportions. This is done by the <code>genMixedCellProp</code> function
-in which we can control different aspects such as the number of mixed
-transcriptional profiles to be generated, the number of cells used to
-simulate each mixed profile, etc. These parameters must be decided
-depending on the single-cell reference and the available computational
+in which we can control different aspects, such as the number of mixed
+transcriptional profiles to be generated or the number of cells used to
+simulate each mixed profile. These parameters must be decided depending
+on the size of the single-cell reference and the available computational
 resources. For this example, and as standard reference, we will use
 <code>num.sim.spots = 10000</code> and <code>n.cells = 50</code>. The
-cell type compositions of these mixed profiles will be generated by
-three methods:</p>
+cell type composition of these mixed profiles will be generated by three
+methods:</p>
 <ul>
-<li>A random sampling of a Dirichlet distribution. Moreover, in order to
-make these proportions more sparse, the <code>prob.sparity</code>
-parameter controls the probability of having missing cell types in each
-simulated spot, as opposed to a mixture of all cell types.</li>
+<li>A random sampling of a Dirichlet distribution. Within this set of
+samples, in order to make these proportions more sparse, the
+<code>prob.sparity</code> parameter controls the probability of having
+missing cell types in each simulated spot, as opposed to a mixture of
+all cell types.</li>
 <li>Pure mixed transcriptional profiles composed of <code>n.cells</code>
 cells of the same cell type aggregated.</li>
 <li>Transcriptional profiles in which a minimum number of missing cell
@@ -204,7 +232,7 @@ reference cell profiles contained in the <code>single.cell.real</code>
 slot into training and test subsets and randomly assign
 <code>n.cells</code> cells to generate every mixed transcriptional
 profile.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/genMixedCellProp.html">genMixedCellProp</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  cell.ID.column <span class="op">=</span> <span class="st">"CellID"</span>,</span>
@@ -213,25 +241,65 @@ profile.</p>
 <span>  n.cells <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  train.freq.cells <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span>
 <span>  train.freq.spots <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span>
-<span>  proportion.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
+<span>  proportion.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  prob.sparity <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>  min.zero.prop <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  balanced.type.cells <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  balanced.type.cells <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in genMixedCellProp(mouseDLN.SDDLS, cell.ID.column = "CellID", cell.type.column = "broad_cell_types", : could not find function "genMixedCellProp"</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === The number of mixed profiles that will be generated is equal to 10000</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Training set cells by type:</span></span></code></pre>
+<pre><code><span><span class="co">##     - B cells: 5573</span></span>
+<span><span class="co">##     - CD4 T cells: 1362</span></span>
+<span><span class="co">##     - CD8 T cells: 2179</span></span>
+<span><span class="co">##     - cDC1s: 67</span></span>
+<span><span class="co">##     - cDC2s: 58</span></span>
+<span><span class="co">##     - GD T cells: 59</span></span>
+<span><span class="co">##     - Macrophages: 70</span></span>
+<span><span class="co">##     - Migratory DCs: 199</span></span>
+<span><span class="co">##     - Monocytes: 53</span></span>
+<span><span class="co">##     - NK cells: 62</span></span>
+<span><span class="co">##     - pDCs: 52</span></span>
+<span><span class="co">##     - Tregs: 260</span></span></code></pre>
+<pre><code><span><span class="co">## === Test set cells by type:</span></span></code></pre>
+<pre><code><span><span class="co">##     - B cells: 2786</span></span>
+<span><span class="co">##     - CD4 T cells: 681</span></span>
+<span><span class="co">##     - CD8 T cells: 1089</span></span>
+<span><span class="co">##     - cDC1s: 33</span></span>
+<span><span class="co">##     - cDC2s: 29</span></span>
+<span><span class="co">##     - GD T cells: 29</span></span>
+<span><span class="co">##     - Macrophages: 35</span></span>
+<span><span class="co">##     - Migratory DCs: 100</span></span>
+<span><span class="co">##     - Monocytes: 26</span></span>
+<span><span class="co">##     - NK cells: 31</span></span>
+<span><span class="co">##     - pDCs: 26</span></span>
+<span><span class="co">##     - Tregs: 130</span></span></code></pre>
+<pre><code><span><span class="co">## === Probability matrix for training data:</span></span></code></pre>
+<pre><code><span><span class="co">##     - Mixed spots: 6667</span></span>
+<span><span class="co">##     - Cell types: 12</span></span></code></pre>
+<pre><code><span><span class="co">## === Probability matrix for test data:</span></span></code></pre>
+<pre><code><span><span class="co">##     - Mixed spots: 3333</span></span>
+<span><span class="co">##     - Cell types: 12</span></span></code></pre>
+<pre><code><span><span class="co">## DONE</span></span></code></pre>
 <p>Then, we can call the <code>simMixedProfiles</code> function, which
 will generate the actual mixed transcriptional profiles using the cell
 composition matrices generated in the previous step. This step may take
 a while depending on the number of transcriptional profiles to be
 simulated, so be patient! In addition, users can choose the method by
 which the mixed profiles will be generated. We recommend summing up raw
-counts, and then normalize samples by log-CPM
+counts, and then normalizing samples to obtain logCPMs
 (<code>mixing.function = "AddRawCount"</code>), but other methods are
 available (see Documentation).</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simMixedProfiles.html">simMixedProfiles</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, threads <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in simMixedProfiles(mouseDLN.SDDLS, threads = 3): could not find function "simMixedProfiles"</span></span></code></pre>
+<pre><code><span><span class="co">## === Setting parallel environment to 3 thread(s)</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Generating train mixed profiles:</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Generating test mixed profiles:</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## DONE</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="training-a-fully-connected-neural-network-using-mixed-transcriptional-profiles">Training a fully-connected neural network using mixed
@@ -241,31 +309,36 @@ transcriptional profiles<a class="anchor" aria-label="anchor" href="#training-a-
 cell composition, we can then train a neural network using the training
 subset and evaluate the model by predicting cell type proportions on the
 test subset. Once trained, the model can deconvolute the cellular
-composition of new transcriptional profiles, such as each spot in a
-spatial transcriptomics experiment. The architecture of the network is
-fully customizable, although in our experience, the hyperparameters used
-in this example work for most of the cases. Particularly, we will employ
-a model with two hidden layers, each consisting of 200 neurons, and a
+composition of new transcriptional profiles, such as spots in a spatial
+transcriptomics experiment. The architecture of the network is fully
+customizable, although in our experience, the hyperparameters used in
+this example work for most of the cases. Particularly, we will employ a
+model with two hidden layers, each consisting of 200 neurons, and a
 training process involving 60 epochs.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trainDeconvModel.html">trainDeconvModel</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  num.epochs <span class="op">=</span> <span class="fl">60</span>,</span>
 <span>  num.hidden.layers <span class="op">=</span> <span class="fl">2</span>, </span>
-<span>  num.units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">200</span>, <span class="fl">200</span><span class="op">)</span></span>
+<span>  num.units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">200</span>, <span class="fl">200</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span> </span></code></pre></div>
-<pre><code><span><span class="co">## Error in trainDeconvModel(mouseDLN.SDDLS, num.epochs = 60, num.hidden.layers = 2, : could not find function "trainDeconvModel"</span></span></code></pre>
-<p>By default, some metrics about the performance of the model will be
-displayed. More advanced metrics can be calculated using the
-<code>calculateEvalMetrics</code> function. This function computes mean
-absolute error (MAE) and mean squared error (MSE) metrics per cell type,
-providing insight into the model’s performance for each cell type. These
-metrics can be visualized using various functions:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculateEvalMetrics.html">calculateEvalMetrics</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in calculateEvalMetrics(mouseDLN.SDDLS): could not find function "calculateEvalMetrics"</span></span></code></pre>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/distErrorPlot.html">distErrorPlot</a></span><span class="op">(</span></span>
+<pre><code>## 
+  1/105 [..............................] - ETA: 10s - loss: 0.0701 - accuracy: 0.8125 - mean_absolute_error: 0.0150 - categorical_accuracy: 0.8125
+ 83/105 [======================&gt;.......] - ETA: 0s - loss: 0.0749 - accuracy: 0.8742 - mean_absolute_error: 0.0161 - categorical_accuracy: 0.8742 
+105/105 [==============================] - 0s 605us/step - loss: 0.0757 - accuracy: 0.8737 - mean_absolute_error: 0.0162 - categorical_accuracy: 0.8737
+## 
+105/105 [==============================] - 0s 610us/step - loss: 0.0757 - accuracy: 0.8737 - mean_absolute_error: 0.0162 - categorical_accuracy: 0.8737</code></pre>
+<p>Some metrics of the training progress can be shown by setting
+<code>verbose = TRUE</code>. Anyhow, more advanced metrics can be
+calculated using the <code>calculateEvalMetrics</code> function. This
+function computes mean absolute error (MAE) and mean squared error (MSE)
+metrics per cell type, providing insight into the model’s performance
+for each cell type. These metrics can be visualized using various
+functions:</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculateEvalMetrics.html">calculateEvalMetrics</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/distErrorPlot.html">distErrorPlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  error <span class="op">=</span> <span class="st">"AbsErr"</span>,</span>
 <span>  x.by <span class="op">=</span> <span class="st">"CellType"</span>,</span>
@@ -274,8 +347,12 @@ metrics can be visualized using various functions:</p>
 <span>  type <span class="op">=</span> <span class="st">"boxplot"</span>,</span>
 <span>  size.point <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in distErrorPlot(mouseDLN.SDDLS, error = "AbsErr", x.by = "CellType", : could not find function "distErrorPlot"</span></span></code></pre>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="figure" style="text-align: center">
+<img src="abserr-celltype-1.png" alt="plot of chunk abserr-celltype"><p class="caption">
+plot of chunk abserr-celltype
+</p>
+</div>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/distErrorPlot.html">distErrorPlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  x.by <span class="op">=</span> <span class="st">"pBin"</span>,</span>
@@ -285,8 +362,12 @@ metrics can be visualized using various functions:</p>
 <span>  error.label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"boxplot"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in distErrorPlot(mouseDLN.SDDLS, x.by = "pBin", error = "AbsErr", : could not find function "distErrorPlot"</span></span></code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="figure" style="text-align: center">
+<img src="abserr-celltype-sep-1.png" alt="plot of chunk abserr-celltype-sep"><p class="caption">
+plot of chunk abserr-celltype-sep
+</p>
+</div>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/corrExpPredPlot.html">corrExpPredPlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  color.by <span class="op">=</span> <span class="st">"CellType"</span>,</span>
@@ -294,7 +375,12 @@ metrics can be visualized using various functions:</p>
 <span>  corr <span class="op">=</span> <span class="st">"both"</span>, </span>
 <span>  size.point <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in corrExpPredPlot(mouseDLN.SDDLS, color.by = "CellType", facet.by = "CellType", : could not find function "corrExpPredPlot"</span></span></code></pre>
+<pre><code><span><span class="co">## `geom_smooth()` using formula = 'y ~ x'</span></span></code></pre>
+<div class="figure" style="text-align: center">
+<img src="corr-pred-1.png" alt="plot of chunk corr-pred"><p class="caption">
+plot of chunk corr-pred
+</p>
+</div>
 <p>As demonstrated, the overall performance is satisfactory, indicating
 that the model is capable of comprehending the distinctive features of
 each cell type to provide precise predictions of the cell type
@@ -304,9 +390,9 @@ composition of transcriptional profiles.</p>
 <h3 id="deconvolution-of-the-spatial-transcriptomics-dataset">Deconvolution of the spatial transcriptomics dataset<a class="anchor" aria-label="anchor" href="#deconvolution-of-the-spatial-transcriptomics-dataset"></a>
 </h3>
 <p>Finally, we can use our trained model to deconvolute the signals of
-each spot using the `deconvSpatialDDLS’ function. By default, the
-function uses the trained model to predict cell proportions of two sets
-of transcriptional profiles from the ST datasets:</p>
+each spot using the <code>deconvSpatialDDLS</code> function. By default,
+this function uses the trained model to predict cell proportions of two
+sets of transcriptional profiles obtained from the ST datasets:</p>
 <ul>
 <li>‘Intrinsic’ profiles: these are the actual transcriptional profiles
 of every spot in the ST dataset.</li>
@@ -317,86 +403,138 @@ features of the spatial context of each spot.</li>
 </ul>
 <p>The latter can be used to understand how similar each spot is to its
 neighbors. Considering the hypothesis that we can infer the cellular
-composition of each spot based on their surroundings given the
-correlation between spatial location and cell
-composition/transcriptional profile, we can use this information to
-spatially contextualize our predictions and improve their accuracy. For
-furhter mentions, we refer to this process as regularization. Details
-about the methodology are explained in the Documentation and <span class="citation">Mañanes et al. (2023)</span>.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+composition of each spot based on its surroundings given the correlation
+between spatial location and cell composition/transcriptional features,
+we can use this information to spatially contextualize our predictions
+and improve their accuracy. We refer to this process as spatial
+regularization. Details about the methodology are explained in the
+Documentation and <span class="citation">Mañanes et al.
+(2024)</span>.</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deconvSpatialDDLS.html">deconvSpatialDDLS</a></span><span class="op">(</span></span>
-<span>  <span class="va">mouseDLN.SDDLS</span>, k.spots <span class="op">=</span> <span class="fl">6</span></span>
+<span>  <span class="va">mouseDLN.SDDLS</span>, k.spots <span class="op">=</span> <span class="fl">6</span>, fast.pca <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in deconvSpatialDDLS(mouseDLN.SDDLS, k.spots = 6): could not find function "deconvSpatialDDLS"</span></span></code></pre>
+<pre><code><span><span class="co">##    No 'index.st' provided. Deconvoluting all SpatialExperiment objects contained in the `spatial.experiments` slot</span></span></code></pre>
+<pre><code><span><span class="co">## === Normalizing data (LogCPM)</span></span></code></pre>
+<pre><code><span><span class="co">## === Predicting cell type proportions</span></span></code></pre>
+<pre><code>## 
+ 1/35 [..............................] - ETA: 0s
+35/35 [==============================] - 0s 569us/step
+## 
+35/35 [==============================] - 0s 580us/step</code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Calculating distances in PCA space</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## === Calculating 50 PCs</span></span></code></pre>
+<pre><code><span><span class="co">## === Calculating alpha factors based on distances</span></span></code></pre>
+<pre><code><span><span class="co">## DONE</span></span></code></pre>
 <p>Now, let’s project these predicted proportions in the spatial
 coordinates:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpatialPropAll.html">plotSpatialPropAll</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in plotSpatialPropAll(mouseDLN.SDDLS, index.st = 1): could not find function "plotSpatialPropAll"</span></span></code></pre>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-1.png" alt="plot of chunk pred-spatial"><p class="caption">
+plot of chunk pred-spatial
+</p>
+</div>
 <p>To reveal hidden patterns in the coordinates caused by using the same
 color scale, we can utilize the <code>plotSpatialProp</code> function to
 independently plot each cell type:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="../reference/trained.model.html">trained.model</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="../reference/cell.types.html">cell.types</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">list.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
+<span>  X <span class="op">=</span> <span class="fu"><a href="../reference/trained.model.html">trained.model</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="../reference/cell.types.html">cell.types</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>  FUN <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="../reference/plotSpatialProp.html">plotSpatialProp</a></span><span class="op">(</span></span>
-<span>      <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, cell.type <span class="op">=</span> <span class="va">i</span>, </span>
-<span>      colors <span class="op">=</span> <span class="st">"blues"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in cell.types(.): could not find function "cell.types"</span></span></code></pre>
+<span>        <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, cell.type <span class="op">=</span> <span class="va">x</span>, size.point <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        colors <span class="op">=</span> <span class="st">"blues"</span></span>
+<span>      <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-sep-1.png" alt="plot of chunk pred-spatial-sep"><p class="caption">
+plot of chunk pred-spatial-sep
+</p>
+</div>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-sep-2.png" alt="plot of chunk pred-spatial-sep"><p class="caption">
+plot of chunk pred-spatial-sep
+</p>
+</div>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-sep-3.png" alt="plot of chunk pred-spatial-sep"><p class="caption">
+plot of chunk pred-spatial-sep
+</p>
+</div>
 <p>In addition to the ‘regularized’ cell proportions, we can plot the
 predictions calculated for the intrinsic and extrinsic transcriptional
 profiles. For instance, let’s plot those predicted from the extrinsic
 transcriptional profiles:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="va">mouseDLN.SDDLS</span><span class="op">@</span><span class="va">trained.model</span><span class="op">@</span><span class="va">cell.types</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">list.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
+<span>  X <span class="op">=</span> <span class="fu"><a href="../reference/trained.model.html">trained.model</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="../reference/cell.types.html">cell.types</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>  FUN <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="../reference/plotSpatialProp.html">plotSpatialProp</a></span><span class="op">(</span></span>
-<span>      <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, cell.type <span class="op">=</span> <span class="va">i</span>, </span>
-<span>      colors <span class="op">=</span> <span class="st">"blues"</span>, prediction <span class="op">=</span> <span class="st">"Extrinsic"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'mouseDLN.SDDLS' not found</span></span></code></pre>
+<span>        <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, cell.type <span class="op">=</span> <span class="va">x</span>, size.point <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        colors <span class="op">=</span> <span class="st">"blues"</span>, prediction <span class="op">=</span> <span class="st">"Extrinsic"</span></span>
+<span>      <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-sep-extrinsic-1.png" alt="plot of chunk pred-spatial-sep-extrinsic"><p class="caption">
+plot of chunk pred-spatial-sep-extrinsic
+</p>
+</div>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-sep-extrinsic-2.png" alt="plot of chunk pred-spatial-sep-extrinsic"><p class="caption">
+plot of chunk pred-spatial-sep-extrinsic
+</p>
+</div>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="pred-spatial-sep-extrinsic-3.png" alt="plot of chunk pred-spatial-sep-extrinsic"><p class="caption">
+plot of chunk pred-spatial-sep-extrinsic
+</p>
+</div>
 <p>As one might expect, this is a smoothed version of the final
-predictions. It is also possible to visualize distances between
+predictions. It is also possible to visualize distances between the
 extrinsic and intrinsic transcriptional profiles of each spot to
 understand how the regularization step works by using the
 <code>plotDistances</code> function:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotDistances.html">plotDistances</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, size.point <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in plotDistances(mouseDLN.SDDLS, index.st = 1, size.point = 1.5): could not find function "plotDistances"</span></span></code></pre>
+<div class="figure" style="text-align: center">
+<img src="distances-1.png" alt="plot of chunk distances"><p class="caption">
+plot of chunk distances
+</p>
+</div>
 <p>Those spots with distances less than the mean distance were
-regularized according to their nearest neighbor spots. We can observe
-this spots using the following chunk of code:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">st.coor</span> <span class="op">&lt;-</span> <span class="fu">SpatialExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/spatial.experiments.html">spatial.experiments</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'spatialCoords': could not find function "spatial.experiments"</span></span></code></pre>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">st.coor</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Spatial"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error: object 'st.coor' not found</span></span></code></pre>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">st.pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deconv.spots.html">deconv.spots</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in deconv.spots(object = mouseDLN.SDDLS, index.st = 1): could not find function "deconv.spots"</span></span></code></pre>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">alpha.factors</span> <span class="op">&lt;-</span> <span class="va">st.pred</span><span class="op">[[</span><span class="st">"Alpha.Factors"</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'st.pred' not found</span></span></code></pre>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dfPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">st.coor</span>, <span class="va">alpha.factors</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.data.frame': object 'st.coor' not found</span></span></code></pre>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
-<span>  <span class="va">dfPlot</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>    x <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="st">"Spatial 1"</span><span class="op">]</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="st">"Spatial 2"</span><span class="op">]</span><span class="op">]</span>, </span>
-<span>    color <span class="op">=</span> <span class="va">alpha.factors</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_color_gradient2</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Distances"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">SpatialDDLSTheme</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'dfPlot' not found</span></span></code></pre>
+regularized according to their nearest neighbor spots.</p>
+<!-- We can observe this spots using the following chunk of code:  -->
+<!-- ```{r, modified-spots} -->
+<!-- st.coor <- SpatialExperiment::spatialCoords( -->
+<!--   spatial.experiments(object = mouseDLN.SDDLS, index.st = 1) -->
+<!-- )[, 1:2] -->
+<!-- colnames(st.coor) <- paste("Spatial", 1:2) -->
+<!-- st.pred <- deconv.spots(object = mouseDLN.SDDLS, index.st = 1) -->
+<!-- alpha.factors <- st.pred[["Alpha.Factors"]] -->
+<!-- dfPlot <- as.data.frame(cbind(st.coor, alpha.factors)) -->
+<!-- ggplot( -->
+<!--   dfPlot, aes( -->
+<!--     x = .data[["Spatial 1"]], y = .data[["Spatial 2"]],  -->
+<!--     color = alpha.factors -->
+<!--   ) -->
+<!-- ) + geom_point(size = 1.5) + scale_color_gradient2() +  -->
+<!--   ggtitle("Distances") + SpatialDDLSTheme() + coord_fixed() -->
+<!-- ``` -->
 </div>
 <div class="section level3">
 <h3 id="interpreting-the-model">Interpreting the model<a class="anchor" aria-label="anchor" href="#interpreting-the-model"></a>
@@ -404,23 +542,22 @@ this spots using the following chunk of code:</p>
 <p>In order to make predictions more transparent,
 <code>SpatialDDLS</code> includes an additional module designed to
 provide insights into the model’s decision-making process. It relies on
-calculating of predicted classes/loss function gradients with respect to
-the input variables, a method popularly known as Vanilla Gradient. These
-numeric values are computed for each gene and cell type using the pure
-mixed transcriptional profiles previously simulated. Therefore, they can
-be interpreted as the extent to which each feature is contributing to
-the model’s predictions. While these values are initially calculated at
-the sample/gene level, they can be aggregated at the cell type level in
-order to assess the relevance of different genes for cell type
-proportion predictions. These steps are performed through the
-<code>interGradientDL</code> function:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+calculating the predicted classes/loss function gradients with respect
+to the input variables, a method popularly known as <strong>Vanilla
+Gradient</strong>. These numeric values are computed for each gene and
+cell type using the pure mixed transcriptional profiles previously
+simulated. Therefore, they can be interpreted as the extent to which
+each feature is contributing to the model’s predictions. While these
+values are initially calculated at the sample/gene level, they can be
+aggregated at the cell type level in order to assess the relevance of
+different genes for cell type proportion predictions. These steps are
+performed through the <code>interGradientDL</code> function:</p>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/interGradientsDL.html">interGradientsDL</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>, scaling <span class="op">=</span> <span class="st">"standardize"</span>, method <span class="op">=</span> <span class="st">"class"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in interGradientsDL(mouseDLN.SDDLS, scaling = "standardize", method = "class"): could not find function "interGradientsDL"</span></span></code></pre>
 <p>Importantly, depending on the <code>method</code> parameter, positive
-and negative gradient must be differently interpreted:</p>
+and negative gradients must be differently interpreted:</p>
 <ul>
 <li>If gradients with respect to the input variables were calculated
 using the loss function (<code>method = "loss"</code>), genes with
@@ -441,58 +578,45 @@ specific gene-cell type relationships.</p>
 <p>For this example, let’s calculate gradients of the class function
 with respect to the input features and show the top 5 genes with the
 greatest gradients per cell type:</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top.gradients</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/topGradientsCellType.html">topGradientsCellType</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>, method <span class="op">=</span> <span class="st">"class"</span>, top.n.genes <span class="op">=</span> <span class="fl">5</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in topGradientsCellType(mouseDLN.SDDLS, method = "class", top.n.genes = 5): could not find function "topGradientsCellType"</span></span></code></pre>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span></span>
 <span>  <span class="va">top.gradients</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">Positive</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.data.frame': error in evaluating the argument 'X' in selecting a method for function 'sapply': object 'top.gradients' not found</span></span></code></pre>
+<pre><code><span><span class="co">##   B cells CD4 T cells CD8 T cells  cDC1s       cDC2s GD T cells   Macrophages Migratory DCs Monocytes NK cells    pDCs  Tregs</span></span>
+<span><span class="co">## 1  Vpreb3      Igfbp4       Cd8b1   Melk        Ddx5        Il4         Cyth4       S100a10     Mbnl1    Ly6c1  Pou2f2  Foxp3</span></span>
+<span><span class="co">## 2    Calr       Ly6c1     Gm26917  Cox7b D16Ertd472e    Gm26917          Cst7          Mrc1      Smc4     Ugcg   Cyth4 Pou2f2</span></span>
+<span><span class="co">## 3   Kctd7       Satb1        Rgcc   Ryr2        Npm1      Cyth4           Myc         Ip6k3    Samhd1  Gm13546 S100a10   Ddx5</span></span>
+<span><span class="co">## 4    Npm1        Lef1     Gm19585   Nrgn      Ifitm1       Cst7         Ccna2       Gm26917   Gm26917    Klra9    Smc4  Ctla4</span></span>
+<span><span class="co">## 5    Cd55        Ugcg        Ccr9 Fam20c     Gm26917      Actn2 1300017J02Rik        Slc1a3    Neurl3      Fyn Apobec3  Itgb1</span></span></code></pre>
 <p>As can be seen, among the top 5 genes some canonical markers for
-different cell types appear, such as Cd79b for B cells, Cd8a for CD8 T
+different cell types appear, such as Cd72 for B cells, Cd8a for CD8 T
 cells, or Foxp3 for Tregs. These are just the top 5 genes, so
 considering a higher number can provide a more comprehensive
 understanding of the genes utilizaed by the model.</p>
 <p>We also provide the <code>plotHeatmapGradsAgg</code> function for
-visualizing N top mean gradients per cell type. This plot highlights
+visualizing the top N mean gradients per cell type. This plot highlights
 genes with high gradients across different cell types, reflecting the
 multivariate nature of neural networks. It is advisable to examine both
 the most positive and negative gradients, as these genes significantly
 contribute to the network’s predictions.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hh</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotHeatmapGradsAgg.html">plotHeatmapGradsAgg</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, top.n.genes <span class="op">=</span> <span class="fl">4</span>, method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in plotHeatmapGradsAgg(mouseDLN.SDDLS, top.n.genes = 4, method = "class"): could not find function "plotHeatmapGradsAgg"</span></span></code></pre>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hh</span><span class="op">$</span><span class="va">Positive</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'hh' not found</span></span></code></pre>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hh</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotHeatmapGradsAgg.html">plotHeatmapGradsAgg</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, top.n.genes <span class="op">=</span> <span class="fl">4</span>, method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span>
+<span><span class="va">hh</span><span class="op">$</span><span class="va">Positive</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="positive-grad-1.png" alt="plot of chunk positive-grad"><p class="caption">
+plot of chunk positive-grad
+</p>
+</div>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hh</span><span class="op">$</span><span class="va">Negative</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'hh' not found</span></span></code></pre>
-<p>Finally, we can use the <code>plotSpatialGeneExpr</code> to visualize
-the spatial distribution of the top N genes per cell tupe in the ST
-dataset. Let’s plot genes for some cell types for demonstration
-purposes:</p>
-<p>the top N genes per cell type and visualize their spatial
-distribution in the ST dataset. Let’s plot genes for some cell types
-just for demonstration purposes:</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">top.genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/topGradientsCellType.html">topGradientsCellType</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, top.n.genes <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in topGradientsCellType(mouseDLN.SDDLS, top.n.genes = 4): could not find function "topGradientsCellType"</span></span></code></pre>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"B cells"</span>, <span class="st">"CD4 T cells"</span>, <span class="st">"CD8 T cells"</span>, <span class="st">"Tregs"</span>, <span class="st">"Monocytes"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">list.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="va">top.genes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Absolute"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">list.plots</span><span class="op">[[</span><span class="va">j</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotSpatialGeneExpr.html">plotSpatialGeneExpr</a></span><span class="op">(</span></span>
-<span>      <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, gene <span class="op">=</span> <span class="va">j</span>, size.point <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>      title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">i</span>, <span class="st">" - "</span>, <span class="va">j</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="co">## legend removed just for viz</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">ggpubr</span><span class="fu">::</span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'top.genes' not found</span></span></code></pre>
+<div class="figure" style="text-align: center">
+<img src="negative-grad-1.png" alt="plot of chunk negative-grad"><p class="caption">
+plot of chunk negative-grad
+</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="clustering-analysis">Clustering analysis<a class="anchor" aria-label="anchor" href="#clustering-analysis"></a>
@@ -500,25 +624,34 @@ just for demonstration purposes:</p>
 <p>The <code>SpatialDDLS</code> R package also includes some functions
 to cluster the ST dataset according to the predicted cell composition of
 each spot. This functionality enables to dissect the ST datasets into
-distinct cellular niches, which can be a relevant information for
-further analyses.</p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+distinct cellular niches, information that might be relevant for further
+analyses.</p>
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spatialPropClustering.html">spatialPropClustering</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, k.nn <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in spatialPropClustering(mouseDLN.SDDLS, k.nn = 20): could not find function "spatialPropClustering"</span></span></code></pre>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">##    No 'index.st' provided. Deconvoluting all SpatialExperiment objects contained in the `spatial.experiments` slot</span></span></code></pre>
+<pre><code><span><span class="co">## === Selected graph-based clustering</span></span></code></pre>
+<pre><code><span><span class="co">## === Running clustering for slide 1</span></span></code></pre>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpatialClustering.html">plotSpatialClustering</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in plotSpatialClustering(mouseDLN.SDDLS): could not find function "plotSpatialClustering"</span></span></code></pre>
+<pre><code><span><span class="co">##    No 'index.st' provided. Using first ST dataset</span></span></code></pre>
+<pre><code><span><span class="co">## === Plotting first clustering configuration Clustering.graph.k.20</span></span></code></pre>
+<div class="figure" style="text-align: center">
+<img src="clustering-1.png" alt="plot of chunk clustering"><p class="caption">
+plot of chunk clustering
+</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="comparing-deconvoluted-cell-proportions-with-colocalization-of-cell-markers">Comparing deconvoluted cell proportions with colocalization of cell
 markers<a class="anchor" aria-label="anchor" href="#comparing-deconvoluted-cell-proportions-with-colocalization-of-cell-markers"></a>
 </h3>
-<p>Finally, we assess whether there is a collocation between the
-predicted cell type proportions and the expression of known classic
-markers for each cell type. This analysis aims to validate the model’s
-predictions by comparing them with well-established cellular markers,
-but it does not mean to be a quantitative validation of the model.</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<p>Finally, we are going to assess whether there is a collocation
+between the predicted cell type proportions and the expression of known
+classic markers for each cell type. This analysis aims to validate the
+model’s predictions by comparing them with well-established cellular
+markers, but it does not mean to be a quantitative validation of the
+model.</p>
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">customMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"B cells"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cd74"</span>, <span class="st">"Cd19"</span>, <span class="st">"Cd79a"</span>, <span class="st">"Cd79b"</span>, <span class="st">"Ly6d"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"CD4 T cells"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cd4"</span>, <span class="st">"Lef1"</span>, <span class="st">"Fyb"</span><span class="op">)</span>,</span>
@@ -533,7 +666,7 @@ but it does not mean to be a quantitative validation of the model.</p>
 <span>  pDCs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Siglech"</span>, <span class="st">"Plac8"</span>, <span class="st">"Ly6c2"</span>, <span class="st">"Vtsb"</span>, <span class="st">"Zeb2"</span>, <span class="st">"Siglech"</span><span class="op">)</span>,</span>
 <span>  Tregs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ikzf2"</span>, <span class="st">"Il2ra"</span>, <span class="st">"Foxp3"</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span>FUN <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">MouseDLN.ST</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## calculate z-scores</span></span>
 <span><span class="va">exprST</span> <span class="op">&lt;-</span> <span class="va">MouseDLN.ST</span><span class="op">@</span><span class="va">assays</span><span class="op">@</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">logCPM</span> <span class="op">&lt;-</span> <span class="fu">edgeR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/cpm.html" class="external-link">cpm</a></span><span class="op">(</span><span class="va">exprST</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -542,24 +675,20 @@ but it does not mean to be a quantitative validation of the model.</p>
 <span>  .f <span class="op">=</span> <span class="op">~</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">logCPM</span><span class="op">[</span><span class="va">customMarkers</span><span class="op">[[</span><span class="va">.x</span><span class="op">]</span><span class="op">]</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">}</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">cbind</span>, <span class="va">.</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">meanZscoresCustom</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">customMarkers</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">color.z.scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu">RColorBrewer</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html" class="external-link">brewer.pal</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span>, name <span class="op">=</span> <span class="st">"RdBu"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">color.z.scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu">RColorBrewer</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html" class="external-link">brewer.pal</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span>, name <span class="op">=</span> <span class="st">"RdBu"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">st.coor</span> <span class="op">&lt;-</span> <span class="fu">SpatialExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/spatial.experiments.html">spatial.experiments</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'spatialCoords': could not find function "spatial.experiments"</span></span></code></pre>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">st.coor</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Spatial"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error: object 'st.coor' not found</span></span></code></pre>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dfPlotLong</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">st.coor</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Spatial"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">dfPlotLong</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">st.coor</span>, <span class="va">meanZscoresCustom</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>  id.vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Spatial 1"</span>, <span class="st">"Spatial 2"</span><span class="op">)</span>, </span>
 <span>  variable.name <span class="op">=</span> <span class="st">"CellType"</span>, value.name <span class="op">=</span> <span class="st">"Zscore"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.data.frame': object 'st.coor' not found</span></span></code></pre>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dfPlotLong</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">dfPlotLong</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="st">"Spatial 1"</span><span class="op">]</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="st">"Spatial 2"</span><span class="op">]</span><span class="op">]</span>, color <span class="op">=</span> <span class="va">Zscore</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Mean z-score of cell type markers"</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -569,8 +698,12 @@ but it does not mean to be a quantitative validation of the model.</p>
 <span>    axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    axis.ticks.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.ticks.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">CellType</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in eval(expr, envir, enclos): object 'dfPlotLong' not found</span></span></code></pre>
+<span>  <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">CellType</span><span class="op">)</span> </span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="zscores-1.png" alt="plot of chunk zscores"><p class="caption">
+plot of chunk zscores
+</p>
+</div>
 </div>
 <div class="section level3">
 <h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -583,10 +716,10 @@ continuums of cell types in spatial transcriptomics data</span>.”</span>
 <em>Nat Biotechnol</em> 40 (9): 1360–69.
 </div>
 <div id="ref-Mananes2023" class="csl-entry">
-Mañanes, D., I. Rivero-García, D. Jimenez-Carretero, M. Torres, D.
-Sancho, C. Torroja, and F. Sanchez-Cabo. 2023. <span>“<span class="nocase"><span>S</span>patialDDLS: <span>A</span>n <span>R</span>
-package to deconvolute spatial transcriptomics data using neural
-networks</span>.”</span> <em>bioRxiv</em>.
+Mañanes, D., I. Rivero-García, C. Relaño, M. Torres, D. Sancho, D.
+Jimenez-Carretero, C. Torroja, and F. Sánchez-Cabo. 2024. <span>“<span class="nocase"><span>S</span>patial<span>D</span><span>D</span><span>L</span><span>S</span>:
+an <span>R</span> package to deconvolute spatial transcriptomics data
+using neural networks</span>.”</span> <em>Bioinformatics</em> 40 (2).
 </div>
 </div>
 </div>

@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SpatialDDLS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,19 +127,19 @@ but for ease of use, we have made it available through the
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="spatialdata-cond-1.png" width="1458.33333333333" style="display: block; margin: auto;"></p>
 <p>With regard to the single-cell RNA-seq data, preprocessing and
-visualization could be performed, but such analysis is outside the scope
-of this tutorial.</p>
+visualization could be performed, but such analyses are outside the
+scope of this tutorial.</p>
 <div class="section level3">
 <h3 id="loading-data-into-a-spatialddls-object">Loading data into a <code>SpatialDDLS</code> object<a class="anchor" aria-label="anchor" href="#loading-data-into-a-spatialddls-object"></a>
 </h3>
 <p>Now, we need to create a <code>SpatialDDLS</code> object, which will
-serve as the central core for all subsequent steps. We suggest including
-both the spatial and single-cell transcriptomics data to enable
-filtering and selection of only those genes that are present in both
-data types for further analyses. Additionally, we recommend filtering
-genes based on their expression levels in order to reduce the number of
-dimensions and consider only meaningful genes. Please refer to the
-documentation to review the implemented strategies (specially
+serve as the central core for all subsequent steps. We recommend
+including both the spatial and single-cell transcriptomics data to
+enable filtering and selection of only those genes that are present in
+both data types for further analyses. Additionally, we recommend
+filtering genes based on their expression levels in order to reduce the
+number of dimensions and consider only meaningful genes. Please, refer
+to the documentation to review the implemented strategies (specially
 <code>sc.n.genes.per.cluster</code> and <code>sc.min.mean.counts</code>
 parameters).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -149,51 +149,49 @@ parameters).</p>
 <span>  sc.gene.ID.column <span class="op">=</span> <span class="st">"GeneSymbol"</span>,</span>
 <span>  sc.cell.type.column <span class="op">=</span> <span class="st">"broad_cell_types"</span>,</span>
 <span>  st.data <span class="op">=</span> <span class="va">MouseDLN.ST</span>,</span>
-<span>  sc.min.counts <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>  sc.min.cells <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  st.spot.ID.column <span class="op">=</span> <span class="st">"CellID"</span>,</span>
+<span>  st.gene.ID.column <span class="op">=</span> <span class="st">"GeneSymbol"</span>,</span>
 <span>  sc.filt.genes.cluster <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>  sc.n.genes.per.cluster <span class="op">=</span> <span class="fl">150</span>,</span>
-<span>  sc.min.mean.counts <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  st.spot.ID.column <span class="op">=</span> <span class="st">"CellID"</span>,</span>
-<span>  st.gene.ID.column <span class="op">=</span> <span class="st">"GeneSymbol"</span></span>
+<span>  sc.min.mean.counts <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## === 1 SpatialExperiment objects provided</span></span></code></pre>
 <pre><code><span><span class="co">##    === Processing spatial transcriptomics data</span></span></code></pre>
-<pre><code><span><span class="co">##       - Filtering features:</span></span></code></pre>
-<pre><code><span><span class="co">##          - Selected features: 13948</span></span></code></pre>
-<pre><code><span><span class="co">##          - Discarded features: 0</span></span></code></pre>
-<pre><code><span><span class="co">## </span></span></code></pre>
-<pre><code><span><span class="co">## === Processing single-cell data</span></span></code></pre>
-<pre><code><span><span class="co">##       - Removing 16 genes without expression in any cell</span></span></code></pre>
 <pre><code><span><span class="co">## 'as(&lt;dgCMatrix&gt;, "dgTMatrix")' is deprecated.</span></span>
 <span><span class="co">## Use 'as(., "TsparseMatrix")' instead.</span></span>
 <span><span class="co">## See help("Deprecated") and help("Matrix-deprecated").</span></span></code></pre>
 <pre><code><span><span class="co">##       - Filtering features:</span></span></code></pre>
+<pre><code><span><span class="co">##          - Selected features: 12514</span></span></code></pre>
+<pre><code><span><span class="co">##          - Discarded features: 1434</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span></code></pre>
+<pre><code><span><span class="co">## === Processing single-cell data</span></span></code></pre>
+<pre><code><span><span class="co">##       - Removing 16 genes without expression in any cell</span></span></code></pre>
+<pre><code><span><span class="co">##       - Filtering features:</span></span></code></pre>
 <pre><code><span><span class="co">##          - Selected features: 12350</span></span></code></pre>
 <pre><code><span><span class="co">##          - Discarded features: 488</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
-<span><span class="co">## === Number of shared genes between single-cell and spatial transcriptomics datasets: 11592</span></span></code></pre>
+<span><span class="co">## === Number of shared genes between single-cell and spatial transcriptomics datasets: 10941</span></span></code></pre>
 <pre><code><span><span class="co">##     - Original # genes in single-cell data: 12350</span></span></code></pre>
-<pre><code><span><span class="co">##     - Original # genes in ST data (object with the greatest # genes): 13948</span></span></code></pre>
+<pre><code><span><span class="co">##     - Original # genes in ST data (object with the greatest # genes): 12514</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
-<span><span class="co">## === Number of removed mitochondrial genes: 12</span></span></code></pre>
+<span><span class="co">## === Number of removed mitochondrial genes: 11</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
-<span><span class="co">## === Number of genes after filtering based on logFC: 1058</span></span></code></pre>
+<span><span class="co">## === Number of genes after filtering based on logFC: 1041</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
-<span><span class="co">## === Final number of dimensions for further analyses: 1058</span></span></code></pre>
+<span><span class="co">## === Final number of dimensions for further analyses: 1041</span></span></code></pre>
 <p>We can show some basic information about the object:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class SpatialDDLS </span></span>
 <span><span class="co">## Real single-cell profiles:</span></span>
-<span><span class="co">##   1058 features and 14989 cells</span></span>
-<span><span class="co">##   rownames: Tcrg-C2 Pax5 C1qc ... C1qc Rpl37a Prdx5 Rgs2 </span></span>
-<span><span class="co">##   colnames: TCAATTCCACTACAGT-1-2 AAGACTCAGTTCGCAT-1-1 GTCTGTCAGAGCCGAT-1-1 ... GTCTGTCAGAGCCGAT-1-1 AACAACCGTGCTCCGA-1-1 CTGCTCATCTGAATCG-1-3 GAGTTGTTCACACGAT-1-2 </span></span>
+<span><span class="co">##   1041 features and 14989 cells</span></span>
+<span><span class="co">##   rownames: Rps15 Zfp949 Dscam ... Dscam Pax5 Emp3 Arpc2 </span></span>
+<span><span class="co">##   colnames: AGGCCACCAACTTGCA-1-2 CTCCACAAGAAGGGAT-1-1 GTCAAACAGGTTGTTC-1-0 ... GTCAAACAGGTTGTTC-1-0 TAACACGCAAGTGTCT-1-2 TCGCACTGTACTGACT-1-2 CCGGTAGGTGTGATGG-1-0 </span></span>
 <span><span class="co">## Spatial experiments:</span></span>
 <span><span class="co">##   1 experiments</span></span>
-<span><span class="co">##   1058 features and 1092 spots</span></span>
-<span><span class="co">##   rownames: Dntt Rps3a1 Cacnb3 ... Cacnb3 Ccr1 Rps27l Etv5 </span></span>
-<span><span class="co">##   colnames: ACATCAGCTGGGACGC-1-0 GAGATCTGCTTGGCAT-1-1 ATAAACGGACCCGTAA-1-1 ... ATAAACGGACCCGTAA-1-1 ACCTAATCGACTTCCT-1-0 GTTCGCCATAAGTGCC-1-1 AGGCTATGGTTAGCTT-1-0 </span></span>
+<span><span class="co">##   1041 features and 1092 spots</span></span>
+<span><span class="co">##   rownames: Lifr Tppp3 Cacnb3 ... Cacnb3 Thbd Sned1 Pim1 </span></span>
+<span><span class="co">##   colnames: CAATAAACCTTGGCCC-1-1 GCCGCTTGTGAGAAAC-1-1 TTCATGGCGCAACAGG-1-1 ... TTCATGGCGCAACAGG-1-1 AGTTCCTATTTATGTT-1-1 TGGTCTGTTGGGCGTA-1-0 AATTCATAAGGGATCT-1-1 </span></span>
 <span><span class="co">## Project: SpatialDDLS-Proj</span></span></code></pre>
 <p>In this case, we are only working on 1 spatial transcriptomics
 dataset, but an arbitrary number of <code>SpatialExperiment</code>
@@ -239,10 +237,6 @@ profile.</p>
 <span>  cell.type.column <span class="op">=</span> <span class="st">"broad_cell_types"</span>,</span>
 <span>  num.sim.spots <span class="op">=</span> <span class="fl">10000</span>,</span>
 <span>  n.cells <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>  train.freq.cells <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span>
-<span>  train.freq.spots <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span>
-<span>  proportion.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>  prob.sparity <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>  min.zero.prop <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  balanced.type.cells <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -250,36 +244,36 @@ profile.</p>
 <span><span class="co">## === The number of mixed profiles that will be generated is equal to 10000</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## === Training set cells by type:</span></span></code></pre>
-<pre><code><span><span class="co">##     - B cells: 5573</span></span>
-<span><span class="co">##     - CD4 T cells: 1362</span></span>
-<span><span class="co">##     - CD8 T cells: 2179</span></span>
-<span><span class="co">##     - cDC1s: 67</span></span>
-<span><span class="co">##     - cDC2s: 58</span></span>
-<span><span class="co">##     - GD T cells: 59</span></span>
-<span><span class="co">##     - Macrophages: 70</span></span>
-<span><span class="co">##     - Migratory DCs: 199</span></span>
-<span><span class="co">##     - Monocytes: 53</span></span>
-<span><span class="co">##     - NK cells: 62</span></span>
-<span><span class="co">##     - pDCs: 52</span></span>
-<span><span class="co">##     - Tregs: 260</span></span></code></pre>
+<pre><code><span><span class="co">##     - B cells: 6269</span></span>
+<span><span class="co">##     - CD4 T cells: 1532</span></span>
+<span><span class="co">##     - CD8 T cells: 2451</span></span>
+<span><span class="co">##     - cDC1s: 75</span></span>
+<span><span class="co">##     - cDC2s: 65</span></span>
+<span><span class="co">##     - GD T cells: 66</span></span>
+<span><span class="co">##     - Macrophages: 79</span></span>
+<span><span class="co">##     - Migratory DCs: 224</span></span>
+<span><span class="co">##     - Monocytes: 59</span></span>
+<span><span class="co">##     - NK cells: 70</span></span>
+<span><span class="co">##     - pDCs: 58</span></span>
+<span><span class="co">##     - Tregs: 292</span></span></code></pre>
 <pre><code><span><span class="co">## === Test set cells by type:</span></span></code></pre>
-<pre><code><span><span class="co">##     - B cells: 2786</span></span>
-<span><span class="co">##     - CD4 T cells: 681</span></span>
-<span><span class="co">##     - CD8 T cells: 1089</span></span>
-<span><span class="co">##     - cDC1s: 33</span></span>
-<span><span class="co">##     - cDC2s: 29</span></span>
-<span><span class="co">##     - GD T cells: 29</span></span>
-<span><span class="co">##     - Macrophages: 35</span></span>
-<span><span class="co">##     - Migratory DCs: 100</span></span>
-<span><span class="co">##     - Monocytes: 26</span></span>
-<span><span class="co">##     - NK cells: 31</span></span>
-<span><span class="co">##     - pDCs: 26</span></span>
-<span><span class="co">##     - Tregs: 130</span></span></code></pre>
+<pre><code><span><span class="co">##     - B cells: 2090</span></span>
+<span><span class="co">##     - CD4 T cells: 511</span></span>
+<span><span class="co">##     - CD8 T cells: 817</span></span>
+<span><span class="co">##     - cDC1s: 25</span></span>
+<span><span class="co">##     - cDC2s: 22</span></span>
+<span><span class="co">##     - GD T cells: 22</span></span>
+<span><span class="co">##     - Macrophages: 26</span></span>
+<span><span class="co">##     - Migratory DCs: 75</span></span>
+<span><span class="co">##     - Monocytes: 20</span></span>
+<span><span class="co">##     - NK cells: 23</span></span>
+<span><span class="co">##     - pDCs: 20</span></span>
+<span><span class="co">##     - Tregs: 98</span></span></code></pre>
 <pre><code><span><span class="co">## === Probability matrix for training data:</span></span></code></pre>
-<pre><code><span><span class="co">##     - Mixed spots: 6667</span></span>
+<pre><code><span><span class="co">##     - Mixed spots: 7500</span></span>
 <span><span class="co">##     - Cell types: 12</span></span></code></pre>
 <pre><code><span><span class="co">## === Probability matrix for test data:</span></span></code></pre>
-<pre><code><span><span class="co">##     - Mixed spots: 3333</span></span>
+<pre><code><span><span class="co">##     - Mixed spots: 2500</span></span>
 <span><span class="co">##     - Cell types: 12</span></span></code></pre>
 <pre><code><span><span class="co">## DONE</span></span></code></pre>
 <p>Then, we can call the <code>simMixedProfiles</code> function, which
@@ -305,36 +299,68 @@ available (see Documentation).</p>
 <h3 id="training-a-fully-connected-neural-network-using-mixed-transcriptional-profiles">Training a fully-connected neural network using mixed
 transcriptional profiles<a class="anchor" aria-label="anchor" href="#training-a-fully-connected-neural-network-using-mixed-transcriptional-profiles"></a>
 </h3>
-<p>Having generated a set of mixed transcriptional profiles with known
+<p>After generating a set of mixed transcriptional profiles with known
 cell composition, we can then train a neural network using the training
 subset and evaluate the model by predicting cell type proportions on the
-test subset. Once trained, the model can deconvolute the cellular
-composition of new transcriptional profiles, such as spots in a spatial
+test subset. The trained model can deconvolute the cellular composition
+of new transcriptional profiles, such as spots in a spatial
 transcriptomics experiment. The architecture of the network is fully
-customizable, although in our experience, the hyperparameters used in
-this example work for most of the cases. Particularly, we will employ a
-model with two hidden layers, each consisting of 200 neurons, and a
-training process involving 60 epochs.</p>
+customizable, although in our experience, the default hyperparameters
+used in this example work for most of the cases. Particularly, we will
+employ a model with two hidden layers, each consisting of 200 neurons,
+and a training process involving 60 epochs.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trainDeconvModel.html">trainDeconvModel</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
-<span>  num.epochs <span class="op">=</span> <span class="fl">60</span>,</span>
-<span>  num.hidden.layers <span class="op">=</span> <span class="fl">2</span>, </span>
-<span>  num.units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">200</span>, <span class="fl">200</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span> </span></code></pre></div>
 <pre><code>## 
-  1/105 [..............................] - ETA: 12s - loss: 0.0916 - accuracy: 0.8438 - mean_absolute_error: 0.0191 - categorical_accuracy: 0.8438
- 83/105 [======================&gt;.......] - ETA: 0s - loss: 0.0800 - accuracy: 0.8942 - mean_absolute_error: 0.0165 - categorical_accuracy: 0.8942 
-105/105 [==============================] - 0s 606us/step - loss: 0.0796 - accuracy: 0.8926 - mean_absolute_error: 0.0165 - categorical_accuracy: 0.8926</code></pre>
-<p>Some metrics of the training progress can be shown by setting
-<code>verbose = TRUE</code>. Anyhow, more advanced metrics can be
-calculated using the <code>calculateEvalMetrics</code> function. This
-function computes mean absolute error (MAE) and mean squared error (MSE)
-metrics per cell type, providing insight into the model’s performance
-for each cell type. These metrics can be visualized using various
-functions:</p>
+ 1/79 [..............................] - ETA: 10s - loss: 0.0847 - accuracy: 0.9375 - mean_absolute_error: 0.0173 - categorical_accuracy: 0.9375
+79/79 [==============================] - 0s 598us/step - loss: 0.0832 - accuracy: 0.9076 - mean_absolute_error: 0.0172 - categorical_accuracy: 0.9076</code></pre>
+<p>Some metrics about the training progress can be shown by setting
+<code>verbose = TRUE</code> or by calling the object:</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span></span></code></pre></div>
+<pre><code><span><span class="co">## An object of class SpatialDDLS </span></span>
+<span><span class="co">## Real single-cell profiles:</span></span>
+<span><span class="co">##   1041 features and 14989 cells</span></span>
+<span><span class="co">##   rownames: Psmb8 Anxa5 Mmp25 ... Mmp25 Gngt2 Dclk1 Cd19 </span></span>
+<span><span class="co">##   colnames: AACCTGATCAAGAATG-1-2 AATGAAGTCGCCGAGT-1-0 CATACAGCACTACTTT-1-2 ... CATACAGCACTACTTT-1-2 TTACCATCACTAACCA-1-0 GTAGAAAAGACGGTCA-1-2 AGGAAATTCATGAGGG-1-1 </span></span>
+<span><span class="co">## Spatial experiments:</span></span>
+<span><span class="co">##   1 experiments</span></span>
+<span><span class="co">##   1041 features and 1092 spots</span></span>
+<span><span class="co">##   rownames: Wnk1 Mfsd7a Msrb1 ... Msrb1 Itgb1 C77080 Gimap5 </span></span>
+<span><span class="co">##   colnames: AACTTGCCCGTATGCA-1-0 GTTTCTGCAGTCTCCC-1-1 GAAACTCTAATGAAGG-1-1 ... GAAACTCTAATGAAGG-1-1 CACTCAAGAGCTATGG-1-1 TGCAGGATCGGCAAAG-1-1 TCCGATAATTGCCATA-1-1 </span></span>
+<span><span class="co">## Cell type composition matrices:</span></span>
+<span><span class="co">##   Cell type matrix for traindata: 7500 bulk samples and 12 cell types </span></span>
+<span><span class="co">##   Cell type matrix for testdata: 2500 bulk samples and 12 cell types </span></span>
+<span><span class="co">## Simulated mixed spots:</span></span>
+<span><span class="co">##   train spots:</span></span>
+<span><span class="co">##     1041 features and 7500 spots</span></span>
+<span><span class="co">##     rownames: Rps7 P2ry13 Il7r ... Il7r Capza2 Msr1 Rell1 </span></span>
+<span><span class="co">##     colnames: Spot_train_1360 Spot_train_5606 Spot_train_3859 ... Spot_train_3859 Spot_train_1147 Spot_train_563 Spot_train_69 </span></span>
+<span><span class="co">##   test spots:</span></span>
+<span><span class="co">##     1041 features and 2500 spots</span></span>
+<span><span class="co">##     rownames: Cysltr1 Pou2af1 Hpgd ... Hpgd Pbx1 Cst3 Thbs1 </span></span>
+<span><span class="co">##     colnames: Spot_test_376 Spot_test_841 Spot_test_2183 ... Spot_test_2183 Spot_test_1664 Spot_test_480 Spot_test_1713 </span></span>
+<span><span class="co">## Trained model: 60 epochs</span></span>
+<span><span class="co">##   Training metrics (last epoch):</span></span>
+<span><span class="co">##     loss: 0.0829</span></span>
+<span><span class="co">##     accuracy: 0.8288</span></span>
+<span><span class="co">##     mean_absolute_error: 0.019</span></span>
+<span><span class="co">##     categorical_accuracy: 0.8288</span></span>
+<span><span class="co">##   Evaluation metrics on test data:</span></span>
+<span><span class="co">##     loss: 0.0832</span></span>
+<span><span class="co">##     accuracy: 0.9076</span></span>
+<span><span class="co">##     mean_absolute_error: 0.0172</span></span>
+<span><span class="co">##     categorical_accuracy: 0.9076 </span></span>
+<span><span class="co">## Project: SpatialDDLS-Proj</span></span></code></pre>
+<p>Anyhow, more advanced metrics can be calculated using the
+<code>calculateEvalMetrics</code> function. This function computes mean
+absolute error (MAE) and mean squared error (MSE) metrics per cell type,
+providing insight into the model’s performance for each cell type. These
+metrics can be visualized using various functions:</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculateEvalMetrics.html">calculateEvalMetrics</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/distErrorPlot.html">distErrorPlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
@@ -346,7 +372,7 @@ functions:</p>
 <span>  size.point <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="abserr-celltype-1.png" width="1458.33333333333" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/distErrorPlot.html">distErrorPlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  x.by <span class="op">=</span> <span class="st">"pBin"</span>,</span>
@@ -357,7 +383,7 @@ functions:</p>
 <span>  type <span class="op">=</span> <span class="st">"boxplot"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="abserr-celltype-sep-1.png" width="1600" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/corrExpPredPlot.html">corrExpPredPlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>,</span>
 <span>  color.by <span class="op">=</span> <span class="st">"CellType"</span>,</span>
@@ -367,10 +393,10 @@ functions:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## `geom_smooth()` using formula = 'y ~ x'</span></span></code></pre>
 <p><img src="corr-pred-1.png" width="1600" style="display: block; margin: auto;"></p>
-<p>As demonstrated, the overall performance is satisfactory, indicating
-that the model is capable of comprehending the distinctive features of
-each cell type to provide precise predictions of the cell type
-composition of transcriptional profiles.</p>
+<p>As it can be seen, the overall performance is satisfactory,
+indicating that the model is capable of identifying the distinctive
+features of each cell type to provide precise predictions of the cell
+type composition of transcriptional profiles.</p>
 </div>
 <div class="section level3">
 <h3 id="deconvolution-of-the-spatial-transcriptomics-dataset">Deconvolution of the spatial transcriptomics dataset<a class="anchor" aria-label="anchor" href="#deconvolution-of-the-spatial-transcriptomics-dataset"></a>
@@ -383,9 +409,9 @@ sets of transcriptional profiles obtained from the ST datasets:</p>
 <li>‘Intrinsic’ profiles: these are the actual transcriptional profiles
 of every spot in the ST dataset.</li>
 <li>‘Extrinsic’ profiles: these are simulated profiles generated from
-the surrounding spots of every spot. The concept is to create a mirrored
-set of transcriptional profiles that represent the transcriptional
-features of the spatial context of each spot.</li>
+the surrounding spots of every spot. The concept is to create a set of
+transcriptional profiles that represent the transcriptional features of
+the spatial context of each spot.</li>
 </ul>
 <p>The latter can be used to understand how similar each spot is to its
 neighbors. Considering the hypothesis that we can infer the cellular
@@ -395,17 +421,16 @@ we can use this information to spatially contextualize our predictions
 and improve their accuracy. We refer to this process as spatial
 regularization. Details about the methodology are explained in the
 Documentation and <span class="citation">Mañanes et al.
-(2023)</span>.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+(2024)</span>.</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deconvSpatialDDLS.html">deconvSpatialDDLS</a></span><span class="op">(</span></span>
-<span>  <span class="va">mouseDLN.SDDLS</span>, k.spots <span class="op">=</span> <span class="fl">6</span>, fast.pca <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, k.spots <span class="op">=</span> <span class="fl">6</span>, fast.pca <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##    No 'index.st' provided. Deconvoluting all SpatialExperiment objects contained in the `spatial.experiments` slot</span></span></code></pre>
 <pre><code><span><span class="co">## === Normalizing data (LogCPM)</span></span></code></pre>
 <pre><code><span><span class="co">## === Predicting cell type proportions</span></span></code></pre>
 <pre><code>## 
  1/35 [..............................] - ETA: 0s
-35/35 [==============================] - 0s 600us/step</code></pre>
+35/35 [==============================] - 0s 512us/step</code></pre>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## === Calculating distances in PCA space</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
@@ -414,13 +439,13 @@ Documentation and <span class="citation">Mañanes et al.
 <pre><code><span><span class="co">## DONE</span></span></code></pre>
 <p>Now, let’s project these predicted proportions in the spatial
 coordinates:</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpatialPropAll.html">plotSpatialPropAll</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-1.png" width="1600" style="display: block; margin: auto;"></p>
 <p>To reveal hidden patterns in the coordinates caused by using the same
 color scale, we can utilize the <code>plotSpatialProp</code> function to
 independently plot each cell type:</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">list.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
 <span>  X <span class="op">=</span> <span class="fu"><a href="../reference/trained.model.html">trained.model</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="../reference/cell.types.html">cell.types</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>  FUN <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
@@ -432,17 +457,17 @@ independently plot each cell type:</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-sep-1.png" width="2000" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-sep-2.png" width="2000" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-sep-3.png" width="2000" style="display: block; margin: auto;"></p>
 <p>In addition to the ‘regularized’ cell proportions, we can plot the
 predictions calculated for the intrinsic and extrinsic transcriptional
 profiles. For instance, let’s plot those predicted from the extrinsic
 transcriptional profiles:</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">list.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
 <span>  X <span class="op">=</span> <span class="fu"><a href="../reference/trained.model.html">trained.model</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="../reference/cell.types.html">cell.types</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>  FUN <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
@@ -454,18 +479,18 @@ transcriptional profiles:</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-sep-extrinsic-1.png" width="2000" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-sep-extrinsic-2.png" width="2000" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">list.plots</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, align <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pred-spatial-sep-extrinsic-3.png" width="2000" style="display: block; margin: auto;"></p>
-<p>As one might expect, this is a smoothed version of the final
-predictions. It is also possible to visualize distances between the
-extrinsic and intrinsic transcriptional profiles of each spot to
+<p>As one may expect, the extrinsic predictions are a smoothed version
+of the final ones. It is also possible to visualize distances between
+the extrinsic and intrinsic transcriptional profiles of each spot to
 understand how the regularization step works by using the
 <code>plotDistances</code> function:</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotDistances.html">plotDistances</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, size.point <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="distances-1.png" width="1458.33333333333" style="display: block; margin: auto;"></p>
 <p>Those spots with distances less than the mean distance were
@@ -495,18 +520,18 @@ regularized according to their nearest neighbor spots.</p>
 <code>SpatialDDLS</code> includes an additional module designed to
 provide insights into the model’s decision-making process. It relies on
 calculating the predicted classes/loss function gradients with respect
-to the input variables, a method popularly known as <strong>Vanilla
-Gradient</strong>. These numeric values are computed for each gene and
-cell type using the pure mixed transcriptional profiles previously
-simulated. Therefore, they can be interpreted as the extent to which
-each feature is contributing to the model’s predictions. While these
-values are initially calculated at the sample/gene level, they can be
-aggregated at the cell type level in order to assess the relevance of
-different genes for cell type proportion predictions. These steps are
-performed through the <code>interGradientDL</code> function:</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+to the input variables, a method popularly known as Vanilla Gradient.
+These numeric values are computed for each gene and cell type using the
+pure mixed transcriptional profiles previously simulated. Therefore,
+they can be interpreted as the extent to which each feature is
+contributing to the model’s predictions. While these values are
+initially calculated at the sample/gene level, they are aggregated at
+the cell type level in order to assess the relevance of each gene to
+each cell type prediction. These steps are performed through the
+<code>interGradientDL</code> function:</p>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mouseDLN.SDDLS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/interGradientsDL.html">interGradientsDL</a></span><span class="op">(</span></span>
-<span>  <span class="va">mouseDLN.SDDLS</span>, scaling <span class="op">=</span> <span class="st">"standardize"</span>, method <span class="op">=</span> <span class="st">"class"</span></span>
+<span>  <span class="va">mouseDLN.SDDLS</span>, method <span class="op">=</span> <span class="st">"class"</span>, scaling <span class="op">=</span> <span class="st">"standardize"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Importantly, depending on the <code>method</code> parameter, positive
 and negative gradients must be differently interpreted:</p>
@@ -530,52 +555,47 @@ specific gene-cell type relationships.</p>
 <p>For this example, let’s calculate gradients of the class function
 with respect to the input features and show the top 5 genes with the
 greatest gradients per cell type:</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top.gradients</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/topGradientsCellType.html">topGradientsCellType</a></span><span class="op">(</span></span>
 <span>  <span class="va">mouseDLN.SDDLS</span>, method <span class="op">=</span> <span class="st">"class"</span>, top.n.genes <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span></span>
 <span>  <span class="va">top.gradients</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">Positive</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   B cells CD4 T cells CD8 T cells    cDC1s   cDC2s GD T cells   Macrophages</span></span>
-<span><span class="co">## 1    Snx2      Igfbp4       Cd8b1   Fam20c    Xist        Il4          Svbp</span></span>
-<span><span class="co">## 2  Vpreb3       Satb1        Cd8a   Slc1a3 Gm26917      Ramp1 2200002D01Rik</span></span>
-<span><span class="co">## 3   Cd79b       Ly6c1       Actn2 Hist1h3c Trav3-3      Itgb3         Timd4</span></span>
-<span><span class="co">## 4    Ska3        Lef1       Itgae   Sapcd2  Slc1a3      Ikzf3          Fth1</span></span>
-<span><span class="co">## 5  Slc1a3       Rps29        Acp5    Cox7b    Ryr2       Ugcg 1300017J02Rik</span></span>
-<span><span class="co">##   Migratory DCs Monocytes NK cells    pDCs    Tregs</span></span>
-<span><span class="co">## 1          Xist    Map4k4    Cdc20    Ryr2    Foxp3</span></span>
-<span><span class="co">## 2          Melk      Ryr2     Ryr2    Xist Ifi27l2a</span></span>
-<span><span class="co">## 3         Ly6c1      Pfn1   Tmsb10  Tagln2   Samhd1</span></span>
-<span><span class="co">## 4        Slc1a3   Cd300ld    Nuggc    Wnk1    Itgb1</span></span>
-<span><span class="co">## 5          Cd28     Pde1c     Jak1 Zfp36l1    Gpr83</span></span></code></pre>
+<pre><code><span><span class="co">##   B cells CD4 T cells CD8 T cells   cDC1s   cDC2s GD T cells   Macrophages</span></span>
+<span><span class="co">## 1    Rps2      Igfbp4       Cd8b1 Rap1gap S100a10      Actn2 1300017J02Rik</span></span>
+<span><span class="co">## 2  Vpreb3       Satb1        Acp5    Cd52   Mbnl1       Rgcc         Cd8b1</span></span>
+<span><span class="co">## 3 Chchd10       Ly6c1       Saraf    Nrn1  Samhd1       Rps2          Acp5</span></span>
+<span><span class="co">## 4    Jund        Lef1       Art2b    Ryr2    Rpl4      Nmrk1           Mif</span></span>
+<span><span class="co">## 5 Rpl22l1       Trib2      Themis     Fn1    Pygl    Rpl22l1          Prg3</span></span>
+<span><span class="co">##   Migratory DCs Monocytes NK cells  pDCs    Tregs</span></span>
+<span><span class="co">## 1        Map4k4    Atp2b1    Bicd1 Itgb3 Tnfrsf18</span></span>
+<span><span class="co">## 2         Nmrk1    Samhd1  Depdc1a  Csf1    Foxp3</span></span>
+<span><span class="co">## 3         Nfat5    Pou2f2     Ugcg H2-D1    Itgb1</span></span>
+<span><span class="co">## 4      Tnfrsf18  Tnfrsf18    Nmrk1 Fnip2    Mbnl1</span></span>
+<span><span class="co">## 5         Fnip2    Map4k4   Map4k4 Nfat5  S100a10</span></span></code></pre>
 <p>As can be seen, among the top 5 genes some canonical markers for
-different cell types appear, such as Cd72 for B cells, Cd8a for CD8 T
-cells, or Foxp3 for Tregs. These are just the top 5 genes, so
-considering a higher number can provide a more comprehensive
-understanding of the genes utilizaed by the model.</p>
+different cell types appear, such as Cd8 for CD8 T cells or Foxp3 for
+Tregs. These are just the top 5 genes, so considering a higher number of
+genes can provide a more comprehensive understanding of the genes being
+used by the model.</p>
 <p>We also provide the <code>plotHeatmapGradsAgg</code> function for
 visualizing the top N mean gradients per cell type. This plot highlights
 genes with high gradients across different cell types, reflecting the
-multivariate nature of neural networks. It is advisable to examine both
-the most positive and negative gradients, as these genes significantly
-contribute to the network’s predictions.</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hh</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotHeatmapGradsAgg.html">plotHeatmapGradsAgg</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, top.n.genes <span class="op">=</span> <span class="fl">4</span>, method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span>
-<span><span class="va">hh</span><span class="op">$</span><span class="va">Positive</span></span></code></pre></div>
-<p><img src="positive-grad-1.png" width="1200" style="display: block; margin: auto;"></p>
+multivariate nature of neural networks.</p>
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hh</span><span class="op">$</span><span class="va">Negative</span></span></code></pre></div>
-<p><img src="negative-grad-1.png" width="1200" style="display: block; margin: auto;"></p>
-<p>Finally, we can use the <code>plotSpatialGeneExpr</code> to visualize
-the spatial distribution of the top N genes per cell type in the ST
-dataset. Let’s plot genes for some cell types just for demonstration
-purposes:</p>
+<code class="sourceCode R"><span><span class="va">hh</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotHeatmapGradsAgg.html">plotHeatmapGradsAgg</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, top.n.genes <span class="op">=</span> <span class="fl">4</span>, method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span>
+<span><span class="va">hh</span><span class="op">$</span><span class="va">Absolute</span></span></code></pre></div>
+<p><img src="positive-grad-1.png" width="1200" style="display: block; margin: auto;"></p>
+<p>Finally, we can use the <code>plotSpatialGeneExpr</code> function to
+visualize the spatial distribution of the top N genes per cell type in
+the ST dataset. Let’s plot some genes for some cell types just for
+demonstration purposes:</p>
 <div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top.genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/topGradientsCellType.html">topGradientsCellType</a></span><span class="op">(</span><span class="va">mouseDLN.SDDLS</span>, top.n.genes <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"B cells"</span>, <span class="st">"CD4 T cells"</span>, <span class="st">"CD8 T cells"</span>, <span class="st">"Tregs"</span>, <span class="st">"Monocytes"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">list.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="va">top.genes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Absolute"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="va">top.genes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Positive"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">list.plots</span><span class="op">[[</span><span class="va">j</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotSpatialGeneExpr.html">plotSpatialGeneExpr</a></span><span class="op">(</span></span>
 <span>      <span class="va">mouseDLN.SDDLS</span>, index.st <span class="op">=</span> <span class="fl">1</span>, gene <span class="op">=</span> <span class="va">j</span>, size.point <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>      title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">i</span>, <span class="st">" - "</span>, <span class="va">j</span><span class="op">)</span></span>
@@ -610,10 +630,9 @@ markers<a class="anchor" aria-label="anchor" href="#comparing-deconvoluted-cell-
 </h3>
 <p>Finally, we are going to assess whether there is a collocation
 between the predicted cell type proportions and the expression of known
-classic markers for each cell type. This analysis aims to validate the
-model’s predictions by comparing them with well-established cellular
-markers, but it does not mean to be a quantitative validation of the
-model.</p>
+markers for each cell type. This analysis aims to validate the model’s
+predictions by comparing them with well-established cellular markers,
+but it does not mean to be a quantitative validation of the model.</p>
 <div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">customMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"B cells"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cd74"</span>, <span class="st">"Cd19"</span>, <span class="st">"Cd79a"</span>, <span class="st">"Cd79b"</span>, <span class="st">"Ly6d"</span><span class="op">)</span>,</span>
@@ -663,6 +682,11 @@ model.</p>
 <span>    axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.ticks.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">CellType</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="zscores-1.png" width="2400" style="display: block; margin: auto;"></p>
+<p>As it can be seen, markers for each cell type colocalize with the
+cell proportions predicted by <code>SpatialDDLS</code>, demonstrating
+its ability to deconvolute ST samples. For more examples and a
+quantitative assessment of the algorithm, please see the published
+manuscript <span class="citation">Mañanes et al. (2024)</span>.</p>
 </div>
 <div class="section level3">
 <h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -675,10 +699,10 @@ continuums of cell types in spatial transcriptomics data</span>.”</span>
 <em>Nat Biotechnol</em> 40 (9): 1360–69.
 </div>
 <div id="ref-Mananes2023" class="csl-entry">
-Mañanes, D., I. Rivero-García, D. Jimenez-Carretero, M. Torres, D.
-Sancho, C. Torroja, and F. Sanchez-Cabo. 2023. <span>“<span class="nocase"><span>S</span>patialDDLS: <span>A</span>n <span>R</span>
-package to deconvolute spatial transcriptomics data using neural
-networks</span>.”</span> <em>bioRxiv</em>.
+Mañanes, D., I. Rivero-García, C. Relaño, M. Torres, D. Sancho, D.
+Jimenez-Carretero, C. Torroja, and F. Sánchez-Cabo. 2024. <span>“<span class="nocase"><span>S</span>patial<span>D</span><span>D</span><span>L</span><span>S</span>:
+an <span>R</span> package to deconvolute spatial transcriptomics data
+using neural networks</span>.”</span> <em>Bioinformatics</em> 40 (2).
 </div>
 </div>
 </div>

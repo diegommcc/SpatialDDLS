@@ -34,7 +34,7 @@ Details section."><meta property="og:image" content="/logo.png"><!-- mathjax -->
     
     <a class="navbar-brand me-2" href="../index.html">SpatialDDLS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -317,7 +317,9 @@ networks. biorxiv. doi: <a href="https://doi.org/10.1101/2023.08.31.555677" clas
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
 <span class="r-in"><span>  cell.ID.column <span class="op">=</span> <span class="st">"Cell_ID"</span>,</span></span>
 <span class="r-in"><span>  cell.type.column <span class="op">=</span> <span class="st">"Cell_Type"</span>,</span></span>
-<span class="r-in"><span> num.sim.spots <span class="op">=</span> <span class="fl">50</span>,</span></span>
+<span class="r-in"><span>  num.sim.spots <span class="op">=</span> <span class="fl">50</span>,</span></span>
+<span class="r-in"><span>  train.freq.cells <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span></span>
+<span class="r-in"><span>  train.freq.spots <span class="op">=</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span> </span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -395,16 +397,16 @@ networks. biorxiv. doi: <a href="https://doi.org/10.1101/2023.08.31.555677" clas
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Training DNN with 34 samples:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Evaluating DNN in test data (16 samples)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.6692</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2467</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - loss: 1.6916</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - accuracy: 0.125</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - mean_absolute_error: 0.2476</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    - categorical_accuracy: 0.125</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Generating prediction results using test data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
 <span class="r-in"><span><span class="co"># simulating spatial data</span></span></span>
 <span class="r-in"><span><span class="va">ngenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">3</span><span class="op">:</span><span class="fl">40</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ncells</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">3</span><span class="op">:</span><span class="fl">40</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ncells</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">10</span><span class="op">:</span><span class="fl">40</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="va">ngenes</span> <span class="op">*</span> <span class="va">ncells</span>, lambda <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncells</span>,</span></span>
 <span class="r-in"><span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Gene"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">ngenes</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Spot"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">ncells</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -436,14 +438,20 @@ networks. biorxiv. doi: <a href="https://doi.org/10.1101/2023.08.31.555677" clas
 <span class="r-in"><span><span class="va">SDDLS</span> <span class="op">&lt;-</span> <span class="fu">deconvSpatialDDLS</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">SDDLS</span>,</span></span>
 <span class="r-in"><span>  index.st <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  simplify.set <span class="op">=</span> <span class="va">simplify</span>,</span></span>
+<span class="r-in"><span>  simplify.set <span class="op">=</span> <span class="va">simplify</span>, </span></span>
 <span class="r-in"><span>  simplify.majority <span class="op">=</span> <span class="va">simplify</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Filtering out 12 features in data that are not present in trained model</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Normalizing data (LogCPM)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> === Predicting cell type proportions</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>k should be less than sample size!</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FNN::get.knn(distances, k = k):</span> ANN: ERROR-------&gt;</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating distances in PCA space</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating 50 PCs</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>You're computing too large a percentage of total singular values, use a standard svd instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Calculating alpha factors based on distances</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Note that only regularized proportions will be simplified</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DONE</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

@@ -636,7 +636,7 @@ estimateZinbwaveParams <- function(
     if (is.null(name.dataset.backend)) {
       warning("'file.backend' already exists. Using a random dataset name",
               call. = FALSE, immediate. = TRUE)
-      name.dataset.backend <- HDF5Array::getHDF5DumpName(for.use = TRUE)
+      name.dataset.backend <- HDF5Array::getHDF5DumpName()
       while (strsplit(name.dataset.backend, 
                       split = "/")[[1]][2] %in% 
              rhdf5::h5ls(file.backend)[, "name"]) {
@@ -647,7 +647,7 @@ estimateZinbwaveParams <- function(
            "introduce a correct file path or other dataset name")
     }
   } else {
-    name.dataset.backend <- HDF5Array::getHDF5DumpName(for.use = TRUE)
+    name.dataset.backend <- HDF5Array::getHDF5DumpName()
   }
   # check if comression.level is valid
   if (is.null(compression.level)) {

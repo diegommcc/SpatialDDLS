@@ -22,3 +22,4 @@ normalized values in order to make calculations more transparent.
 # SpatialDDLS 1.0.1 (2024-02-07)
 
 * Change in HDF5 file usage: new version of the HDF5Array package does not support "for.use" argument.
+* In createSpatialDDLSobject, included the sc.log.FC parameter to optionally choose if filtering genes according to logFC. 

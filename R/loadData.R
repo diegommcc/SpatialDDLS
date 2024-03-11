@@ -1002,6 +1002,7 @@ NULL
   min.mean.counts,
   n.genes.per.cluster,
   top.n.genes,
+  log.FC,
   verbose
 ) {
   
@@ -1037,7 +1038,9 @@ NULL
   ranked.logFC.top <- lapply(
     list.cluster.FC, 
     \(x) {
-      x.f <- x[x > 0.5] ## only if logFC > 0.5
+      if (log.FC) {
+        x.f <- x[x >= 0.5] ## only if logFC > 0.5  
+      }
       x.f[order(x.f, decreasing = T)] %>% head(n.genes.per.cluster) %>% names()
     }
   ) %>% unlist() %>% unique()
@@ -1157,6 +1160,8 @@ NULL
 #'   by default). In case the number of genes after filtering is greater than 
 #'   \code{top.n.genes}, these genes will be set according to 
 #'   variability across the whole single-cell dataset. 
+#' @param sc.log.FC Whether to filter genes with a logFC less than 0.5 when 
+#'   \code{sc.filt.genes.cluster = TRUE} (\code{TRUE} by default).
 #' @param sc.min.counts Minimum gene counts to filter (1 by default; single-cell
 #'   RNA-seq data).
 #' @param sc.min.cells Minimum of cells with more than \code{min.counts} (1 by
@@ -1274,6 +1279,7 @@ createSpatialDDLSobject <- function(
     sc.min.mean.counts = 1, 
     sc.n.genes.per.cluster = 300,
     top.n.genes = 2000,
+    sc.log.FC = TRUE,
     sc.min.counts = 1,
     sc.min.cells = 1,
     st.min.counts = 1,
@@ -1388,6 +1394,7 @@ createSpatialDDLSobject <- function(
       min.mean.counts = sc.min.mean.counts,
       n.genes.per.cluster = sc.n.genes.per.cluster,
       top.n.genes = top.n.genes,
+      log.FC = sc.log.FC,
       verbose = verbose
     )  
     spatial.experiments <- lapply(spatial.experiments, \(st) st[final.genes, ])

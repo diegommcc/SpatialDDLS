@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{Deconvolution of mouse lymph node samples}
+      %\VignetteIndexEntry{Get started! Deconvolution of mouse lymph node samples}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
   base.dir = ".", fig.path = "", fig.align = "center"
 )
 ```
+
+<!-- Reference: @Li2017 -->
 
 In this vignette, we will analyze a spatial transcriptomics dataset (10x Visium) comprising three slides from murine lymph nodes, two of which obtained after a 48-hour infection with _Mycobacterium smegmatis_ (@Lopez2022). As a reference, we will use the paired single-cell RNA-seq (10x Chromium) data from the same study. The raw data is publicly available on GEO ([GSE173778](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE173778)), but for ease of use, we have made it available through the `SpatialDDLSdata` R data package.
 
@@ -57,12 +59,11 @@ cbind(spatialCoords(MouseDLN.ST), colData(MouseDLN.ST)) %>% as.data.frame() %>%
   theme_classic() + coord_fixed()
 ```
 
-With regard to the single-cell RNA-seq data, preprocessing and visualization could be performed, but such analysis is outside the scope of this tutorial.
-
+With regard to the single-cell RNA-seq data, preprocessing and visualization could be performed, but such analyses are outside the scope of this tutorial.
 
 ## Loading data into a `SpatialDDLS` object
 
-Now, we need to create a `SpatialDDLS` object, which will serve as the central core for all subsequent steps. We suggest including both the spatial and single-cell transcriptomics data to enable filtering and selection of only those genes that are present in both data types for further analyses. Additionally, we recommend filtering genes based on their expression levels in order to reduce the number of dimensions and consider only meaningful genes. Please refer to the documentation to review the implemented strategies (specially `sc.n.genes.per.cluster` and `sc.min.mean.counts` parameters). 
+Now, we need to create a `SpatialDDLS` object, which will serve as the central core for all subsequent steps. We recommend including both the spatial and single-cell transcriptomics data to enable filtering and selection of only those genes that are present in both data types for further analyses. Additionally, we recommend filtering genes based on their expression levels in order to reduce the number of dimensions and consider only meaningful genes. Please, refer to the documentation to review the implemented strategies (specially `sc.n.genes.per.cluster` and `sc.min.mean.counts` parameters). 
 
 ```{r}
 mouseDLN.SDDLS <- createSpatialDDLSobject(
@@ -71,13 +72,11 @@ mouseDLN.SDDLS <- createSpatialDDLSobject(
   sc.gene.ID.column = "GeneSymbol",
   sc.cell.type.column = "broad_cell_types",
   st.data = MouseDLN.ST,
-  sc.min.counts = 1, 
-  sc.min.cells = 1,
+  st.spot.ID.column = "CellID",
+  st.gene.ID.column = "GeneSymbol",
   sc.filt.genes.cluster = TRUE, 
   sc.n.genes.per.cluster = 150,
-  sc.min.mean.counts = 2,
-  st.spot.ID.column = "CellID",
-  st.gene.ID.column = "GeneSymbol"
+  sc.min.mean.counts = 2
 )
 ```
 
@@ -106,10 +105,6 @@ mouseDLN.SDDLS <- genMixedCellProp(
   cell.type.column = "broad_cell_types",
   num.sim.spots = 10000,
   n.cells = 50,
-  train.freq.cells = 2/3,
-  train.freq.spots = 2/3,
-  proportion.method = c(0, 0, 1),
-  prob.sparity = 1, 
   min.zero.prop = 5,
   balanced.type.cells = TRUE
 )
@@ -123,19 +118,22 @@ mouseDLN.SDDLS <- simMixedProfiles(mouseDLN.SDDLS, threads = 3)
 
 ## Training a fully-connected neural network using mixed transcriptional profiles
 
-Having generated a set of mixed transcriptional profiles with known cell composition, we can then train a neural network using the training subset and evaluate the model by predicting cell type proportions on the test subset. Once trained, the model can deconvolute the cellular composition of new transcriptional profiles, such as spots in a spatial transcriptomics experiment. The architecture of the network is fully customizable, although in our experience, the hyperparameters used in this example work for most of the cases. Particularly, we will employ a model with two hidden layers, each consisting of 200 neurons, and a training process involving 60 epochs.
+After generating a set of mixed transcriptional profiles with known cell composition, we can then train a neural network using the training subset and evaluate the model by predicting cell type proportions on the test subset. The trained model can deconvolute the cellular composition of new transcriptional profiles, such as spots in a spatial transcriptomics experiment. The architecture of the network is fully customizable, although in our experience, the default hyperparameters used in this example work for most of the cases. Particularly, we will employ a model with two hidden layers, each consisting of 200 neurons, and a training process involving 60 epochs.
 
 ```{r}
 mouseDLN.SDDLS <- trainDeconvModel(
   mouseDLN.SDDLS,
-  num.epochs = 60,
-  num.hidden.layers = 2, 
-  num.units = c(200, 200),
   verbose = FALSE
 ) 
 ```
 
-Some metrics of the training progress can be shown by setting `verbose = TRUE`. Anyhow, more advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, providing insight into the model's performance for each cell type. These metrics can be visualized using various functions:
+Some metrics about the training progress can be shown by setting `verbose = TRUE` or by calling the object:
+
+```{r}
+mouseDLN.SDDLS
+```
+
+Anyhow, more advanced metrics can be calculated using the `calculateEvalMetrics` function. This function computes mean absolute error (MAE) and mean squared error (MSE) metrics per cell type, providing insight into the model's performance for each cell type. These metrics can be visualized using various functions:
 
 ```{r, abserr-celltype}
 mouseDLN.SDDLS <- calculateEvalMetrics(mouseDLN.SDDLS)
@@ -173,20 +171,20 @@ corrExpPredPlot(
 )
 ```
 
-As demonstrated, the overall performance is satisfactory, indicating that the model is capable of comprehending the distinctive features of each cell type to provide precise predictions of the cell type composition of transcriptional profiles.
+As it can be seen, the overall performance is satisfactory, indicating that the model is capable of identifying the distinctive features of each cell type to provide precise predictions of the cell type composition of transcriptional profiles.
 
 ## Deconvolution of the spatial transcriptomics dataset
 
 Finally, we can use our trained model to deconvolute the signals of each spot using the `deconvSpatialDDLS` function. By default, this function uses the trained model to predict cell proportions of two sets of transcriptional profiles obtained from the ST datasets: 
 
 * 'Intrinsic' profiles: these are the actual transcriptional profiles of every spot in the ST dataset. 
-* 'Extrinsic' profiles: these are simulated profiles generated from the surrounding spots of every spot. The concept is to create a mirrored set of transcriptional profiles that represent the transcriptional features of the spatial context of each spot. 
+* 'Extrinsic' profiles: these are simulated profiles generated from the surrounding spots of every spot. The concept is to create a set of transcriptional profiles that represent the transcriptional features of the spatial context of each spot. 
 
 The latter can be used to understand how similar each spot is to its neighbors. Considering the hypothesis that we can infer the cellular composition of each spot based on its surroundings given the correlation between spatial location and cell composition/transcriptional features, we can use this information to spatially contextualize our predictions and improve their accuracy. We refer to this process as spatial regularization. Details about the methodology are explained in the Documentation and @Mananes2023. 
 
 ```{r}
 mouseDLN.SDDLS <- deconvSpatialDDLS(
-  mouseDLN.SDDLS, k.spots = 6, fast.pca = TRUE
+  mouseDLN.SDDLS, index.st = 1, k.spots = 6, fast.pca = TRUE
 )
 ```
 
@@ -230,7 +228,7 @@ ggarrange(plotlist = list.plots[5:8], align = "hv")
 ggarrange(plotlist = list.plots[9:12], align = "hv")
 ```
 
-As one might expect, this is a smoothed version of the final predictions. It is also possible to visualize distances between the extrinsic and intrinsic transcriptional profiles of each spot to understand how the regularization step works by using the `plotDistances` function: 
+As one may expect, the extrinsic predictions are a smoothed version of the final ones. It is also possible to visualize distances between the extrinsic and intrinsic transcriptional profiles of each spot to understand how the regularization step works by using the `plotDistances` function: 
 
 ```{r, distances}
 plotDistances(mouseDLN.SDDLS, index.st = 1, size.point = 1.5) + coord_fixed()
@@ -259,11 +257,11 @@ Those spots with distances less than the mean distance were regularized accordin
 
 ## Interpreting the model
 
-In order to make predictions more transparent, `SpatialDDLS` includes an additional module designed to provide insights into the model's decision-making process. It relies on calculating the predicted classes/loss function gradients with respect to the input variables, a method popularly known as **Vanilla Gradient**. These numeric values are computed for each gene and cell type using the pure mixed transcriptional profiles previously simulated. Therefore, they can be interpreted as the extent to which each feature is contributing to the model's predictions. While these values are initially calculated at the sample/gene level, they can be aggregated at the cell type level in order to assess the relevance of different genes for cell type proportion predictions. These steps are performed through the `interGradientDL` function:
+In order to make predictions more transparent, `SpatialDDLS` includes an additional module designed to provide insights into the model's decision-making process. It relies on calculating the predicted classes/loss function gradients with respect to the input variables, a method popularly known as Vanilla Gradient. These numeric values are computed for each gene and cell type using the pure mixed transcriptional profiles previously simulated. Therefore, they can be interpreted as the extent to which each feature is contributing to the model's predictions. While these values are initially calculated at the sample/gene level, they are aggregated at the cell type level in order to assess the relevance of each gene to each cell type prediction. These steps are performed through the `interGradientDL` function:
 
 ```{r}
 mouseDLN.SDDLS <- interGradientsDL(
-  mouseDLN.SDDLS, scaling = "standardize", method = "class"
+  mouseDLN.SDDLS, method = "class", scaling = "standardize"
 )
 ```
 
@@ -285,17 +283,29 @@ sapply(
 ) %>% as.data.frame()
 ```
 
-As can be seen, among the top 5 genes some canonical markers for different cell types appear, such as Cd72 for B cells, Cd8a for CD8 T cells, or Foxp3 for Tregs. These are just the top 5 genes, so considering a higher number can provide a more comprehensive understanding of the genes utilizaed by the model.
+As can be seen, among the top 5 genes some canonical markers for different cell types appear, such as Cd8 for CD8 T cells or Foxp3 for Tregs. These are just the top 5 genes, so considering a higher number of genes can provide a more comprehensive understanding of the genes being used by the model.
 
-We also provide the `plotHeatmapGradsAgg` function for visualizing the top N mean gradients per cell type. This plot highlights genes with high gradients across different cell types, reflecting the multivariate nature of neural networks. It is advisable to examine both the most positive and negative gradients, as these genes significantly contribute to the network's predictions.
+We also provide the `plotHeatmapGradsAgg` function for visualizing the top N mean gradients per cell type. This plot highlights genes with high gradients across different cell types, reflecting the multivariate nature of neural networks.
 
 ```{r, positive-grad, fig.height=8, fig.width=6}
 hh <- plotHeatmapGradsAgg(mouseDLN.SDDLS, top.n.genes = 4, method = "class")
-hh$Positive
+hh$Absolute
 ```
 
-```{r, negative-grad, fig.height=6, fig.width=6}
-hh$Negative
+Finally, we can use the `plotSpatialGeneExpr` function to visualize the spatial distribution of the top N genes per cell type in the ST dataset. Let's plot some genes for some cell types just for demonstration purposes: 
+
+```{r, top-genes-spatial, fig.height=7, fig.width=10}
+top.genes <- topGradientsCellType(mouseDLN.SDDLS, top.n.genes = 4)
+for (i in c("B cells", "CD4 T cells", "CD8 T cells", "Tregs", "Monocytes")) {
+  list.plots <- list()
+  for (j in top.genes[[i]][["Positive"]]) {
+    list.plots[[j]] <- plotSpatialGeneExpr(
+      mouseDLN.SDDLS, index.st = 1, gene = j, size.point = 0.5,
+      title = paste0(i, " - ", j)
+    ) + coord_fixed() + theme(legend.position = "none") ## legend removed just for viz
+  }
+  print(ggpubr::ggarrange(plotlist = list.plots, align = "hv"))
+}
 ```
 
 ## Clustering analysis
@@ -313,7 +323,7 @@ plotSpatialClustering(mouseDLN.SDDLS) + coord_fixed()
 
 ## Comparing deconvoluted cell proportions with colocalization of cell markers
 
-Finally, we are going to assess whether there is a collocation between the predicted cell type proportions and the expression of known classic markers for each cell type. This analysis aims to validate the model's predictions by comparing them with well-established cellular markers, but it does not mean to be a quantitative validation of the model.
+Finally, we are going to assess whether there is a collocation between the predicted cell type proportions and the expression of known markers for each cell type. This analysis aims to validate the model's predictions by comparing them with well-established cellular markers, but it does not mean to be a quantitative validation of the model.
 
 ```{r}
 customMarkers <- list(
@@ -369,5 +379,7 @@ dfPlotLong %>% ggplot(
     axis.text.y = element_blank(), axis.ticks.y = element_blank()
   ) + coord_fixed() + facet_wrap(~ CellType) 
 ```
+
+As it can be seen, markers for each cell type colocalize with the cell proportions predicted by `SpatialDDLS`, demonstrating its ability to deconvolute ST samples. For more examples and a quantitative assessment of the algorithm, please see the published manuscript @Mananes2023. 
 
 ## References

@@ -18,7 +18,7 @@ both experiments."><meta property="og:image" content="/logo.png"><!-- mathjax --
     
     <a class="navbar-brand me-2" href="../index.html">SpatialDDLS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,10 +80,11 @@ both experiments.</p>
 <span>  sc.min.mean.counts <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  sc.n.genes.per.cluster <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  top.n.genes <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span>  sc.min.counts <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  sc.min.cells <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  st.min.counts <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  st.min.spots <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  sc.log.FC <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sc.min.counts <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  sc.min.cells <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  st.min.counts <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  st.min.spots <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  st.n.slides <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  shared.genes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sc.name.dataset.h5 <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -161,8 +162,8 @@ filter genes. 1 by default.</p></dd>
 
 
 <dt>sc.n.genes.per.cluster</dt>
-<dd><p>Top n genes with the highest logFC per cluster.
-300 by default. See Details section for more details.</p></dd>
+<dd><p>Top n genes with the highest logFC per cluster
+(300 by default). See Details section for more details.</p></dd>
 
 
 <dt>top.n.genes</dt>
@@ -172,23 +173,28 @@ by default). In case the number of genes after filtering is greater than
 variability across the whole single-cell dataset.</p></dd>
 
 
+<dt>sc.log.FC</dt>
+<dd><p>Whether to filter genes with a logFC less than 0.5 when
+<code>sc.filt.genes.cluster = TRUE</code> (<code>TRUE</code> by default).</p></dd>
+
+
 <dt>sc.min.counts</dt>
-<dd><p>Minimum gene counts to filter (0 by default; single-cell
+<dd><p>Minimum gene counts to filter (1 by default; single-cell
 RNA-seq data).</p></dd>
 
 
 <dt>sc.min.cells</dt>
-<dd><p>Minimum of cells with more than <code>min.counts</code> (0 by
+<dd><p>Minimum of cells with more than <code>min.counts</code> (1 by
 default; single-cell RNA-seq data).</p></dd>
 
 
 <dt>st.min.counts</dt>
-<dd><p>Minimum gene counts to filter (0 by default; spatial
+<dd><p>Minimum gene counts to filter (1 by default; spatial
 transcriptomics data).</p></dd>
 
 
 <dt>st.min.spots</dt>
-<dd><p>Minimum of cells with more than <code>min.counts</code> (0 by
+<dd><p>Minimum of cells with more than <code>min.counts</code> (1 by
 default; spatial transcriptomics data).</p></dd>
 
 
@@ -203,7 +209,7 @@ filtering is desired, set <code>st.n.slides = 1</code>.</p></dd>
 
 <dt>shared.genes</dt>
 <dd><p>If set to <code>TRUE</code>, only genes present in both the
-isngle-cell and spatial transcriptomics data will be retained for further
+single-cell and spatial transcriptomics data will be retained for further
 processing (<code>TRUE</code> by default).</p></dd>
 
 
