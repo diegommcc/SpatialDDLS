@@ -16,8 +16,8 @@ NULL
 #' spatial consistency through a process we refer to as spatial regularization. 
 #' Overall, \pkg{SpatialDDLS} is a powerful tool for cell type deconvolution in 
 #' spatial transcriptomics data, providing a reliable, fast and flexible 
-#' solution for researchers in the field. See Mañanes et al. (2023) 
-#' (\doi{10.1101/2023.08.31.555677}) and some examples 
+#' solution for researchers in the field. See Mañanes et al. (2024) 
+#' (\doi{10.1093/bioinformatics/btae072}) and some examples 
 #' (\url{https://diegommcc.github.io/SpatialDDLS/}) for more details.
 #'
 #' @docType package
