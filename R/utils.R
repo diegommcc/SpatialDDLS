@@ -619,6 +619,8 @@ barPlotCellTypes <- function(
 #' 
 installTFpython <- function(
   conda = "auto",
+  python.version = "3.7.11",
+  tensorflow.version = "2.6",
   install.conda = FALSE,
   miniconda.path = NULL
 ) {
@@ -647,10 +649,20 @@ installTFpython <- function(
   }
   dirConda <- reticulate::conda_binary("auto")
   message("\n=== Creating SpatialDDLS-env environment")
+  
+  ## custom versions 
+  if (python.version != "3.7.11" | tensorflow.version != "2.6") {
+    warning(
+      "Please, be sure the selected Python and TensorFlow versions are ", 
+      "compatible. Otherwise, miniconda will raise an error", 
+      call. = FALSE, immediate. = TRUE
+    )
+  }
+  
   status2 <- tryCatch(
     reticulate::conda_create(
       envname = "SpatialDDLS-env", 
-      packages = "python==3.7.11"
+      packages = paste0("python==", python.version)
     ), 
     error = function(e) {
       return(TRUE)
@@ -666,7 +678,7 @@ installTFpython <- function(
   message("\n=== Installing tensorflow in SpatialDDLS-env environment")
   status3 <- tryCatch(
     tensorflow::install_tensorflow(
-      version = "2.6-cpu", 
+      version = paste0(tensorflow.version, "-cpu"),
       method = "conda", 
       conda = dirConda, 
       envname = "SpatialDDLS-env"
