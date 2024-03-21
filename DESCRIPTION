@@ -1,7 +1,7 @@
 Package: SpatialDDLS
 Type: Package
 Title: Deconvolution of Spatial Transcriptomics Data Based on Neural Networks
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
   person(given = "Diego", family = "Mañanes", email = "dmananesc@cnic.es", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7247-6794")),
   person(given = "Carlos", family = "Torroja", email = "ctorroja@cnic.es", role = "aut", comment = c(ORCID = "0000-0001-8914-3400")),

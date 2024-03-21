@@ -619,7 +619,7 @@ barPlotCellTypes <- function(
 #' 
 installTFpython <- function(
   conda = "auto",
-  python.version = "3.7.11",
+  python.version = "3.8",
   tensorflow.version = "2.6",
   install.conda = FALSE,
   miniconda.path = NULL
@@ -651,7 +651,7 @@ installTFpython <- function(
   message("\n=== Creating SpatialDDLS-env environment")
   
   ## custom versions 
-  if (python.version != "3.7.11" | tensorflow.version != "2.6") {
+  if (python.version != "3.8" | tensorflow.version != "2.6") {
     warning(
       "Please, be sure the selected Python and TensorFlow versions are ", 
       "compatible. Otherwise, miniconda will raise an error", 
