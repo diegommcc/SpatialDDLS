@@ -598,6 +598,11 @@ barPlotCellTypes <- function(
 #'
 #' @param conda Path to a conda executable. Using \code{"auto"} (by default)
 #'   allows \pkg{reticulate} to automatically find an appropriate conda binary.
+#' @param python.version Python version to be installed in the environment 
+#'   (\code{"3.8"} by default). We recommend keeping this version as it has 
+#'   been tested to be compatible with tensorflow 2.6.
+#' @param tensorflow.version Tensorflow version to be installed in the 
+#'   environment (\code{"2.6"} by default). 
 #' @param install.conda Boolean indicating if installing miniconda automatically
 #'   by using \pkg{reticulate}. If \code{TRUE}, \code{conda} argument is
 #'   ignored. \code{FALSE} by default.

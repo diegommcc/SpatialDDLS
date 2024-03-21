@@ -24,6 +24,8 @@ normalized values in order to make calculations more transparent.
 * Change in HDF5 file usage: new version of the HDF5Array package does not support "for.use" argument.
 * In createSpatialDDLSobject, included the sc.log.FC parameter to optionally choose if filtering genes according to logFC. 
 
+
 # SpatialDDLS 1.0.2 (2024-03-21)
 
 * Included two parameters to control python and tensorflow versions in the installTFpython function.
+* The installTFpython function now installs python 3.8 by default. 
