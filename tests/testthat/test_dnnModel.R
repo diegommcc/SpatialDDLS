@@ -11,7 +11,7 @@ tensorflow::tf$compat$v1$disable_eager_execution()
 
 # simulating data
 set.seed(123)
-sce <- SingleCellExperiment(
+sce <- SingleCellExperiment::SingleCellExperiment(
   matrix(
     stats::rpois(100, lambda = 5), nrow = 40, ncol = 30, 
     dimnames = list(paste0("Gene", seq(40)), paste0("RHC", seq(30)))
@@ -695,7 +695,7 @@ test_that(
       trained.model(SDDLS)@model, class = "keras.engine.sequential.Sequential"
     )
     # recompile and use it to deconvolve new samples
-    se <- SummarizedExperiment(
+    se <- SummarizedExperiment::SummarizedExperiment(
       matrix(
         stats::rpois(100, lambda = sample(seq(4, 10), size = 100, replace = TRUE)), 
         nrow = 40, ncol = 15, 

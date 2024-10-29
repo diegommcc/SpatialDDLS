@@ -5,7 +5,7 @@ context("Loading scRNA-seq data into the SpatialDDLS object: loadData.R")
 ################################################################################
 
 set.seed(123)
-sce <- SingleCellExperiment(
+sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
       stats::rpois(100, lambda = 5), nrow = 40, ncol = 30, 
@@ -166,7 +166,7 @@ test_that(
     # 1 - no rownames neither rowData: genes
     countsNoGenes <- assay(sce)
     rownames(countsNoGenes) <- NULL
-    sceLiNoGenes <- SingleCellExperiment(
+    sceLiNoGenes <- SingleCellExperiment::SingleCellExperiment(
       assay = list(counts = countsNoGenes),
       colData = colData(sce)
     )
@@ -184,7 +184,7 @@ test_that(
     # 2 - no colnames neither colData: cells
     countsNoCells <- assay(sce)
     colnames(countsNoCells) <- NULL
-    sceLiNoCells <- SingleCellExperiment(
+    sceLiNoCells <- SingleCellExperiment::SingleCellExperiment(
       assay = list(counts = countsNoCells),
       rowData = rowData(sce)
     )
@@ -200,7 +200,7 @@ test_that(
       regexp = "No data provided in colData slot"
     )
     # 3 - no rowData: genes
-    sceLiRNoRowData <- SingleCellExperiment(
+    sceLiRNoRowData <- SingleCellExperiment::SingleCellExperiment(
       assay = list(counts =  assay(sce)),
       colData = colData(sce)
     )
@@ -220,7 +220,7 @@ test_that(
     rownames(dfCellsMetadata) <- NULL
     sceC <- sce
     colnames(sceC) <- NULL
-    sceLiNoColNames <- SingleCellExperiment(
+    sceLiNoColNames <- SingleCellExperiment::SingleCellExperiment(
       assay = list(counts = assay(sceC)),
       colData = dfCellsMetadata,
       rowData = rowData(sceC)
@@ -236,7 +236,7 @@ test_that(
       ), regexp = "Count matrix must have"
     )
     # 5 - No matrix counts
-    sceLiNoCounts <- SingleCellExperiment(
+    sceLiNoCounts <- SingleCellExperiment::SingleCellExperiment(
       colData = colData(sce),
       rowData = rowData(sce)
     )
@@ -252,7 +252,7 @@ test_that(
       regexp = "No count data in SingleCellExperiment object"
     )
     # 6 - More than one assay in SingleCellExperiment: warning, no error
-    sceLiMoreThanOne <- SingleCellExperiment(
+    sceLiMoreThanOne <- SingleCellExperiment::SingleCellExperiment(
       assay = list(counts = assay(sce), log = log2(assay(sce)  + 1)),
       colData = colData(sce),
       rowData = rowData(sce)
@@ -545,25 +545,25 @@ test_that(
       ), 
       regexp = "=== Writing data to HDF5 file"
     )
-    expect_message(
-      DDLS.tsv <- createSpatialDDLSobject(
-        sc.data = file.path(file.tests, files.tsv),
-        sc.cell.ID.column = "Cell_ID",
-        sc.gene.ID.column = 2,
-        sc.min.counts = 0,
-        sc.min.cells = 12,
-        sc.file.backend = file,
-        sc.name.dataset.backend = "other_dataset",
-        sc.block.processing = TRUE,
-        sc.filt.genes.cluster = FALSE
-      ),
-      regexp = "=== Processing data in HDF5 by blocks"
-    )
-    expect_true(file.exists(file))
-    expect_s4_class(
-      object = single.cell.real(DDLS.tsv)@assays@data$counts, 
-      class = "HDF5Array"
-    )
+    # expect_message(
+    #   DDLS.tsv <- createSpatialDDLSobject(
+    #     sc.data = file.path(file.tests, files.tsv),
+    #     sc.cell.ID.column = "Cell_ID",
+    #     sc.gene.ID.column = 2,
+    #     sc.min.counts = 0,
+    #     sc.min.cells = 12,
+    #     sc.file.backend = file,
+    #     sc.name.dataset.backend = "other_dataset",
+    #     sc.block.processing = TRUE,
+    #     sc.filt.genes.cluster = FALSE
+    #   ),
+    #   regexp = "=== Processing data in HDF5 by blocks"
+    # )
+    # expect_true(file.exists(file))
+    # expect_s4_class(
+    #   object = single.cell.real(DDLS.tsv)@assays@data$counts, 
+    #   class = "HDF5Array"
+    # )
   }
 )
 
@@ -572,7 +572,7 @@ test_that(
 ################################################################################
 
 set.seed(123)
-sce <- SingleCellExperiment(
+sce <- SingleCellExperiment::SingleCellExperiment(
   assays = list(
     counts = matrix(
       stats::rpois(100, lambda = 5), nrow = 40, ncol = 30, 

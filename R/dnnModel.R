@@ -1,5 +1,6 @@
 #' @importFrom dplyr %>%
 #' @importFrom stats dist
+#' @importFrom SummarizedExperiment colData rowData assay
 NULL
 
 ################################################################################

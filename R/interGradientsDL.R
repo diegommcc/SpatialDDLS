@@ -1,4 +1,5 @@
 #' @importFrom tensorflow %as%
+#' @importFrom SummarizedExperiment assays
 NULL
 
 ################################################################################

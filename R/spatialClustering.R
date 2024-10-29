@@ -176,7 +176,7 @@ spatialPropClustering <- function(
     X = index.st,
     FUN = \(st.pointer) {
       st.obj <- spatial.experiments(object, index.st = st.pointer)
-      colData(st.obj)[[paste(
+      SummarizedExperiment::colData(st.obj)[[paste(
         "Clustering", method, "k",
         ifelse(method == "graph", k.nn, k.centers), sep = "."
       )]]  <- clustering.res[[st.pointer]]

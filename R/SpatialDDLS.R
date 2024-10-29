@@ -1,5 +1,10 @@
 #' @import methods
+#' @keywords internal 
+"_PACKAGE"
 NULL
+
+
+
 
 #' SpatialDDLS: an R package to deconvolute spatial transcriptomics data using
 #' deep neural networks
@@ -20,7 +25,6 @@ NULL
 #' (\doi{10.1093/bioinformatics/btae072}) and some examples 
 #' (\url{https://diegommcc.github.io/SpatialDDLS/}) for more details.
 #'
-#' @docType package
 #' @name SpatialDDLS-Rpackage
 NULL
 #> NULL

@@ -1,6 +1,8 @@
 #' @importFrom methods setClass setOldClass setClassUnion
 #' @importFrom utils packageVersion
-#' @import SingleCellExperiment SummarizedExperiment keras
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importClassesFrom SummarizedExperiment SummarizedExperiment
+#' @import keras
 #' @importClassesFrom Matrix dgCMatrix
 #' @importFrom stats predict
 NULL

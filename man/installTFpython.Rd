@@ -37,15 +37,15 @@ environment with a Python interpreter and Tensorflow
 }
 \description{
 This function facilitates the installation of the required Python
-dependencies for the SpatialDDLS package. It requires a Python interpreter
-with the TensorFlow Python library and its dependencies. It utilizes the
-reticulate package and the installer of the tensorflow R package to perform
-the installation. Conda environments will be used with the new environment
-being named SpatialDDLS-env. This function is intended to simplify the
-installation process for SpatialDDLS by automatically installing Miniconda
-and creating a new environment named SpatialDDLS-env. For users who wish to
-use a different Python or conda environment, see the tensorflow::use_condaenv
-function and the package vignettes for more information.
+dependencies for the \pkg{SpatialDDLS} R package, as it requires a Python
+interpreter with the TensorFlow Python library and its dependencies.
+}
+\details{
+This function is intended to simplify the installation process for
+\pkg{SpatialDDLS} by automatically installing Miniconda and creating a new
+environment named SpatialDDLS-env with all \pkg{SpatialDDLS}' dependencies
+covered. For users who wish to use a different Python or conda environment,
+see the \code{tensorflow::use_condaenv} function for more information.
 }
 \examples{
 \dontrun{

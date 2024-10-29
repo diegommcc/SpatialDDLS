@@ -29,3 +29,7 @@ normalized values in order to make calculations more transparent.
 
 * Included two parameters to control python and tensorflow versions in the installTFpython function.
 * The installTFpython function now installs python 3.8 by default. 
+
+# SpatialDDLS 1.0.3 (2024-10-28)
+
+* SingleCellExperiment adds a saveRDS S3 generics in the new BioC version. To avoid incompatibilities, it is not completely loaded anymore. 
