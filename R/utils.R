@@ -666,7 +666,7 @@ installTFpython <- function(
   status2 <- tryCatch(
     reticulate::conda_create(
       envname = "SpatialDDLS-env", 
-      packages = paste0("python==", python.version)
+      packages = paste0("python=", python.version)
     ), 
     error = function(e) {
       return(TRUE)
