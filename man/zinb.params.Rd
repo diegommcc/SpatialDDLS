@@ -7,19 +7,19 @@
 \alias{zinb.params<-}
 \alias{zinb.params<-,SpatialDDLS-method}
 \title{Get and set \code{zinb.params} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 zinb.params(object)
 
 zinb.params(object) <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
 \item{value}{\code{\linkS4class{ZinbParametersModel}} object with a valid
-\code{\linkS4class{ZinbModel}} object.}
+\code{\link[zinbwave]{zinbModel}} object.}
 }
 \description{
 Get and set \code{zinb.params} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

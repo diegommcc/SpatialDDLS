@@ -21,7 +21,7 @@ plotSpatialClustering(
 
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
 can be either a position or a name if a named list of
-\code{\linkS4class{SpatialExperiment}} objects was provided.}
+\code{\link[SpatialExperiment]{SpatialExperiment}} objects was provided.}
 
 \item{method}{Clustering method results to plot. It can be \code{"graph"} or
 \code{"k.means"}. If missing, the first configuration found in the object

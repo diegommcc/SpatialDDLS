@@ -18,9 +18,9 @@ loadSTProfiles(
 \arguments{
 \item{object}{A \code{\linkS4class{SpatialDDLS}} object.}
 
-\item{st.data}{A \code{\linkS4class{SpatialExperiment}} object (or a list
-with several \code{\linkS4class{SpatialExperiment}} objects) to be
-deconvoluted.}
+\item{st.data}{A \code{\link[SpatialExperiment]{SpatialExperiment}} object
+(or a list with several \code{\link[SpatialExperiment]{SpatialExperiment}}
+objects) to be deconvoluted.}
 
 \item{st.spot.ID.column}{Name or number of the column in spots metadata
 corresponding to spot names in the expression matrix.}
@@ -34,11 +34,11 @@ corresponding to names used for features/genes.}
 default).}
 
 \item{st.n.slides}{Minimum number of slides
-(\code{\linkS4class{SpatialExperiment}} objects) in which a gene has to be
-expressed in order to keep it. This parameter is applicable only when
-multiple \code{\linkS4class{SpatialExperiment}} objects are provided. Genes
-not present in at least \code{st.n.slides} will be discarded. If no
-filtering is desired, set \code{st.n.slides = 1}.}
+(\code{\link[SpatialExperiment]{SpatialExperiment}} objects) in which a
+gene has to be expressed in order to keep it. This parameter is applicable
+only when multiple \code{\link[SpatialExperiment]{SpatialExperiment}}
+objects are provided. Genes not present in at least \code{st.n.slides} will
+be discarded. If no filtering is desired, set \code{st.n.slides = 1}.}
 
 \item{verbose}{Show informative messages during execution (\code{TRUE} by
 default).}
@@ -48,8 +48,9 @@ A \code{\linkS4class{SpatialDDLS}} object with the provided spatial
 trainscriptomics data loaded into the \code{spatial.experiments} slot.
 }
 \description{
-This function loads a \code{\linkS4class{SpatialExperiment}} object (or a
-list with several \code{\linkS4class{SpatialExperiment}} objects) into a
+This function loads a \code{\link[SpatialExperiment]{SpatialExperiment}}
+object (or a list with several
+\code{\link[SpatialExperiment]{SpatialExperiment}} objects) into a
 \code{\linkS4class{SpatialDDLS}} object.
 }
 \details{

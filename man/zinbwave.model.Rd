@@ -16,8 +16,8 @@ zinbwave.model(object) <- value
 \arguments{
 \item{object}{\code{\linkS4class{ZinbParametersModel}} object.}
 
-\item{value}{\code{\linkS4class{ZinbModel}} object with the estimated
-parameters to simulate new single-cell profiles.}
+\item{value}{\code{\link[zinbwave]{zinbModel}} object with the
+estimated parameters to simulate new single-cell profiles.}
 }
 \description{
 Get and set \code{zinbwave.model} slot in a

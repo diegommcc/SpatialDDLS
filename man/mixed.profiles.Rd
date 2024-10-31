@@ -6,24 +6,24 @@
 \alias{mixed.profiles,SpatialDDLS-method}
 \alias{mixed.profiles<-}
 \alias{mixed.profiles<-,SpatialDDLS-method}
-\title{Get and set \code{mixed.profiles} slot in a \code{\linkS4class{SpatialDDLS}}
-object}
+\title{Get and set \code{mixed.profiles} slot in a
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 mixed.profiles(object, type.data = "both")
 
 mixed.profiles(object, type.data = "both") <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
 \item{type.data}{Type of data to return. It can be \code{'both'} (default),
 \code{'train'}, or \code{'test'}.}
 
-\item{value}{List with two \code{\linkS4class{SummarizedExperiment}} objects,
-train and test, each one containing simulated mixed transcriptional
-profiles.}
+\item{value}{List with two
+\code{\link[SummarizedExperiment]{SummarizedExperiment}} objects, train and
+test, each one containing simulated mixed transcriptional profiles.}
 }
 \description{
-Get and set \code{mixed.profiles} slot in a \code{\linkS4class{SpatialDDLS}}
-object
+Get and set \code{mixed.profiles} slot in a
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

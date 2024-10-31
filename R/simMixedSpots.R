@@ -831,8 +831,9 @@ setCount <- function(
 #' @return A \code{\linkS4class{SpatialDDLS}} object with \code{mixed.profiles}
 #'   slot containing a list with one or two entries (depending on selected
 #'   \code{type.data} argument): \code{'train'} and \code{'test'}. Each entry
-#'   consists of a \code{\linkS4class{SummarizedExperiment}} object with the
-#'   simulated mixed slot profiles.
+#'   consists of a 
+#'   \code{\link[SummarizedExperiment]{SummarizedExperiment}} 
+#'   object with the simulated mixed slot profiles.
 #'
 #' @export
 #'

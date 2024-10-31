@@ -7,14 +7,14 @@
 \alias{deconv.spots<-}
 \alias{deconv.spots<-,SpatialDDLS-method}
 \title{Get and set \code{deconv.spots} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 deconv.spots(object, index.st = NULL)
 
 deconv.spots(object, index.st = NULL) <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
 \item{index.st}{Name or index of predicted cell proportions (same as for the
 \code{spatial.experiments} slot). If \code{NULL} (by default), all
@@ -25,5 +25,5 @@ stored in the \code{spatial.experiments} slot.}
 }
 \description{
 Get and set \code{deconv.spots} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

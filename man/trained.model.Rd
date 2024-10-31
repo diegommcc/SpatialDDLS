@@ -7,18 +7,18 @@
 \alias{trained.model<-}
 \alias{trained.model<-,SpatialDDLS-method}
 \title{Get and set \code{trained.model} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 trained.model(object)
 
 trained.model(object) <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
 \item{value}{\code{\linkS4class{DeconvDLModel}} object.}
 }
 \description{
 Get and set \code{trained.model} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

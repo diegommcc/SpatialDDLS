@@ -748,8 +748,8 @@ estimateZinbwaveParams <- function(
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with
 #'   \code{single.cell.simul} slot containing a
-#'   \code{\linkS4class{SingleCellExperiment}} object with the simulated
-#'   single-cell expression profiles.
+#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} 
+#'   object with the simulated single-cell expression profiles.
 #'
 #' @export
 #'

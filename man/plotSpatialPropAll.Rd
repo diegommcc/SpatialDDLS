@@ -23,7 +23,7 @@ plotSpatialPropAll(
 
 \item{index.st}{Index of the spatial transcriptomics data to be plotted. It
 can be either a position or a name if a named list of
-\code{\linkS4class{SpatialExperiment}} objects was provided.}
+\code{\link[SpatialExperiment]{SpatialExperiment}} objects was provided.}
 
 \item{colors}{Color scale to be used. It can be \code{"blues"} or
 \code{"spectral"} (the former by default).}

@@ -7,14 +7,14 @@
 \alias{spatial.experiments<-}
 \alias{spatial.experiments<-,SpatialDDLS-method}
 \title{Get and set \code{spatial.experiments} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 spatial.experiments(object, index.st = NULL)
 
 spatial.experiments(object, index.st = NULL) <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
 \item{index.st}{Index of the spatial transcriptomics data within the list. It
 can be either an position or a name if a named list was provided. If
@@ -22,9 +22,10 @@ can be either an position or a name if a named list was provided. If
 \code{spatial.experiments} slot are returned.}
 
 \item{value}{List in which each element is a
-\code{\linkS4class{SpatialExperiment}} object. It can be a named list.}
+\code{\link[SpatialExperiment]{SpatialExperiment}}
+object. It can be a named list.}
 }
 \description{
 Get and set \code{spatial.experiments} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

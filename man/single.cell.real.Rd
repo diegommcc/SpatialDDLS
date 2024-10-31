@@ -7,19 +7,19 @@
 \alias{single.cell.real<-}
 \alias{single.cell.real<-,SpatialDDLS-method}
 \title{Get and set \code{single.cell.real} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 single.cell.real(object)
 
 single.cell.real(object) <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
-\item{value}{\code{\linkS4class{SingleCellExperiment}} object with real
-single-cell profiles.}
+\item{value}{\code{\link[SingleCellExperiment]{SingleCellExperiment}} object
+with real single-cell profiles.}
 }
 \description{
 Get and set \code{single.cell.real} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

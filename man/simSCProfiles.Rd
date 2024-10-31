@@ -88,8 +88,8 @@ default).}
 \value{
 A \code{\linkS4class{SpatialDDLS}} object with
 \code{single.cell.simul} slot containing a
-\code{\linkS4class{SingleCellExperiment}} object with the simulated
-single-cell expression profiles.
+\code{\link[SingleCellExperiment]{SingleCellExperiment}}
+object with the simulated single-cell expression profiles.
 }
 \description{
 Simulate single-cell expression profiles by randomly sampling from a negative

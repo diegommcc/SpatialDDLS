@@ -8,7 +8,6 @@
 NULL
 
 setOldClass(Classes = 'package_version')
-# TODO: error with setOldClass, check what is going on
 setClass("keras_training_history") 
 setClass("keras.engine.sequential.Sequential")
 
@@ -30,12 +29,14 @@ setClassUnion(name = "KerasTrainOrNULL",
 #' The Class ZinbParametersModel
 #'
 #' The ZinbParametersModel class is a wrapper class for the
-#' \code{\linkS4class{ZinbModel}} class from the \pkg{zinbwave} package.
+#' \code{\link[zinbwave]{zinbModel}} class from the 
+#' \pkg{zinbwave} package.
 #'
 #' This wrapper class contains the \code{zinbwave.model} slot, which holds a
-#' valid \code{\linkS4class{ZinbModel}} object.
+#' valid \code{\link[zinbwave]{zinbModel}} object.
 #'
-#' @slot zinbwave.model A valid \code{\linkS4class{ZinbModel}} object.
+#' @slot zinbwave.model A valid 
+#' \code{\link[zinbwave]{zinbModel}} object.
 #'
 #' @references Risso, D., Perraudeau, F., Gribkova, S. et al. (2018). A general
 #'   and flexible method for signal extraction from single-cell RNA-seq data.
@@ -322,17 +323,19 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #'
 #' This object uses other classes to store different types of data generated
 #' during the workflow: \itemize{ \item
-#' \code{\linkS4class{SingleCellExperiment}} class for single-cell RNA-Seq data
+#' \code{\link[SingleCellExperiment]{SingleCellExperiment}} 
+#' class for single-cell RNA-Seq data
 #' storage, using sparse matrix from the \pkg{Matrix} package
-#' (\code{\linkS4class{dgCMatrix}} class) or \code{HDF5Array} class in case of
+#' (\code{dgCMatrix} class) or \code{HDF5Array} class in case of
 #' using HDF5 files as back-end (see below for more information). \item
-#' \code{\linkS4class{SpatialExperiment}} class for spatial transcriptomics data
-#' storage. \item \code{\linkS4class{ZinbModel}} class with estimated parameters
-#' for the simulation of new single-cell profiles. \item
-#' \code{\linkS4class{SummarizedExperiment}} class for simulated mixed
-#' transcriptional profiles storage. \item \code{\linkS4class{PropCellTypes}}
-#' class for composition cell type matrices. See
-#' \code{?\linkS4class{PropCellTypes}} for details. \item
+#' \code{\link[SpatialExperiment]{SpatialExperiment}} class 
+#' for spatial transcriptomics data
+#' storage. \item \code{\link[zinbwave]{zinbModel}} class with estimated 
+#' parameters for the simulation of new single-cell profiles. \item
+#' \code{\link[SummarizedExperiment]{SummarizedExperiment}} class for simulated 
+#' mixed transcriptional profiles storage. 
+#' \item \code{\linkS4class{PropCellTypes}} class for composition cell type 
+#' matrices. See \code{?\linkS4class{PropCellTypes}} for details. \item
 #' \code{\linkS4class{DeconvDLModel}} class to store information related to
 #' deep neural network models. See \code{?\linkS4class{DeconvDLModel}} for
 #' details. }
@@ -345,10 +348,11 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #'
 #' @slot single.cell.real Real single-cell data stored in a
 #'   \code{SingleCellExperiment} object. The count matrix is stored either as
-#'   \code{\linkS4class{dgCMatrix}} or \code{HDF5Array} objects.
-#' @slot spatial.experiments List of \code{\linkS4class{SpatialExperiment}}
+#'   \code{dgCMatrix} or \code{HDF5Array} objects.
+#' @slot spatial.experiments List of 
+#' \code{\link[SpatialExperiment]{SpatialExperiment}}
 #'   objects to be deconvoluted.
-#' @slot zinb.params \code{\linkS4class{ZinbModel}} object with estimated
+#' @slot zinb.params \code{\link[zinbwave]{zinbModel}} object with estimated
 #'   parameters for the simulation of new single-cell expression profiles.
 #' @slot single.cell.simul Simulated single-cell expression profiles using the
 #'   ZINB-WaVE model.
@@ -356,15 +360,16 @@ setClassUnion("DeconvDLModelOrNULL", c("DeconvDLModel", "NULL"))
 #'   composition matrices built for the simulation of mixed transcriptional
 #'   profiles with known cell composition.
 #' @slot mixed.profiles List of simulated train and test mixed transcriptional
-#'   profiles. Each entry is a \code{\linkS4class{SummarizedExperiment}} object.
-#'   Count matrices can be stored as \code{HDF5Array} objects using HDF5 files
-#'   as back-end in case of RAM limitations.
+#'   profiles. Each entry is a 
+#'   \code{\link[SummarizedExperiment]{SummarizedExperiment}} object. Count 
+#'   matrices can be stored as \code{HDF5Array} objects using HDF5 files as 
+#'   back-end in case of RAM limitations.
 #' @slot trained.model \code{\linkS4class{DeconvDLModel}} object with
 #'   information related to the deconvolution model. See
 #'   \code{?\linkS4class{DeconvDLModel}} for more details.
 #' @slot deconv.spots Deconvolution results. It consists of a list where each
 #'   element corresponds to the results for each
-#'   \code{\linkS4class{SpatialExperiment}} object contained in the
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object contained in the
 #'   \code{spatial.experiments} slot.
 #' @slot project Name of the project.
 #' @slot version Version of \pkg{SpatialDDLS} this object was built under.

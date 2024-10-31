@@ -603,14 +603,14 @@ setMethod(
 # single.cell.real
 
 #' @title Get and set \code{single.cell.real} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name single.cell.real
 #' @rdname single.cell.real
 #' @aliases single.cell.real,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #'
 #' @export single.cell.real
 #'   
@@ -628,8 +628,8 @@ setMethod(
 #' @rdname single.cell.real
 #' @aliases single.cell.real<-,SpatialDDLS-method
 #'
-#' @param value \code{\linkS4class{SingleCellExperiment}} object with real
-#'   single-cell profiles.
+#' @param value \code{\link[SingleCellExperiment]{SingleCellExperiment}} object 
+#'   with real single-cell profiles.
 #'
 #' @export single.cell.real<-
 #'   
@@ -649,14 +649,14 @@ setMethod(
 # spatial.experiments
 
 #' @title Get and set \code{spatial.experiments} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name spatial.experiments
 #' @rdname spatial.experiments
 #' @aliases spatial.experiments,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #' @param index.st Index of the spatial transcriptomics data within the list. It
 #'   can be either an position or a name if a named list was provided. If
 #'   \code{NULL} (by default), all data contained in the
@@ -695,7 +695,8 @@ setMethod(
 #' @aliases spatial.experiments<-,SpatialDDLS-method
 #'
 #' @param value List in which each element is a
-#'   \code{\linkS4class{SpatialExperiment}} object. It can be a named list.
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} 
+#'   object. It can be a named list.
 #'
 #' @export spatial.experiments<-
 #'   
@@ -726,14 +727,14 @@ setMethod(
 # zinb.params
 
 #' @title Get and set \code{zinb.params} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name zinb.params
 #' @rdname zinb.params
 #' @aliases zinb.params,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #'
 #' @export zinb.params
 #'   
@@ -751,7 +752,7 @@ setMethod(
 #' @aliases zinb.params<-,SpatialDDLS-method
 #'
 #' @param value \code{\linkS4class{ZinbParametersModel}} object with a valid
-#'   \code{\linkS4class{ZinbModel}} object.
+#'   \code{\link[zinbwave]{zinbModel}} object.
 #'
 #' @export zinb.params<-
 #'   
@@ -771,14 +772,14 @@ setMethod(
 # single.cell.simul
 
 #' @title Get and set \code{single.cell.simul} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name single.cell.simul
 #' @rdname single.cell.simul
 #' @aliases single.cell.simul,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #'
 #' @export single.cell.simul
 #'   
@@ -796,8 +797,8 @@ setMethod(
 #' @rdname single.cell.simul
 #' @aliases single.cell.simul<-,SpatialDDLS-method
 #'
-#' @param value \code{\linkS4class{SingleCellExperiment}} object with simulated
-#'   single-cell profiles.
+#' @param value \code{\link[SingleCellExperiment]{SingleCellExperiment}} object 
+#'   with simulated single-cell profiles.
 #'
 #' @export single.cell.simul<-
 #'   
@@ -817,14 +818,14 @@ setMethod(
 # prob.cell.types
 
 #' @title Get and set \code{prob.cell.types} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name prob.cell.types
 #' @rdname prob.cell.types
 #' @aliases prob.cell.types,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #' @param type.data Type of data to return. It can be \code{'both'} (default),
 #'   \code{'train'}, or \code{'test'}.
 #'
@@ -874,15 +875,15 @@ setMethod(
 
 # mixed.profiles
 
-#' Get and set \code{mixed.profiles} slot in a \code{\linkS4class{SpatialDDLS}}
-#' object
+#' Get and set \code{mixed.profiles} slot in a 
+#' \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name mixed.profiles
 #' @rdname mixed.profiles
 #' @aliases mixed.profiles,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #' @param type.data Type of data to return. It can be \code{'both'} (default),
 #'   \code{'train'}, or \code{'test'}.
 #'
@@ -907,9 +908,9 @@ setMethod(
 #' @rdname mixed.profiles
 #' @aliases mixed.profiles<-,SpatialDDLS-method
 #'
-#' @param value List with two \code{\linkS4class{SummarizedExperiment}} objects,
-#'   train and test, each one containing simulated mixed transcriptional
-#'   profiles.
+#' @param value List with two 
+#'   \code{\link[SummarizedExperiment]{SummarizedExperiment}} objects, train and
+#'   test, each one containing simulated mixed transcriptional profiles.
 #'
 #' @export mixed.profiles<-
 #'   
@@ -934,14 +935,14 @@ setMethod(
 # trained.model
 
 #' @title Get and set \code{trained.model} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name trained.model
 #' @rdname trained.model
 #' @aliases trained.model,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #'
 #' @export trained.model
 #'   
@@ -979,14 +980,14 @@ setMethod(
 # deconv.spots
 
 #' @title Get and set \code{deconv.spots} slot in a
-#'   \code{\linkS4class{SpatialDDLS}} object
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name deconv.spots
 #' @rdname deconv.spots
 #' @aliases deconv.spots,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #' @param index.st Name or index of predicted cell proportions (same as for the
 #'   \code{spatial.experiments} slot). If \code{NULL} (by default), all
 #'   results are returned.
@@ -1049,15 +1050,15 @@ setMethod(
 
 # project
 
-#' @title Get and set \code{project} slot in a \code{\linkS4class{SpatialDDLS}}
-#'   object
+#' @title Get and set \code{project} slot in a 
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object
 #'
 #' @docType methods
 #' @name project
 #' @rdname project
 #' @aliases project,SpatialDDLS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} object.
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} object.
 #'
 #' @export project
 #'   
@@ -1122,8 +1123,8 @@ setMethod(
 #' @rdname zinbwave.model
 #' @aliases zinbwave.model<-,ZinbParametersModel-method
 #'
-#' @param value \code{\linkS4class{ZinbModel}} object with the estimated
-#'   parameters to simulate new single-cell profiles.
+#' @param value \code{\link[zinbwave]{zinbModel}} object with the 
+#'   estimated parameters to simulate new single-cell profiles.
 #'
 #' @export zinbwave.model<-
 #'   
@@ -1141,18 +1142,18 @@ setMethod(
 )
 
 
-#' Save \code{\linkS4class{SpatialDDLS}} objects as RDS files
+#' Save \code{\link[SpatialExperiment]{SpatialExperiment}} objects as RDS files
 #'
-#' Save \code{\linkS4class{SpatialDDLS}} and \code{\linkS4class{DeconvDLModel}}
-#' objects as RDS files. \pkg{keras} models cannot be stored natively as R
-#' objects (e.g. RData or RDS files). By saving the architecture as a JSON-like
-#' character object and the weights as a list, it is possible to retrieve a
-#' functional model and make new predictions. If the \code{trained.model} slot 
-#' is empty, the function will behave as usual. \strong{Note:} with this option, 
-#' the state of optimizer is not saved, only model's architecture and weights.
-#' It is possible to save the entire model as an HDF5 file with the
-#' \code{\link{saveTrainedModelAsH5}} function and load it into a
-#' \code{\linkS4class{SpatialDDLS}} object with the
+#' Save \code{\link[SpatialExperiment]{SpatialExperiment}} and 
+#' \code{\linkS4class{DeconvDLModel}} objects as RDS files. \pkg{keras} models 
+#' cannot be stored natively as R objects (e.g. RData or RDS files). By saving 
+#' the architecture as a JSON-like character object and the weights as a list, 
+#' it is possible to retrieve a functional model and make new predictions. If 
+#' the \code{trained.model} slot is empty, the function will behave as usual. 
+#' \strong{Note:} with this option, the state of optimizer is not saved, only 
+#' model's architecture and weights. It is possible to save the entire model as 
+#' an HDF5 file with the \code{\link{saveTrainedModelAsH5}} function and load it
+#' into a \code{\link[SpatialExperiment]{SpatialExperiment}} object with the
 #' \code{\link{loadTrainedModelFromH5}} function. See documentation for details.
 #'
 #' @docType methods
@@ -1160,17 +1161,19 @@ setMethod(
 #' @rdname saveRDS
 #' @aliases saveRDS,saveRDS-method
 #'
-#' @param object \code{\linkS4class{SpatialDDLS}} or
+#' @param object \code{\link[SpatialExperiment]{SpatialExperiment}} or
 #'   \code{\linkS4class{DeconvDLModel}} object to be saved
 #' @param file File path where the object will be saved
 #' @inheritParams base::saveRDS
 #'
-#' @return No return value, saves a \code{\linkS4class{SpatialDDLS}} object as
-#'   an RDS file on disk.
+#' @return No return value, saves a 
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} object as an RDS file on
+#'   disk.
 #'
 #' @export
 #'
-#' @seealso \code{\linkS4class{SpatialDDLS}} \code{\link{saveTrainedModelAsH5}}
+#' @seealso \code{\link[SpatialExperiment]{SpatialExperiment}} 
+#'   \code{\link{saveTrainedModelAsH5}}
 #'   
 setGeneric(
   name = "saveRDS", 

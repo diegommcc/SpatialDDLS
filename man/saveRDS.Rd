@@ -6,7 +6,7 @@
 \alias{saveRDS,saveRDS-method}
 \alias{saveRDS,DeconvDLModel-method}
 \alias{saveRDS,SpatialDDLS-method}
-\title{Save \code{\linkS4class{SpatialDDLS}} objects as RDS files}
+\title{Save \code{\link[SpatialExperiment]{SpatialExperiment}} objects as RDS files}
 \usage{
 saveRDS(
   object,
@@ -36,7 +36,7 @@ saveRDS(
 )
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} or
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} or
 \code{\linkS4class{DeconvDLModel}} object to be saved}
 
 \item{file}{File path where the object will be saved}
@@ -57,22 +57,24 @@ saveRDS(
 \item{refhook}{a hook function for handling reference objects.}
 }
 \value{
-No return value, saves a \code{\linkS4class{SpatialDDLS}} object as
-an RDS file on disk.
+No return value, saves a
+\code{\link[SpatialExperiment]{SpatialExperiment}} object as an RDS file on
+disk.
 }
 \description{
-Save \code{\linkS4class{SpatialDDLS}} and \code{\linkS4class{DeconvDLModel}}
-objects as RDS files. \pkg{keras} models cannot be stored natively as R
-objects (e.g. RData or RDS files). By saving the architecture as a JSON-like
-character object and the weights as a list, it is possible to retrieve a
-functional model and make new predictions. If the \code{trained.model} slot
-is empty, the function will behave as usual. \strong{Note:} with this option,
-the state of optimizer is not saved, only model's architecture and weights.
-It is possible to save the entire model as an HDF5 file with the
-\code{\link{saveTrainedModelAsH5}} function and load it into a
-\code{\linkS4class{SpatialDDLS}} object with the
+Save \code{\link[SpatialExperiment]{SpatialExperiment}} and
+\code{\linkS4class{DeconvDLModel}} objects as RDS files. \pkg{keras} models
+cannot be stored natively as R objects (e.g. RData or RDS files). By saving
+the architecture as a JSON-like character object and the weights as a list,
+it is possible to retrieve a functional model and make new predictions. If
+the \code{trained.model} slot is empty, the function will behave as usual.
+\strong{Note:} with this option, the state of optimizer is not saved, only
+model's architecture and weights. It is possible to save the entire model as
+an HDF5 file with the \code{\link{saveTrainedModelAsH5}} function and load it
+into a \code{\link[SpatialExperiment]{SpatialExperiment}} object with the
 \code{\link{loadTrainedModelFromH5}} function. See documentation for details.
 }
 \seealso{
-\code{\linkS4class{SpatialDDLS}} \code{\link{saveTrainedModelAsH5}}
+\code{\link[SpatialExperiment]{SpatialExperiment}}
+\code{\link{saveTrainedModelAsH5}}
 }

@@ -7,14 +7,14 @@
 \alias{prob.cell.types<-}
 \alias{prob.cell.types<-,SpatialDDLS-method}
 \title{Get and set \code{prob.cell.types} slot in a
-\code{\linkS4class{SpatialDDLS}} object}
+\code{\link[SpatialExperiment]{SpatialExperiment}} object}
 \usage{
 prob.cell.types(object, type.data = "both")
 
 prob.cell.types(object, type.data = "both") <- value
 }
 \arguments{
-\item{object}{\code{\linkS4class{SpatialDDLS}} object.}
+\item{object}{\code{\link[SpatialExperiment]{SpatialExperiment}} object.}
 
 \item{type.data}{Type of data to return. It can be \code{'both'} (default),
 \code{'train'}, or \code{'test'}.}
@@ -24,5 +24,5 @@ corresponding to train and test data.}
 }
 \description{
 Get and set \code{prob.cell.types} slot in a
-\code{\linkS4class{SpatialDDLS}} object
+\code{\link[SpatialExperiment]{SpatialExperiment}} object
 }

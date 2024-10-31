@@ -1101,25 +1101,25 @@ NULL
 #'
 #' Single-cell RNA-seq data can be provided from files (formats allowed: tsv,
 #' tsv.gz, mtx (sparse matrix) and hdf5) or a
-#' \code{\linkS4class{SingleCellExperiment}} object. Data will be stored in the
-#' \code{single.cell.real} slot, and must consist of three pieces of
-#' information: \itemize{ \item Single-cell counts: genes as rows and cells as
-#' columns. \item Cells metadata: annotations (columns) for each cell (rows).
+#' \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Data will be
+#' stored in the \code{single.cell.real} slot, and must consist of three pieces 
+#' of information: \itemize{ \item Single-cell counts: genes as rows and cells 
+#' as columns. \item Cells metadata: annotations (columns) for each cell (rows).
 #' \item Genes metadata: annotations (columns) for each gene (rows). } If data
 #' are provided from files, \code{single.cell.real} argument must be a vector of
 #' three elements ordered so that the first file corresponds to the count
 #' matrix, the second to the cells metadata, and the last to the genes metadata.
 #' On the other hand, if data are provided as a
-#' \code{\linkS4class{SingleCellExperiment}} object, it must contain single-cell
-#' counts in \code{assay}, cells metadata in \code{colData}, and genes metadata
-#' in \code{rowData}. Data must be provided without any transformation (e.g.
-#' log-transformation), raw counts are preferred.
+#' \code{\link[SingleCellExperiment]{SingleCellExperiment}} object, it must 
+#' contain single-cell counts in \code{assay}, cells metadata in \code{colData},
+#' and genes metadata in \code{rowData}. Data must be provided without any 
+#' transformation (e.g. log-transformation), raw counts are preferred.
 #'
 #' \strong{Spatial transcriptomics data}
 #'
-#' It must be a \code{\linkS4class{SpatialExperiment}} object (or a list of them
-#' if more than one slide is going to be deconvoluted) containing the same
-#' information as the single-cell RNA-seq data: the count matrix, spots
+#' It must be a \code{\link[SpatialExperiment]{SpatialExperiment}} object (or a 
+#' list of them if more than one slide is going to be deconvoluted) containing 
+#' the same information as the single-cell RNA-seq data: the count matrix, spots
 #' metadata, and genes metadata. Please, make sure the gene identifiers used the
 #' spatial and single-cell transcriptomics data are consistent.
 #'
@@ -1127,9 +1127,9 @@ NULL
 #'   are provided from files, \code{single.cell.real} must be a vector of three
 #'   elements: single-cell counts, cells metadata and genes metadata. On the
 #'   other hand, If data are provided from a
-#'   \code{\linkS4class{SingleCellExperiment}} object, single-cell counts must
-#'   be present in the \code{assay} slot, cells metadata in the \code{colData}
-#'   slot, and genes metadata in the \code{rowData} slot.
+#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object, 
+#'   single-cell counts must be present in the \code{assay} slot, cells metadata
+#'   in the \code{colData} slot, and genes metadata in the \code{rowData} slot.
 #' @param sc.cell.ID.column Name or number of the column in cells metadata
 #'   corresponding to cell names in expression matrix (single-cell RNA-seq
 #'   data).
@@ -1139,7 +1139,8 @@ NULL
 #'   corresponding to the names used for features/genes (single-cell RNA-seq
 #'   data).
 #' @param st.data Spatial transcriptomics datasets to be deconvoluted. It can be
-#'   a single \code{\linkS4class{SpatialExperiment}} object or a list of them.
+#'   a single \code{\link[SpatialExperiment]{SpatialExperiment}} object or a 
+#'   list of them.
 #' @param st.spot.ID.column Name or number of the column in spots metadata
 #'   corresponding to spot names in expression matrix (spatial transcriptomics
 #'   data).
@@ -1171,11 +1172,13 @@ NULL
 #' @param st.min.spots Minimum of cells with more than \code{min.counts} (1 by
 #'   default; spatial transcriptomics data).
 #' @param st.n.slides Minimum number of slides
-#'   (\code{\linkS4class{SpatialExperiment}} objects) in which a gene has to be
-#'   expressed in order to keep it. This parameter is applicable only when
-#'   multiple \code{\linkS4class{SpatialExperiment}} objects are provided. Genes
-#'   not present in at least \code{st.n.slides} will be discarded. If no
-#'   filtering is desired, set \code{st.n.slides = 1}.
+#'   (\code{\link[SpatialExperiment]{SpatialExperiment}} 
+#'   objects) in which a gene has to be expressed in order to keep it. This 
+#'   parameter is applicable only when
+#'   multiple 
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} 
+#'   objects are provided. Genes not present in at least \code{st.n.slides} will
+#'   be discarded. If no filtering is desired, set \code{st.n.slides = 1}.
 #' @param shared.genes If set to \code{TRUE}, only genes present in both the
 #'   single-cell and spatial transcriptomics data will be retained for further
 #'   processing (\code{TRUE} by default).
@@ -1215,7 +1218,7 @@ NULL
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object with the single-cell
 #'   RNA-seq data provided loaded into the \code{single.cell.real} slot as a
-#'   \code{\linkS4class{SingleCellExperiment}} object. If spatial
+#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. If spatial
 #'   transcriptomics data are provided, they will be loaded into the
 #'   \code{spatial.experiments} slot.
 #'
@@ -1426,8 +1429,9 @@ createSpatialDDLSobject <- function(
 
 #' Loads spatial transcriptomics data into a SpatialDDLS object
 #'
-#' This function loads a \code{\linkS4class{SpatialExperiment}} object (or a
-#' list with several \code{\linkS4class{SpatialExperiment}} objects) into a
+#' This function loads a \code{\link[SpatialExperiment]{SpatialExperiment}} 
+#' object (or a list with several 
+#' \code{\link[SpatialExperiment]{SpatialExperiment}} objects) into a
 #' \code{\linkS4class{SpatialDDLS}} object.
 #'
 #' It is recommended to perform this step when creating the
@@ -1439,9 +1443,9 @@ createSpatialDDLSobject <- function(
 #' consistent.
 #'
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
-#' @param st.data A \code{\linkS4class{SpatialExperiment}} object (or a list
-#'   with several \code{\linkS4class{SpatialExperiment}} objects) to be
-#'   deconvoluted.
+#' @param st.data A \code{\link[SpatialExperiment]{SpatialExperiment}} object 
+#'   (or a list with several \code{\link[SpatialExperiment]{SpatialExperiment}} 
+#'   objects) to be deconvoluted.
 #' @param st.spot.ID.column Name or number of the column in spots metadata
 #'   corresponding to spot names in the expression matrix.
 #' @param st.gene.ID.column Name or number of the column in genes metadata
@@ -1450,11 +1454,11 @@ createSpatialDDLSobject <- function(
 #' @param st.min.spots Minimum of spots with more than \code{min.counts} (0 by
 #'   default).
 #' @param st.n.slides Minimum number of slides
-#'   (\code{\linkS4class{SpatialExperiment}} objects) in which a gene has to be
-#'   expressed in order to keep it. This parameter is applicable only when
-#'   multiple \code{\linkS4class{SpatialExperiment}} objects are provided. Genes
-#'   not present in at least \code{st.n.slides} will be discarded. If no
-#'   filtering is desired, set \code{st.n.slides = 1}.
+#'   (\code{\link[SpatialExperiment]{SpatialExperiment}} objects) in which a 
+#'   gene has to be expressed in order to keep it. This parameter is applicable
+#'   only when multiple \code{\link[SpatialExperiment]{SpatialExperiment}} 
+#'   objects are provided. Genes not present in at least \code{st.n.slides} will
+#'   be discarded. If no filtering is desired, set \code{st.n.slides = 1}.
 #' @param verbose Show informative messages during execution (\code{TRUE} by
 #'   default).
 #'

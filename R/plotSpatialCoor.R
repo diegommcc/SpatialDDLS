@@ -29,7 +29,7 @@ color.prop.scale.spectral <- grDevices::colorRampPalette(
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list of 
-#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} objects was provided.
 #' @param colors Color scale to be used. It can be \code{"blues"} or
 #'   \code{"spectral"} (the former by default).
 #' @param set If results were simplified (see \code{?\link{deconvSpatialDDLS}}
@@ -143,7 +143,7 @@ plotSpatialPropAll <- function(
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list of 
-#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} objects was provided.
 #' @param cell.type Cell type predicted proportions to color spots by.
 #' @param colors Color scale to be used. It can be \code{"blues"} or
 #'   \code{"spectral"} (the former by default).
@@ -249,7 +249,7 @@ plotSpatialProp <- function(
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list of 
-#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} objects was provided.
 #' @param gene Gene to color spots by.
 #' @param colors Color scale to be used. It can be \code{"blues"} or
 #'   \code{"spectral"} (the latter by default).
@@ -348,7 +348,7 @@ plotSpatialGeneExpr <- function(
 #' @param object A \code{\linkS4class{SpatialDDLS}} object.
 #' @param index.st Index of the spatial transcriptomics data to be plotted. It
 #'   can be either a position or a name if a named list of 
-#'   \code{\linkS4class{SpatialExperiment}} objects was provided.
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} objects was provided.
 #' @param method Clustering method results to plot. It can be \code{"graph"} or
 #'   \code{"k.means"}. If missing, the first configuration found in the object 
 #'   will be plotted. 

@@ -26,7 +26,7 @@
 #'
 #' @return A \code{\linkS4class{SpatialDDLS}} object containing computed 
 #'   clusters as a column in the slot \code{colData} of the 
-#'   \code{\linkS4class{SpatialExperiment}} objects. 
+#'   \code{\link[SpatialExperiment]{SpatialExperiment}} objects. 
 #'
 #' @export
 #'
